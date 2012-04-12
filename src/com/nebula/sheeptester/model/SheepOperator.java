@@ -39,6 +39,13 @@ public enum SheepOperator {
         public ChannelProcess newProcess(Sheep sheep, Vdi vdi) {
             return sheep.writeVdi(vdi);
         }
+    },
+    KILL() {
+
+        @Override
+        public ChannelProcess newProcess(Sheep sheep, Vdi vdi) {
+            return sheep.kill();
+        }
     };
 
     public abstract ChannelProcess newProcess(Sheep sheep, Vdi vdi);

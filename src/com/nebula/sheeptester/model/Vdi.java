@@ -9,6 +9,8 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -16,16 +18,25 @@ import javax.annotation.Nonnull;
  */
 public class Vdi {
 
+    private static final Log LOG = LogFactory.getLog(Vdi.class);
     private static final long KILOBYTE = 1024;
     private static final long MEGABYTE = 1024 * KILOBYTE;
     private static final long GIGABYTE = MEGABYTE * 1024;
+    private static final long BLOCKSIZE = 4 * MEGABYTE;
     private static final Random RANDOM = new Random();
 
-    private static synchronized long newRandom(long limit) {
-        return RANDOM.nextLong() % limit;
+    // Really, these should be longs, but in tests, we never use gigabytes
+    private static long newRandom(long limit) {
+        if (limit >= Integer.MAX_VALUE || limit < 0)
+            throw new IllegalArgumentException("Out of range: " + limit);
+        // Cheap unsigned
+        synchronized (RANDOM) {
+            return RANDOM.nextInt((int) limit);
+        }
     }
 
-    public static synchronized long newSize() {
+    @Nonnegative
+    public static long newSize() {
         return MEGABYTE + newRandom(20 * MEGABYTE);
     }
     private static final AtomicInteger COUNTER = new AtomicInteger();
@@ -57,7 +68,9 @@ public class Vdi {
 
     @Nonnegative
     public long newOffset() {
-        return newRandom(getSize() - 100 * KILOBYTE);
+        long blocks = getSize() / BLOCKSIZE;
+        long block = newRandom(blocks + 1);
+        return block * BLOCKSIZE;
     }
 
     @Nonnegative
