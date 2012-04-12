@@ -26,9 +26,13 @@ public class SheepOperation extends ChannelProcessAdapter implements Runnable {
         this.vdi = vdi;
     }
 
+    protected void init() {
+    }
+
     @Override
     public void run() {
         LOG.info("Executing " + this);
+        init();
         try {
             ChannelProcess process = operator.newProcess(sheep, vdi);
             process.addChannelProcessListener(this);
@@ -36,7 +40,12 @@ public class SheepOperation extends ChannelProcessAdapter implements Runnable {
             process.await();
         } catch (InterruptedException e) {
             LOG.error("Failed: " + this, e);
+        } finally {
+            fini();
         }
+    }
+
+    protected void fini() {
     }
 
     @Override
