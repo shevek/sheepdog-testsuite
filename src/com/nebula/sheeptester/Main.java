@@ -103,28 +103,13 @@ public class Main {
         try {
 
             final List<Vdi> vdis = new ArrayList<Vdi>();
-
-            LOG.info("Creating VDIs.");
-            {
-                int nvdis = getOptionInteger(cmdline, OPT_VDIS, DFLT_VDIS);
-                final CountDownLatch latch = new CountDownLatch(nvdis);
-                for (int i = 0; i < nvdis; i++) {
-                    Sheep sheep = getRandom(sheeps);
-                    final Vdi vdi = new Vdi();
-                    SheepOperation operation = new SheepOperation(SheepOperator.CREATE_VDI, sheep, vdi) {
-
-                        @Override
-                        protected void fini() {
-                            synchronized (vdis) {
-                                vdis.add(vdi);
-                            }
-                            latch.countDown();
-                        }
-                    };
-                    executor.submit(operation);
-                }
-                latch.await();
+            int nvdis = getOptionInteger(cmdline, OPT_VDIS, DFLT_VDIS);
+            for (int i = 0; i < nvdis; i++) {
+                vdis.add(new Vdi());
             }
+
+            deleteVdis(executor, sheeps, vdis); // Should fail, unless previous run was aborted.
+            createVdis(executor, sheeps, vdis);
 
             int loop = getOptionInteger(cmdline, OPT_LOOP, 1);
             for (int l = 0; l < loop; l++) {
@@ -163,22 +148,7 @@ public class Main {
                 latch.await();
             }
 
-            LOG.info("Deleting VDIs.");
-            {
-                final CountDownLatch latch = new CountDownLatch(vdis.size());
-                for (Vdi vdi : vdis) {
-                    Sheep sheep = getRandom(sheeps);
-                    SheepOperation operation = new SheepOperation(SheepOperator.DELETE_VDI, sheep, vdi) {
-
-                        @Override
-                        protected void fini() {
-                            latch.countDown();
-                        }
-                    };
-                    executor.submit(operation);
-                }
-                latch.await();
-            }
+            deleteVdis(executor, sheeps, vdis);
 
         } finally {
             executor.shutdown();
@@ -196,5 +166,43 @@ public class Main {
     private static <T> T getRandom(@Nonnull List<T> objects) {
         int idx = RANDOM.nextInt(objects.size());
         return objects.get(idx);
+    }
+
+    private static void createVdis(ExecutorService executor, List<Sheep> sheeps, List<Vdi> vdis) throws InterruptedException {
+        LOG.info("Creating VDIs.");
+        {
+            final CountDownLatch latch = new CountDownLatch(vdis.size());
+            for (Vdi vdi : vdis) {
+                Sheep sheep = getRandom(sheeps);
+                SheepOperation operation = new SheepOperation(SheepOperator.CREATE_VDI, sheep, vdi) {
+
+                    @Override
+                    protected void fini() {
+                        latch.countDown();
+                    }
+                };
+                executor.submit(operation);
+            }
+            latch.await();
+        }
+    }
+
+    private static void deleteVdis(ExecutorService executor, List<Sheep> sheeps, List<Vdi> vdis) throws InterruptedException {
+        LOG.info("Deleting VDIs.");
+        {
+            final CountDownLatch latch = new CountDownLatch(vdis.size());
+            for (Vdi vdi : vdis) {
+                Sheep sheep = getRandom(sheeps);
+                SheepOperation operation = new SheepOperation(SheepOperator.DELETE_VDI, sheep, vdi) {
+
+                    @Override
+                    protected void fini() {
+                        latch.countDown();
+                    }
+                };
+                executor.submit(operation);
+            }
+            latch.await();
+        }
     }
 }
