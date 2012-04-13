@@ -43,7 +43,7 @@ public class Main {
     public static final String OPT_READS = "reads";
     public static final String OPT_WRITES = "writes";
     public static final String OPT_LOOP = "loop";
-    public static final int DFLT_THREADS = 1;
+    public static final int DFLT_THREADS = 10;
     public static final int DFLT_VDIS = 4;
     public static final int DFLT_READS = 100;
     public static final int DFLT_WRITES = 100;

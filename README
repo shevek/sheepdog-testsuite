@@ -1,0 +1,34 @@
+This is a sheepdog stress tester. It issues multiple create, delete,
+read and write requests to VDIs on a given set of target hosts.
+
+0) Run the following:
+	java -jar sheeptester-app.jar \
+		--host 10.144.11.103 \
+		--host 10.144.11.116
+
+1) If your collie is not on the path, add:
+	--collie <path-to-collie>
+
+2) To tune the behaviour of the tester, use --reads, --writes,
+	--threads and --loop
+
+BEHAVIOUR:
+
+Parallelism is limited by the number of threads. A work queue is
+used internally.
+
+0) All VDIs are created using the work queue.
+
+1) When all VDIs are created, all writes, then all reads are queued
+into the work queue.
+
+2) When all I/O operations are completed, the next iteration
+commences issuing reads and writes via the queue.
+
+3) When all I/O iterations are complete, all VDIs are deleted.
+
+CAVEATS:
+
+You cannot use more threads per host than the MaxSessions parameter
+in your sshd_config on the server. This is 10 by default.
+

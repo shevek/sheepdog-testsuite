@@ -4,7 +4,6 @@
  */
 package com.nebula.sheeptester.model;
 
-import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.nebula.sheeptester.ValidationException;
@@ -27,18 +26,16 @@ public class ComputeNode {
     private final Context context;
     private final String host;
     private final String user;
-    private final Session session;
+    private final String password;
+    private final Object lock = new Object();
+    private Session session;
     // private final Map<Integer, Sheep> sheep = new HashMap<Integer, Sheep>();
 
-    public ComputeNode(Context context, String host, String user, String password) throws JSchException {
+    public ComputeNode(Context context, String host, String user, String password) {
         this.context = context;
         this.host = host;
         this.user = user;
-
-        this.session = context.getJsch().getSession(user, host);
-        session.setUserInfo(new ConsoleUserInfo(password));
-        session.setDaemonThread(true);
-        session.connect();
+        this.password = password;
     }
 
     @Nonnull
@@ -57,8 +54,21 @@ public class ComputeNode {
     }
 
     @Nonnull
-    public Session getSession() {
-        return session;
+    public Session getSession() throws JSchException {
+        synchronized (lock) {
+            if (session != null && session.isConnected())
+                return session;
+            Session s = context.getJsch().getSession(user, host);
+            s.setUserInfo(new ConsoleUserInfo(password));
+            s.setDaemonThread(true);
+            s.connect();
+            session = s;
+            return s;
+        }
+    }
+
+    public void clearSession() {
+        session = null;
     }
 
     @Nonnull

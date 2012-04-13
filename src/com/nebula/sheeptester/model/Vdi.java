@@ -37,7 +37,7 @@ public class Vdi {
 
     @Nonnegative
     public static long newSize() {
-        return MEGABYTE + newRandom(20 * MEGABYTE);
+        return MEGABYTE + newRandom(200 * MEGABYTE);
     }
     private static final AtomicInteger COUNTER = new AtomicInteger();
     private final String name;
@@ -70,6 +70,7 @@ public class Vdi {
     public long newOffset() {
         long blocks = getSize() / BLOCKSIZE;
         long block = newRandom(blocks + 1);
+        // LOG.info("Size = " + getSize() + "; offset = " + (block * BLOCKSIZE) + "; block = " + block + "/" + blocks);
         return block * BLOCKSIZE;
     }
 

@@ -6,8 +6,8 @@ package com.nebula.sheeptester.exec;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import com.nebula.sheeptester.model.ComputeNode;
-import com.nebula.sheeptester.ValidationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -54,6 +54,7 @@ public class ChannelProcess {
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
     private final ByteArrayOutputStream error = new ByteArrayOutputStream();
     private final MutableBoolean done = new MutableBoolean(false);
+    private ChannelExec channel;
 
     public ChannelProcess(ComputeNode node, String command) {
         LOG.info(node + ": " + command);
@@ -82,11 +83,14 @@ public class ChannelProcess {
     @CheckForNull
     public ChannelExec start() {
         try {
-            ChannelExec channel = (ChannelExec) node.getSession().openChannel("exec");
+            Session session = node.getSession();
+            ChannelExec channel = (ChannelExec) session.openChannel("exec");
             init(channel);
             channel.connect();
+            this.channel = channel;
             return channel;
         } catch (JSchException e) {
+            node.clearSession();
             LOG.error("Start failed", e);
             for (ChannelProcessListener listener : listeners)
                 listener.error(this, "Failed to connect", e);
@@ -102,8 +106,15 @@ public class ChannelProcess {
             done.setValue(true);
             done.notifyAll();
         }
+
+        ChannelExec c = channel;
+        if (c != null) {
+            c.disconnect();
+            channel = null;
+        }
+
         if (error.size() > 0) {
-            String message = "Text in standard error: " + error;
+            String message = "Command: " + command + "\n\tText in standard error: " + error;
             LOG.error(message);
             for (ChannelProcessListener listener : listeners)
                 listener.error(this, message, null);
