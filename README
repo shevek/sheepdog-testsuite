@@ -32,6 +32,9 @@ commences issuing reads and writes via the queue.
 
 CAVEATS:
 
+Finding sheep runs and parses netstat on the target system. The
+process MUST be able to sudo without a password to run netstat.
+
 You cannot use more threads per host than the MaxSessions parameter
 in your sshd_config on the server. This is 10 by default.
 
