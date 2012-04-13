@@ -1,15 +1,18 @@
 This is a sheepdog stress tester. It issues multiple create, delete,
 read and write requests to VDIs on a given set of target hosts.
 
-0) Run the following:
-	java -jar sheeptester-app.jar \
+0) Log into a system which can ssh to all your computenodes.
+	For example, labX-shell
+
+1) Run the following:
+	java -jar app/sheeptester-app.jar \
 		--host 10.144.11.103 \
 		--host 10.144.11.116
 
-1) If your collie is not on the path, add:
+2) If your collie is not on the path, add:
 	--collie <path-to-collie>
 
-2) To tune the behaviour of the tester, use --reads, --writes,
+3) To tune the behaviour of the tester, use --reads, --writes,
 	--threads and --loop
 
 BEHAVIOUR:
@@ -32,3 +35,6 @@ CAVEATS:
 You cannot use more threads per host than the MaxSessions parameter
 in your sshd_config on the server. This is 10 by default.
 
+If a VDI already exists, then the system will generate offset errors
+from collie, as it assumes that all VDIs have the sizes it (attempted
+to) create
