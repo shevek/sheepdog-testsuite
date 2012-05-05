@@ -1,0 +1,48 @@
+<configuration>
+	<host id="shoebox-103" host="10.144.11.103" user="maestro" password="maestro" />
+	<host id="shoebox-109" host="10.144.11.109" user="maestro" password="maestro" />
+	<host id="shoebox-116" host="10.144.11.116" user="maestro" password="maestro" />
+
+	<sheep hostId="shoebox-103" port="7000" directory="/mnt/sheepdog/7000" />
+	<sheep hostId="shoebox-103" port="7001" directory="/mnt/sheepdog/7001" />
+	<sheep hostId="shoebox-103" port="7002" directory="/mnt/sheepdog/7002" />
+	<sheep hostId="shoebox-103" port="7003" directory="/mnt/sheepdog/7003" />
+	<sheep hostId="shoebox-103" port="7004" directory="/mnt/sheepdog/7004" />
+	<sheep hostId="shoebox-103" port="7005" directory="/mnt/sheepdog/7005" />
+	<sheep hostId="shoebox-103" port="7006" directory="/mnt/sheepdog/7006" />
+	<sheep hostId="shoebox-103" port="7007" directory="/mnt/sheepdog/7007" />
+
+	<sheep hostId="shoebox-109" port="7000" directory="/mnt/sheepdog/7000" />
+	<sheep hostId="shoebox-109" port="7001" directory="/mnt/sheepdog/7001" />
+	<sheep hostId="shoebox-109" port="7002" directory="/mnt/sheepdog/7002" />
+	<sheep hostId="shoebox-109" port="7003" directory="/mnt/sheepdog/7003" />
+	<sheep hostId="shoebox-109" port="7004" directory="/mnt/sheepdog/7004" />
+	<sheep hostId="shoebox-109" port="7005" directory="/mnt/sheepdog/7005" />
+	<sheep hostId="shoebox-109" port="7006" directory="/mnt/sheepdog/7006" />
+	<sheep hostId="shoebox-109" port="7007" directory="/mnt/sheepdog/7007" />
+
+	<sheep hostId="shoebox-116" port="7000" directory="/mnt/sheepdog/7000" />
+	<sheep hostId="shoebox-116" port="7001" directory="/mnt/sheepdog/7001" />
+	<sheep hostId="shoebox-116" port="7002" directory="/mnt/sheepdog/7002" />
+	<sheep hostId="shoebox-116" port="7003" directory="/mnt/sheepdog/7003" />
+	<sheep hostId="shoebox-116" port="7004" directory="/mnt/sheepdog/7004" />
+	<sheep hostId="shoebox-116" port="7005" directory="/mnt/sheepdog/7005" />
+	<sheep hostId="shoebox-116" port="7006" directory="/mnt/sheepdog/7006" />
+	<sheep hostId="shoebox-116" port="7007" directory="/mnt/sheepdog/7007" />
+
+	<test>
+		<vdi-create name="test0" />
+		<sheep-kill />
+
+		<sleep msecs="2000" />
+	</test>
+
+	<test id="joinstorm">
+		<parallel>
+			<sheep-start sheepId="shoebox-103-7000" />
+			<sheep-start sheepId="shoebox-103-7001" />
+			<sheep-start sheepId="shoebox-103-7002" />
+			<sheep-start sheepId="shoebox-103-7003" />
+		</parallel>
+	</test>
+</configuration>
