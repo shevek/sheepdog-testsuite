@@ -1,43 +1,18 @@
-This is a sheepdog stress tester. It issues multiple create, delete,
-read and write requests to VDIs on a given set of target hosts.
+This is a sheepdog stress tester. It parses a mini-language
+from an XML file to exercise sheepdog in user-specified ways.
 
 0) Log into a system which can ssh to all your computenodes.
 	For example, labX-shell
 
-1) Run the following:
+1) Write or download a config.xml which defines your computenodes
+	and tests.
+
+2) Run the following:
 	java -jar app/sheeptester-app.jar \
-		--host 10.144.11.103 \
-		--host 10.144.11.116
-
-2) If your collie is not on the path, add:
-	--collie <path-to-collie>
-
-3) To tune the behaviour of the tester, use --reads, --writes,
-	--threads and --loop
-
-BEHAVIOUR:
-
-Parallelism is limited by the number of threads. A work queue is
-used internally.
-
-0) All VDIs are created using the work queue.
-
-1) When all VDIs are created, all writes, then all reads are queued
-into the work queue.
-
-2) When all I/O operations are completed, the next iteration
-commences issuing reads and writes via the queue.
-
-3) When all I/O iterations are complete, all VDIs are deleted.
+		--config config.xml \
+		[--test <your-test>]
 
 CAVEATS:
 
 Finding sheep runs and parses netstat on the target system. The
 process MUST be able to sudo without a password to run netstat.
-
-You cannot use more threads per host than the MaxSessions parameter
-in your sshd_config on the server. This is 10 by default.
-
-If a VDI already exists, then the system will generate offset errors
-from collie, as it assumes that all VDIs have the sizes it (attempted
-to) create

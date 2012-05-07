@@ -42,7 +42,7 @@ public class SheepWipeCommand extends AbstractCommand {
                 run(context, sheep);
             }
         }
-        Thread.sleep(200);
+        Thread.sleep(2000);
     }
 
     public static void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {

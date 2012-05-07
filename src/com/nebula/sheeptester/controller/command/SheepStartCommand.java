@@ -72,6 +72,7 @@ public class SheepStartCommand extends AbstractCommand {
 
         Host host = sheep.getHost();
         context.execute(host, operator);
+        sheep.setPid(Integer.MAX_VALUE);
     }
 
     @Override
