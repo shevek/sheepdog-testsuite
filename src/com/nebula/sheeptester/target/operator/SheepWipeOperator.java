@@ -39,6 +39,7 @@ public class SheepWipeOperator extends AbstractProcessOperator {
             LOG.warn(context.getHostId() + ": Log file not found: " + log);
             return new DefaultResponse(this);
         }
+
         return super.run(context);
     }
 

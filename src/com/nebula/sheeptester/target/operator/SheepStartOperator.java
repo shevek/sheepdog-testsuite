@@ -5,9 +5,9 @@
 package com.nebula.sheeptester.target.operator;
 
 import com.nebula.sheeptester.target.TargetContext;
-import com.nebula.sheeptester.target.exec.BackgroundProcess;
 import com.nebula.sheeptester.target.exec.TargetProcess;
 import com.nebula.sheeptester.target.exec.TimedProcess;
+import java.io.File;
 
 /**
  *
@@ -24,6 +24,17 @@ public class SheepStartOperator extends AbstractProcessOperator {
     public SheepStartOperator(int port, String directory) {
         this.port = port;
         this.directory = directory;
+    }
+
+    @Override
+    public Response run(TargetContext context) throws Exception {
+        File dir = new File(directory);
+        if (!dir.isDirectory()) {
+            TimedProcess process = new TimedProcess(context, 500, "sudo", "mkdir", "-m", "755", directory);
+            process.execute();
+        }
+
+        return super.run(context);
     }
 
     @Override

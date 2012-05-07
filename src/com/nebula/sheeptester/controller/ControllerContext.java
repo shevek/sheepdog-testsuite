@@ -170,8 +170,12 @@ public class ControllerContext {
     }
 
     @CheckForNull
-    public Vdi getVdi(String id) {
-        return vdiMap.get(id);
+    public Vdi getVdi(String name) {
+        return vdiMap.get(name);
+    }
+
+    public void addVdi(Vdi vdi) {
+        vdiMap.put(vdi.getName(), vdi);
     }
 
     public void addError(@Nonnull String message, @CheckForNull Throwable t) {

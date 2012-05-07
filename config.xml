@@ -52,6 +52,14 @@
 		<sheep-stat />
 	</test>
 
+	<test id="kill">
+		<sheep-kill />
+	</test>
+
+	<test id="wipe">
+		<sheep-wipe />
+	</test>
+
 	<test id="simple-singlehost-master">
 		<sheep-wipe />
 		<sheep-start sheepId="host0-7000" />

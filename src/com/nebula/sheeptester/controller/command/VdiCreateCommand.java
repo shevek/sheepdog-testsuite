@@ -45,5 +45,7 @@ public class VdiCreateCommand extends AbstractCommand {
         Host host = sheep.getHost();
         VdiCreateOperator request = new VdiCreateOperator(sheep.getConfig().getPort(), _name, _size);
         context.execute(host, request);
+        Vdi vdi = new Vdi(_name, _size);
+        context.addVdi(vdi);
     }
 }
