@@ -9,6 +9,8 @@ import com.nebula.sheeptester.controller.config.SheepConfiguration;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepStartOperator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,15 +26,47 @@ public class SheepStartCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(SheepStartCommand.class);
     @Attribute(required = false)
+    private String hostId;
+    @Attribute(required = false)
     private String sheepId;
 
     @Override
     public void run(ControllerContext context) throws InterruptedException, ExecutionException {
-        Sheep sheep = toSheep(context, sheepId);
-        if (sheep.isRunning()) {
-            LOG.warn("Sheep already running: " + sheep);
-            return;
+        Set<Host> hosts = new HashSet<Host>();
+        try {
+            if (sheepId != null) {
+                Sheep sheep = getSheep(context, sheepId);
+                if (sheep.isRunning()) {
+                    LOG.warn("Sheep already running: " + sheep);
+                    return;
+                }
+                hosts.add(sheep.getHost());
+                run(context, sheep);
+            } else if (hostId != null) {
+                Host host = getHost(context, hostId);
+                for (Sheep sheep : context.getSheep(host).values()) {
+                    if (sheep.isRunning())
+                        continue;
+                    hosts.add(sheep.getHost());
+                    run(context, sheep);
+                }
+            } else {
+                for (Sheep sheep : context.getSheep().values()) {
+                    if (sheep.isRunning())
+                        continue;
+                    hosts.add(sheep.getHost());
+                    run(context, sheep);
+                }
+            }
+        } finally {
+            Thread.sleep(200);
+            for (Host host : hosts) {
+                SheepStatCommand.run(context, host);
+            }
         }
+    }
+
+    public static void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {
         SheepConfiguration config = sheep.getConfig();
         SheepStartOperator operator = new SheepStartOperator(config.getPort(), config.getDirectory());
 

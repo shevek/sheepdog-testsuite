@@ -12,8 +12,8 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.config.HostConfiguration;
+import com.nebula.sheeptester.target.operator.ExceptionResponse;
 import com.nebula.sheeptester.target.operator.Operator;
 import com.nebula.sheeptester.target.operator.QuitOperator;
 import com.nebula.sheeptester.target.operator.Response;
@@ -24,7 +24,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.io.FileUtils;
@@ -95,7 +94,7 @@ public class Host {
 
                     @Override
                     protected void process(String line) {
-                        LOG.info(Host.this + " <<< " + line);
+                        // LOG.info(Host.this + " <<< " + line);
                         Response response = gson.fromJson(line, Response.class);
                         SimpleFuture<Response> future;
                         synchronized (lock) {
@@ -131,7 +130,7 @@ public class Host {
     public Response execute(ControllerContext context, Operator object) throws InterruptedException, ExecutionException {
         String text = context.getGson().toJson(object, Operator.class);
         // LOG.info("Run " + this + ": " + text);
-        LOG.info(Host.this + " >>> " + text);
+        // LOG.info(Host.this + " >>> " + text);
         SimpleFuture<Response> future = new SimpleFuture<Response>();
         synchronized (lock) {
             requests.put(object.getId(), future);
@@ -140,6 +139,10 @@ public class Host {
         Response response = future.get();
         if (response == null)
             throw new NullPointerException("Request did not generate a response: " + object);
+        if (response instanceof ExceptionResponse) {
+            ExceptionResponse eresponse = (ExceptionResponse) response;
+            throw new ExecutionException(eresponse.getMessage(), null);
+        }
         return response;
     }
 

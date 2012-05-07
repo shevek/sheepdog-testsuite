@@ -6,7 +6,6 @@ package com.nebula.sheeptester.target.operator;
 
 import com.nebula.sheeptester.target.TargetContext;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.ClassUtils;
 
 /**
  *
@@ -19,5 +18,5 @@ public interface Operator {
     public void setId(int id);
 
     @Nonnull
-    public AbstractResponse run(TargetContext context) throws Exception;
+    public Response run(TargetContext context) throws Exception;
 }

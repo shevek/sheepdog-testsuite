@@ -7,7 +7,7 @@ package com.nebula.sheeptester.controller.command;
 import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
-import com.nebula.sheeptester.target.operator.SheepKillOperator;
+import com.nebula.sheeptester.target.operator.SheepWipeOperator;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,10 +18,10 @@ import org.simpleframework.xml.Root;
  *
  * @author shevek
  */
-@Root(name = "sheep-kill")
-public class SheepKillCommand extends AbstractCommand {
+@Root(name = "sheep-wipe")
+public class SheepWipeCommand extends AbstractCommand {
 
-    private static final Log LOG = LogFactory.getLog(SheepKillCommand.class);
+    private static final Log LOG = LogFactory.getLog(SheepWipeCommand.class);
     @Attribute(required = false)
     private String hostId;
     @Attribute(required = false)
@@ -31,10 +31,6 @@ public class SheepKillCommand extends AbstractCommand {
     public void run(ControllerContext context) throws InterruptedException, ExecutionException {
         if (sheepId != null) {
             Sheep sheep = getSheep(context, sheepId);
-            if (!sheep.isRunning()) {
-                LOG.warn("Attempted to kill sheep which is not running: " + sheep);
-                return;
-            }
             run(context, sheep);
         } else if (hostId != null) {
             Host host = getHost(context, hostId);
@@ -50,13 +46,12 @@ public class SheepKillCommand extends AbstractCommand {
     }
 
     public static void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {
-        if (!sheep.isRunning())
-            return;
+        if (sheep.isRunning())
+            SheepKillCommand.run(context, sheep);
 
-        SheepKillOperator operator = new SheepKillOperator(sheep.getPid());
+        SheepWipeOperator operator = new SheepWipeOperator(sheep.getConfig().getDirectory());
 
         Host host = sheep.getHost();
         context.execute(host, operator);
-        sheep.setPid(-1);
     }
 }

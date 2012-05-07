@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.target.exec;
 
 import com.nebula.sheeptester.target.TargetContext;
+import com.nebula.sheeptester.target.TargetException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class TargetProcess {
         executor.setStreamHandler(new PumpStreamHandler(outputStream, errorStream, inputStream));
     }
 
-    public void execute() throws IOException {
+    public void execute() throws IOException, TargetException {
         CommandLine commandline = new CommandLine(command[0]);
         for (int i = 1; i < command.length; i++)
             commandline.addArgument(command[i], false);
@@ -88,11 +89,21 @@ public class TargetProcess {
         variables.put("COLLIE", context.getCollie());
         commandline.setSubstitutionMap(variables);
 
+        LOG.info(context.getHostId() + ": " + commandline);
+
         DefaultExecutor executor = new DefaultExecutor();
         init(executor);
-        int retval = executor.execute(commandline);
-        if (retval != 0)
-            throw new ExecuteException("Process returned nonzero exit value " + retval, retval);
+        execute(executor, commandline);
+    }
+
+    protected void execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
+        try {
+            int retval = executor.execute(commandline);
+            if (retval != 0)
+                throw new ExecuteException("Process returned nonzero exit value " + retval, retval);
+        } catch (ExecuteException e) {
+            throw new TargetException("Execution failed:\nOutput:\n" + getOutput() + "\nError:\n" + getError(), e);
+        }
     }
 
     @Override

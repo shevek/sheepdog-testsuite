@@ -24,6 +24,10 @@ public class HostConfiguration {
     private String user;
     @Attribute
     private String password;
+    @Attribute(required = false)
+    private String sheep;
+    @Attribute(required = false)
+    private String collie;
 
     public void init() {
         if (id == null)
@@ -48,6 +52,14 @@ public class HostConfiguration {
 
     public String getUser() {
         return user;
+    }
+
+    public String getSheep() {
+        return sheep;
+    }
+
+    public String getCollie() {
+        return collie;
     }
 
     public String toStringAddress() {

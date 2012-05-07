@@ -1,48 +1,73 @@
 <configuration>
-	<host id="shoebox-103" host="10.144.11.103" user="maestro" password="maestro" />
-	<host id="shoebox-109" host="10.144.11.109" user="maestro" password="maestro" />
-	<host id="shoebox-116" host="10.144.11.116" user="maestro" password="maestro" />
+	<host id="shoebox-103" host="10.144.11.103" user="maestro" password="maestro"
+			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
+	<host id="shoebox-109" host="10.144.11.109" user="maestro" password="maestro"
+			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
+	<host id="shoebox-116" host="10.144.11.116" user="maestro" password="maestro"
+			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
 
-	<sheep hostId="shoebox-103" port="7000" directory="/mnt/sheepdog/7000" />
-	<sheep hostId="shoebox-103" port="7001" directory="/mnt/sheepdog/7001" />
-	<sheep hostId="shoebox-103" port="7002" directory="/mnt/sheepdog/7002" />
-	<sheep hostId="shoebox-103" port="7003" directory="/mnt/sheepdog/7003" />
-	<sheep hostId="shoebox-103" port="7004" directory="/mnt/sheepdog/7004" />
-	<sheep hostId="shoebox-103" port="7005" directory="/mnt/sheepdog/7005" />
-	<sheep hostId="shoebox-103" port="7006" directory="/mnt/sheepdog/7006" />
-	<sheep hostId="shoebox-103" port="7007" directory="/mnt/sheepdog/7007" />
+	<sheep hostId="shoebox-103" port="7000" directory="/tmp/sheepdog/7000" />
+	<sheep hostId="shoebox-103" port="7001" directory="/tmp/sheepdog/7001" />
+	<sheep hostId="shoebox-103" port="7002" directory="/tmp/sheepdog/7002" />
+	<sheep hostId="shoebox-103" port="7003" directory="/tmp/sheepdog/7003" />
+	<sheep hostId="shoebox-103" port="7004" directory="/tmp/sheepdog/7004" />
+	<sheep hostId="shoebox-103" port="7005" directory="/tmp/sheepdog/7005" />
+	<sheep hostId="shoebox-103" port="7006" directory="/tmp/sheepdog/7006" />
+	<sheep hostId="shoebox-103" port="7007" directory="/tmp/sheepdog/7007" />
+	<sheep hostId="shoebox-103" port="7008" directory="/tmp/sheepdog/7008" />
+	<sheep hostId="shoebox-103" port="7009" directory="/tmp/sheepdog/7009" />
+	<sheep hostId="shoebox-103" port="7010" directory="/tmp/sheepdog/7010" />
+	<sheep hostId="shoebox-103" port="7011" directory="/tmp/sheepdog/7011" />
+	<sheep hostId="shoebox-103" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<sheep hostId="shoebox-109" port="7000" directory="/mnt/sheepdog/7000" />
-	<sheep hostId="shoebox-109" port="7001" directory="/mnt/sheepdog/7001" />
-	<sheep hostId="shoebox-109" port="7002" directory="/mnt/sheepdog/7002" />
-	<sheep hostId="shoebox-109" port="7003" directory="/mnt/sheepdog/7003" />
-	<sheep hostId="shoebox-109" port="7004" directory="/mnt/sheepdog/7004" />
-	<sheep hostId="shoebox-109" port="7005" directory="/mnt/sheepdog/7005" />
-	<sheep hostId="shoebox-109" port="7006" directory="/mnt/sheepdog/7006" />
-	<sheep hostId="shoebox-109" port="7007" directory="/mnt/sheepdog/7007" />
+	<sheep hostId="shoebox-109" port="7000" directory="/tmp/sheepdog/7000" />
+	<sheep hostId="shoebox-109" port="7001" directory="/tmp/sheepdog/7001" />
+	<sheep hostId="shoebox-109" port="7002" directory="/tmp/sheepdog/7002" />
+	<sheep hostId="shoebox-109" port="7003" directory="/tmp/sheepdog/7003" />
+	<sheep hostId="shoebox-109" port="7004" directory="/tmp/sheepdog/7004" />
+	<sheep hostId="shoebox-109" port="7005" directory="/tmp/sheepdog/7005" />
+	<sheep hostId="shoebox-109" port="7006" directory="/tmp/sheepdog/7006" />
+	<sheep hostId="shoebox-109" port="7007" directory="/tmp/sheepdog/7007" />
+	<sheep hostId="shoebox-109" port="7008" directory="/tmp/sheepdog/7008" />
+	<sheep hostId="shoebox-109" port="7009" directory="/tmp/sheepdog/7009" />
+	<sheep hostId="shoebox-109" port="7010" directory="/tmp/sheepdog/7010" />
+	<sheep hostId="shoebox-109" port="7011" directory="/tmp/sheepdog/7011" />
+	<sheep hostId="shoebox-109" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<sheep hostId="shoebox-116" port="7000" directory="/mnt/sheepdog/7000" />
-	<sheep hostId="shoebox-116" port="7001" directory="/mnt/sheepdog/7001" />
-	<sheep hostId="shoebox-116" port="7002" directory="/mnt/sheepdog/7002" />
-	<sheep hostId="shoebox-116" port="7003" directory="/mnt/sheepdog/7003" />
-	<sheep hostId="shoebox-116" port="7004" directory="/mnt/sheepdog/7004" />
-	<sheep hostId="shoebox-116" port="7005" directory="/mnt/sheepdog/7005" />
-	<sheep hostId="shoebox-116" port="7006" directory="/mnt/sheepdog/7006" />
-	<sheep hostId="shoebox-116" port="7007" directory="/mnt/sheepdog/7007" />
+	<sheep hostId="shoebox-116" port="7000" directory="/tmp/sheepdog/7000" />
+	<sheep hostId="shoebox-116" port="7001" directory="/tmp/sheepdog/7001" />
+	<sheep hostId="shoebox-116" port="7002" directory="/tmp/sheepdog/7002" />
+	<sheep hostId="shoebox-116" port="7003" directory="/tmp/sheepdog/7003" />
+	<sheep hostId="shoebox-116" port="7004" directory="/tmp/sheepdog/7004" />
+	<sheep hostId="shoebox-116" port="7005" directory="/tmp/sheepdog/7005" />
+	<sheep hostId="shoebox-116" port="7006" directory="/tmp/sheepdog/7006" />
+	<sheep hostId="shoebox-116" port="7007" directory="/tmp/sheepdog/7007" />
+	<sheep hostId="shoebox-116" port="7008" directory="/tmp/sheepdog/7008" />
+	<sheep hostId="shoebox-116" port="7009" directory="/tmp/sheepdog/7009" />
+	<sheep hostId="shoebox-116" port="7010" directory="/tmp/sheepdog/7010" />
+	<sheep hostId="shoebox-116" port="7011" directory="/tmp/sheepdog/7011" />
+	<sheep hostId="shoebox-116" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<test>
-		<vdi-create name="test0" />
+	<test id="stat">
+		<sheep-stat />
+	</test>
+
+	<test id="create">
 		<sheep-kill />
-
-		<sleep msecs="2000" />
+		<sheep-wipe />
+		<sheep-start sheepId="shoebox-103-7000" />
+		<cluster-format copies="1" />
+		<vdi-create name="test0" />
 	</test>
 
 	<test id="joinstorm">
+		<sheep-kill />
+		<sheep-start sheepId="shoebox-103-7000" />
 		<parallel>
-			<sheep-start sheepId="shoebox-103-7000" />
 			<sheep-start sheepId="shoebox-103-7001" />
 			<sheep-start sheepId="shoebox-103-7002" />
 			<sheep-start sheepId="shoebox-103-7003" />
+			<sheep-start sheepId="shoebox-103-7004" />
 		</parallel>
 	</test>
 </configuration>

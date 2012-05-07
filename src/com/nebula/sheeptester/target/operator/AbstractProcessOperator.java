@@ -23,7 +23,7 @@ public abstract class AbstractProcessOperator extends AbstractOperator {
     }
 
     @Override
-    public ProcessResponse run(TargetContext context) throws Exception {
+    public Response run(TargetContext context) throws Exception {
         try {
             TargetProcess process = newProcess(context);
             process.execute();

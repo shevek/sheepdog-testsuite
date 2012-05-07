@@ -26,6 +26,6 @@ public class SequentialCommand extends AbstractMultiCommand {
     public void run(final ControllerContext context) throws InterruptedException, ExecutionException {
         for (int i = 0; i < repeat; i++)
             for (Command command : getCommands())
-                command.run(context);
+                run(context, command);
     }
 }

@@ -7,6 +7,9 @@ package com.nebula.sheeptester.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KnownHosts;
+import com.nebula.sheeptester.controller.command.SheepStatCommand;
 import com.nebula.sheeptester.controller.config.HostConfiguration;
 import com.nebula.sheeptester.controller.config.RootConfiguration;
 import com.nebula.sheeptester.controller.config.SheepConfiguration;
@@ -17,7 +20,6 @@ import com.nebula.sheeptester.target.operator.ConfigOperator;
 import com.nebula.sheeptester.target.operator.SheepListOperator;
 import com.nebula.sheeptester.target.operator.Operator;
 import com.nebula.sheeptester.target.operator.OperatorAdapter;
-import com.nebula.sheeptester.target.operator.QuitOperator;
 import com.nebula.sheeptester.target.operator.OperatorResponseAdapter;
 import com.nebula.sheeptester.target.operator.Response;
 import java.io.File;
@@ -27,6 +29,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,6 +42,7 @@ import java.util.concurrent.Executors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,10 +54,10 @@ public class ControllerContext {
 
     private static final Log LOG = LogFactory.getLog(ControllerContext.class);
     private final RootConfiguration configuration;
+    private final JSch jsch = new JSch();
     private final int nthreads;
     private final ExecutorService executor;
     private final Gson gson;
-    private final JSch jsch = new JSch();
     private final File jarFile;
     private final File sheepFile;
     private final File collieFile;
@@ -59,8 +65,10 @@ public class ControllerContext {
     private ConcurrentMap<String, Sheep> sheepMap = new ConcurrentHashMap<String, Sheep>();
     private ConcurrentMap<String, Vdi> vdiMap = new ConcurrentHashMap<String, Vdi>();
 
-    public ControllerContext(RootConfiguration configuration, CommandLine cmdline) throws UnsupportedEncodingException {
+    public ControllerContext(RootConfiguration configuration, CommandLine cmdline) throws UnsupportedEncodingException, JSchException {
         this.configuration = configuration;
+        File hosts = new File(SystemUtils.getUserHome(), ".ssh/known_hosts");
+        this.jsch.setKnownHosts(hosts.getAbsolutePath());
 
         this.nthreads = getOptionInteger(cmdline, ControllerMain.OPT_THREADS, ControllerMain.DFLT_THREADS);
         this.executor = Executors.newFixedThreadPool(nthreads);
@@ -121,14 +129,29 @@ public class ControllerContext {
         return collieFile;
     }
 
+    @Nonnull
+    public Collection<? extends Host> getHosts() {
+        return new ArrayList<Host>(hostMap.values());
+    }
+
     @CheckForNull
     public Host getHost(String id) {
         return hostMap.get(id);
     }
 
     @Nonnull
-    public Map<? extends String, ? extends Sheep> getSheeps() {
+    public Map<? extends String, ? extends Sheep> getSheep() {
         return sheepMap;
+    }
+
+    @Nonnull
+    public Map<? extends String, ? extends Sheep> getSheep(Host host) {
+        Map<String, Sheep> out = new HashMap<String, Sheep>();
+        for (Map.Entry<? extends String, ? extends Sheep> e : sheepMap.entrySet()) {
+            if (e.getValue().getHost() == host)
+                out.put(e.getKey(), e.getValue());
+        }
+        return out;
     }
 
     @CheckForNull
@@ -184,10 +207,8 @@ public class ControllerContext {
                     try {
                         HostConfiguration config = host.getConfig();
                         host.connect();
-                        execute(host, new ConfigOperator(hostId, null, null));
-                        SheepListOperator.SheepListResponse response = (SheepListOperator.SheepListResponse) execute(host, new SheepListOperator());
-                        for (SheepListOperator.SheepProcess sheep : response.getSheeps()) {
-                        }
+                        execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie()));
+                        SheepStatCommand.run(ControllerContext.this, host);
                     } catch (Exception e) {
                         addError("Failed while executing on " + host, e);
                     } finally {

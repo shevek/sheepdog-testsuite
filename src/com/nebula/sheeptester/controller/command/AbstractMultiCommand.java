@@ -4,8 +4,11 @@
  */
 package com.nebula.sheeptester.controller.command;
 
+import com.nebula.sheeptester.controller.ControllerContext;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 
@@ -16,21 +19,25 @@ import org.simpleframework.xml.ElementListUnion;
 public abstract class AbstractMultiCommand extends AbstractCommand {
 
     @ElementListUnion({
-
         @ElementList(inline = true, type = EchoCommand.class, required = false),
         @ElementList(inline = true, type = ParallelCommand.class, required = false),
         @ElementList(inline = true, type = SheepKillCommand.class, required = false),
         @ElementList(inline = true, type = SheepStartCommand.class, required = false),
         @ElementList(inline = true, type = SleepCommand.class, required = false),
         @ElementList(inline = true, type = VdiCreateCommand.class, required = false),
-
-    })
+        @ElementList(inline = true, type = SheepStatCommand.class, required = false),
+        @ElementList(inline = true, type = SheepWipeCommand.class, required = false),
+        @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),})
     private List<Command> commands;
 
     public List<Command> getCommands() {
         if (commands == null)
             return Collections.emptyList();
         return commands;
+    }
+
+    protected void run(@Nonnull ControllerContext context, @Nonnull Command command) throws InterruptedException, ExecutionException {
+        command.run(context);
     }
 
     @Override

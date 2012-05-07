@@ -4,6 +4,9 @@
  */
 package com.nebula.sheeptester.target.operator;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  *
  * @author shevek
@@ -15,8 +18,15 @@ public class ExceptionResponse extends AbstractResponse {
     public ExceptionResponse() {
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     public ExceptionResponse(Operator operator, Throwable throwable) {
         super(operator);
-        this.message = String.valueOf(throwable);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        this.message = sw.toString();
     }
 }

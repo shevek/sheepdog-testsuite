@@ -31,7 +31,6 @@ public class ParallelCommand extends AbstractMultiCommand {
 
         try {
             int total = getCommands().size() * _repeat;
-            LOG.info("Waiting for " + total + " commands.");
             final CountDownLatch latch = new CountDownLatch(total);
             final ExecutorService executor = context.getExecutor();
             for (int i = 0; i < _repeat; i++) {
@@ -41,11 +40,10 @@ public class ParallelCommand extends AbstractMultiCommand {
                         @Override
                         public void run() {
                             try {
-                                command.run(context);
+                                ParallelCommand.this.run(context, command);
                             } catch (Throwable t) {
                                 context.addError("Failed while running " + command, t);
                             } finally {
-                                LOG.info("Countdown.");
                                 latch.countDown();
                             }
                         }

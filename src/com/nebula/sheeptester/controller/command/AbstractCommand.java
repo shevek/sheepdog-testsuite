@@ -5,9 +5,12 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
 import com.nebula.sheeptester.util.RandomUtils;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -17,30 +20,46 @@ import javax.annotation.Nonnull;
  */
 public abstract class AbstractCommand implements Command {
 
-    @Nonnull
-    protected Sheep toSheep(@Nonnull ControllerContext context, @CheckForNull String name) {
-        if (name == null) {
-            Sheep sheep = RandomUtils.getRandom(context.getSheeps());
-            return sheep;
-        } else {
-            Sheep sheep = context.getSheep(name);
-            if (sheep == null)
-                throw new NullPointerException("Failed to find a sheep named " + name);
-            return sheep;
-        }
+    protected Host getHost(@Nonnull ControllerContext context, @Nonnull String id) {
+        Host host = context.getHost(id);
+        if (host == null)
+            throw new NullPointerException("Failed to find a host id " + id);
+        return host;
+    }
+
+    protected Sheep getSheep(@Nonnull ControllerContext context, @Nonnull String id) {
+        Sheep sheep = context.getSheep(id);
+        if (sheep == null)
+            throw new NullPointerException("Failed to find a sheep id " + id);
+        return sheep;
     }
 
     @Nonnull
-    protected Vdi toVdi(@Nonnull ControllerContext context, @CheckForNull String name) {
-        if (name == null) {
-            Vdi sheep = RandomUtils.getRandom(context.getVdis());
-            return sheep;
-        } else {
-            Vdi sheep = context.getVdi(name);
-            if (sheep == null)
-                throw new NullPointerException("Failed to find a sheep named " + name);
-            return sheep;
+    protected Sheep toSheep(@Nonnull ControllerContext context, @CheckForNull String id) {
+        if (id != null)
+            return getSheep(context, id);
+        List<Sheep> sheeps = new ArrayList<Sheep>();
+        for (Sheep sheep : context.getSheep().values()) {
+            if (sheep.isRunning())
+                sheeps.add(sheep);
         }
+        if (sheeps.isEmpty())
+            throw new IllegalStateException("Cannot select a random running sheep: No sheep are running.");
+        return RandomUtils.getRandom(sheeps);
+    }
+
+    protected Vdi getVdi(@Nonnull ControllerContext context, @Nonnull String id) {
+        Vdi vdi = context.getVdi(id);
+        if (vdi == null)
+            throw new NullPointerException("Failed to find a vdi id " + id);
+        return vdi;
+    }
+
+    @Nonnull
+    protected Vdi toVdi(@Nonnull ControllerContext context, @CheckForNull String id) {
+        if (id != null)
+            return getVdi(context, id);
+        return RandomUtils.getRandom(context.getVdis());
     }
 
     public void toStringBuilderIndent(StringBuilder buf, int depth) {

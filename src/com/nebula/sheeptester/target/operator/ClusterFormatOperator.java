@@ -12,21 +12,21 @@ import com.nebula.sheeptester.target.exec.TimedProcess;
  *
  * @author shevek
  */
-public class SheepKillOperator extends AbstractProcessOperator {
+public class ClusterFormatOperator extends AbstractProcessOperator {
 
-    private int pid;
+    private int port;
+    private long copies;
 
-    public SheepKillOperator() {
+    public ClusterFormatOperator() {
     }
 
-    public SheepKillOperator(int pid) {
-        if (pid <= 0)
-            throw new IllegalArgumentException("Illegal pid " + pid);
-        this.pid = pid;
+    public ClusterFormatOperator(int port, long copies) {
+        this.port = port;
+        this.copies = copies;
     }
 
     @Override
     protected TargetProcess newProcess(TargetContext context) {
-        return new TimedProcess(context, 500, "sudo", "kill", "-9", String.valueOf(pid));
+        return new TimedProcess(context, 5000, context.getCollie(), "cluster", "format", "-c", String.valueOf(copies), "-p", String.valueOf(port));
     }
 }

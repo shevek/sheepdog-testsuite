@@ -8,7 +8,6 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
-import com.nebula.sheeptester.target.operator.VdiCreateOperator;
 import com.nebula.sheeptester.target.operator.VdiDeleteOperator;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.CheckForNull;

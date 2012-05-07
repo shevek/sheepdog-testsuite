@@ -5,8 +5,8 @@
 package com.nebula.sheeptester.target.operator;
 
 import com.nebula.sheeptester.target.TargetContext;
+import com.nebula.sheeptester.target.exec.BackgroundProcess;
 import com.nebula.sheeptester.target.exec.TargetProcess;
-import com.nebula.sheeptester.target.exec.TimedProcess;
 
 /**
  *
@@ -28,6 +28,6 @@ public class SheepStartOperator extends AbstractProcessOperator {
     @Override
     protected TargetProcess newProcess(TargetContext context) {
         // -f -l7 -d -p $port /tmp/sheepdog/${port}
-        return new TimedProcess(context, 500, context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port), directory);
+        return new BackgroundProcess(context, "sudo", context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port), directory);
     }
 }

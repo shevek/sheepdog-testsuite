@@ -25,8 +25,21 @@ public class ConfigOperator extends AbstractOperator {
         this.collie = collie;
     }
 
+    public String getHostId() {
+        return hostId;
+    }
+
+    public String getSheep() {
+        return sheep;
+    }
+
+    public String getCollie() {
+        return collie;
+    }
+
     @Override
     public AbstractResponse run(TargetContext context) throws Exception {
+        context.setConfig(this);
         return new DefaultResponse(this);
     }
 }
