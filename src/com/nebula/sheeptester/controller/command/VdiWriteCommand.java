@@ -18,7 +18,7 @@ import org.simpleframework.xml.Root;
  *
  * @author shevek
  */
-@Root(name = "vdi-read")
+@Root(name = "vdi-write")
 public class VdiWriteCommand extends AbstractCommand {
 
     @CheckForNull

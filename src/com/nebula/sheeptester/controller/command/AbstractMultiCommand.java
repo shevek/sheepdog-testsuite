@@ -19,15 +19,23 @@ import org.simpleframework.xml.ElementListUnion;
 public abstract class AbstractMultiCommand extends AbstractCommand {
 
     @ElementListUnion({
+    
+        @ElementList(inline = true, type = AssertFailCommand.class, required = false),
+        @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),
         @ElementList(inline = true, type = EchoCommand.class, required = false),
         @ElementList(inline = true, type = ParallelCommand.class, required = false),
         @ElementList(inline = true, type = SheepKillCommand.class, required = false),
         @ElementList(inline = true, type = SheepStartCommand.class, required = false),
-        @ElementList(inline = true, type = SleepCommand.class, required = false),
-        @ElementList(inline = true, type = VdiCreateCommand.class, required = false),
         @ElementList(inline = true, type = SheepStatCommand.class, required = false),
         @ElementList(inline = true, type = SheepWipeCommand.class, required = false),
-        @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),})
+        @ElementList(inline = true, type = SleepCommand.class, required = false),
+        @ElementList(inline = true, type = SubtestCommand.class, required = false),
+        @ElementList(inline = true, type = VdiCreateCommand.class, required = false),
+        @ElementList(inline = true, type = VdiDeleteCommand.class, required = false),
+        @ElementList(inline = true, type = VdiReadCommand.class, required = false),
+        @ElementList(inline = true, type = VdiWriteCommand.class, required = false),
+
+    })
     private List<Command> commands;
 
     public List<Command> getCommands() {

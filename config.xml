@@ -1,55 +1,133 @@
 <configuration>
-	<host id="shoebox-103" host="10.144.11.103" user="maestro" password="maestro"
+	<host id="host0" host="10.144.11.103" user="maestro" password="maestro"
 			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
-	<host id="shoebox-109" host="10.144.11.109" user="maestro" password="maestro"
+	<host id="host1" host="10.144.11.109" user="maestro" password="maestro"
 			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
-	<host id="shoebox-116" host="10.144.11.116" user="maestro" password="maestro"
+	<host id="host2" host="10.144.11.116" user="maestro" password="maestro"
 			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
 
-	<sheep hostId="shoebox-103" port="7000" directory="/tmp/sheepdog/7000" />
-	<sheep hostId="shoebox-103" port="7001" directory="/tmp/sheepdog/7001" />
-	<sheep hostId="shoebox-103" port="7002" directory="/tmp/sheepdog/7002" />
-	<sheep hostId="shoebox-103" port="7003" directory="/tmp/sheepdog/7003" />
-	<sheep hostId="shoebox-103" port="7004" directory="/tmp/sheepdog/7004" />
-	<sheep hostId="shoebox-103" port="7005" directory="/tmp/sheepdog/7005" />
-	<sheep hostId="shoebox-103" port="7006" directory="/tmp/sheepdog/7006" />
-	<sheep hostId="shoebox-103" port="7007" directory="/tmp/sheepdog/7007" />
-	<sheep hostId="shoebox-103" port="7008" directory="/tmp/sheepdog/7008" />
-	<sheep hostId="shoebox-103" port="7009" directory="/tmp/sheepdog/7009" />
-	<sheep hostId="shoebox-103" port="7010" directory="/tmp/sheepdog/7010" />
-	<sheep hostId="shoebox-103" port="7011" directory="/tmp/sheepdog/7011" />
-	<sheep hostId="shoebox-103" port="7012" directory="/tmp/sheepdog/7012" />
+	<sheep hostId="host0" port="7000" directory="/tmp/sheepdog/7000" />
+	<sheep hostId="host0" port="7001" directory="/tmp/sheepdog/7001" />
+	<sheep hostId="host0" port="7002" directory="/tmp/sheepdog/7002" />
+	<sheep hostId="host0" port="7003" directory="/tmp/sheepdog/7003" />
+	<sheep hostId="host0" port="7004" directory="/tmp/sheepdog/7004" />
+	<sheep hostId="host0" port="7005" directory="/tmp/sheepdog/7005" />
+	<sheep hostId="host0" port="7006" directory="/tmp/sheepdog/7006" />
+	<sheep hostId="host0" port="7007" directory="/tmp/sheepdog/7007" />
+	<sheep hostId="host0" port="7008" directory="/tmp/sheepdog/7008" />
+	<sheep hostId="host0" port="7009" directory="/tmp/sheepdog/7009" />
+	<sheep hostId="host0" port="7010" directory="/tmp/sheepdog/7010" />
+	<sheep hostId="host0" port="7011" directory="/tmp/sheepdog/7011" />
+	<sheep hostId="host0" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<sheep hostId="shoebox-109" port="7000" directory="/tmp/sheepdog/7000" />
-	<sheep hostId="shoebox-109" port="7001" directory="/tmp/sheepdog/7001" />
-	<sheep hostId="shoebox-109" port="7002" directory="/tmp/sheepdog/7002" />
-	<sheep hostId="shoebox-109" port="7003" directory="/tmp/sheepdog/7003" />
-	<sheep hostId="shoebox-109" port="7004" directory="/tmp/sheepdog/7004" />
-	<sheep hostId="shoebox-109" port="7005" directory="/tmp/sheepdog/7005" />
-	<sheep hostId="shoebox-109" port="7006" directory="/tmp/sheepdog/7006" />
-	<sheep hostId="shoebox-109" port="7007" directory="/tmp/sheepdog/7007" />
-	<sheep hostId="shoebox-109" port="7008" directory="/tmp/sheepdog/7008" />
-	<sheep hostId="shoebox-109" port="7009" directory="/tmp/sheepdog/7009" />
-	<sheep hostId="shoebox-109" port="7010" directory="/tmp/sheepdog/7010" />
-	<sheep hostId="shoebox-109" port="7011" directory="/tmp/sheepdog/7011" />
-	<sheep hostId="shoebox-109" port="7012" directory="/tmp/sheepdog/7012" />
+	<sheep hostId="host1" port="7000" directory="/tmp/sheepdog/7000" />
+	<sheep hostId="host1" port="7001" directory="/tmp/sheepdog/7001" />
+	<sheep hostId="host1" port="7002" directory="/tmp/sheepdog/7002" />
+	<sheep hostId="host1" port="7003" directory="/tmp/sheepdog/7003" />
+	<sheep hostId="host1" port="7004" directory="/tmp/sheepdog/7004" />
+	<sheep hostId="host1" port="7005" directory="/tmp/sheepdog/7005" />
+	<sheep hostId="host1" port="7006" directory="/tmp/sheepdog/7006" />
+	<sheep hostId="host1" port="7007" directory="/tmp/sheepdog/7007" />
+	<sheep hostId="host1" port="7008" directory="/tmp/sheepdog/7008" />
+	<sheep hostId="host1" port="7009" directory="/tmp/sheepdog/7009" />
+	<sheep hostId="host1" port="7010" directory="/tmp/sheepdog/7010" />
+	<sheep hostId="host1" port="7011" directory="/tmp/sheepdog/7011" />
+	<sheep hostId="host1" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<sheep hostId="shoebox-116" port="7000" directory="/tmp/sheepdog/7000" />
-	<sheep hostId="shoebox-116" port="7001" directory="/tmp/sheepdog/7001" />
-	<sheep hostId="shoebox-116" port="7002" directory="/tmp/sheepdog/7002" />
-	<sheep hostId="shoebox-116" port="7003" directory="/tmp/sheepdog/7003" />
-	<sheep hostId="shoebox-116" port="7004" directory="/tmp/sheepdog/7004" />
-	<sheep hostId="shoebox-116" port="7005" directory="/tmp/sheepdog/7005" />
-	<sheep hostId="shoebox-116" port="7006" directory="/tmp/sheepdog/7006" />
-	<sheep hostId="shoebox-116" port="7007" directory="/tmp/sheepdog/7007" />
-	<sheep hostId="shoebox-116" port="7008" directory="/tmp/sheepdog/7008" />
-	<sheep hostId="shoebox-116" port="7009" directory="/tmp/sheepdog/7009" />
-	<sheep hostId="shoebox-116" port="7010" directory="/tmp/sheepdog/7010" />
-	<sheep hostId="shoebox-116" port="7011" directory="/tmp/sheepdog/7011" />
-	<sheep hostId="shoebox-116" port="7012" directory="/tmp/sheepdog/7012" />
+	<sheep hostId="host2" port="7000" directory="/tmp/sheepdog/7000" />
+	<sheep hostId="host2" port="7001" directory="/tmp/sheepdog/7001" />
+	<sheep hostId="host2" port="7002" directory="/tmp/sheepdog/7002" />
+	<sheep hostId="host2" port="7003" directory="/tmp/sheepdog/7003" />
+	<sheep hostId="host2" port="7004" directory="/tmp/sheepdog/7004" />
+	<sheep hostId="host2" port="7005" directory="/tmp/sheepdog/7005" />
+	<sheep hostId="host2" port="7006" directory="/tmp/sheepdog/7006" />
+	<sheep hostId="host2" port="7007" directory="/tmp/sheepdog/7007" />
+	<sheep hostId="host2" port="7008" directory="/tmp/sheepdog/7008" />
+	<sheep hostId="host2" port="7009" directory="/tmp/sheepdog/7009" />
+	<sheep hostId="host2" port="7010" directory="/tmp/sheepdog/7010" />
+	<sheep hostId="host2" port="7011" directory="/tmp/sheepdog/7011" />
+	<sheep hostId="host2" port="7012" directory="/tmp/sheepdog/7012" />
 
 	<test id="stat">
 		<sheep-stat />
+	</test>
+
+	<test id="simple-singlehost-master">
+		<sheep-wipe />
+		<sheep-start sheepId="host0-7000" />
+		<sheep-start sheepId="host0-7001" />
+		<sheep-start sheepId="host0-7002" />
+		<cluster-format copies="1" />
+		<vdi-create sheepId="host0-7000" name="test-vdi" />
+		<vdi-write sheepId="host0-7001" name="test-vdi" />
+		<vdi-delete sheepId="host0-7002" name="test-vdi" />
+	</test>
+
+	<test id="simple-singlehost-slave">
+		<sheep-wipe />
+		<sheep-start sheepId="host0-7000" />
+		<sheep-start sheepId="host0-7001" />
+		<sheep-start sheepId="host0-7002" />
+		<cluster-format copies="1" />
+		<vdi-create sheepId="host0-7002" name="test-vdi" />
+		<vdi-write sheepId="host0-7000" name="test-vdi" />
+		<vdi-delete sheepId="host0-7001" name="test-vdi" />
+	</test>
+
+	<test id="simple-multihost-master">
+		<sheep-wipe />
+		<sheep-start sheepId="host0-7000" />
+		<sheep-start sheepId="host1-7000" />
+		<sheep-start sheepId="host2-7000" />
+		<cluster-format copies="1" />
+		<vdi-create sheepId="host0-7000" name="test-vdi" />
+		<vdi-write sheepId="host1-7000" name="test-vdi" />
+		<vdi-delete sheepId="host2-7000" name="test-vdi" />
+	</test>
+
+	<test id="simple-multihost-slave">
+		<sheep-wipe />
+		<sheep-start sheepId="host0-7000" />
+		<sheep-start sheepId="host1-7000" />
+		<sheep-start sheepId="host2-7000" />
+		<cluster-format copies="1" />
+		<vdi-create sheepId="host2-7000" name="test-vdi" />
+		<vdi-write sheepId="host0-7000" name="test-vdi" />
+		<vdi-delete sheepId="host1-7000" name="test-vdi" />
+	</test>
+
+	<test id="simple-multihost-parallel">
+		<sheep-wipe />
+		<sheep-start sheepId="host0-7000" />
+		<sheep-start sheepId="host0-7001" />
+		<sheep-start sheepId="host1-7000" />
+		<sheep-start sheepId="host1-7001" />
+		<sheep-start sheepId="host2-7000" />
+		<sheep-start sheepId="host2-7001" />
+		<cluster-format copies="2" />
+		<parallel>
+			<vdi-create name="test-vdi-0" />
+			<vdi-create name="test-vdi-1" />
+			<vdi-create name="test-vdi-2" />
+			<vdi-create name="test-vdi-3" />
+			<vdi-create name="test-vdi-4" />
+			<vdi-create name="test-vdi-5" />
+			<vdi-create name="test-vdi-6" />
+			<vdi-create name="test-vdi-7" />
+			<vdi-create name="test-vdi-8" />
+			<vdi-create name="test-vdi-9" />
+		</parallel>
+	</test>
+
+
+<!--
+	<test id="start">
+		<sheep-wipe />
+		<sheep-start sheepId="shoebox-103-7000" />
+		<sheep-start sheepId="shoebox-103-7001" />
+		<sheep-start sheepId="shoebox-103-7002" />
+		<cluster-format copies="1" />
+		<vdi-create name="test0" />
 	</test>
 
 	<test id="create">
@@ -58,9 +136,10 @@
 		<cluster-format copies="1" />
 		<vdi-create name="test0" />
 	</test>
+-->
 
 	<test id="joinstorm">
-		<sheep-kill />
+		<sheep-wipe />
 		<sheep-start sheepId="shoebox-103-7000" />
 		<parallel>
 			<sheep-start sheepId="shoebox-103-7001" />
@@ -69,4 +148,5 @@
 			<sheep-start sheepId="shoebox-103-7004" />
 		</parallel>
 	</test>
+
 </configuration>

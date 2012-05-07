@@ -18,7 +18,7 @@ import org.simpleframework.xml.Root;
  *
  * @author shevek
  */
-@Root(name = "vdi-create")
+@Root(name = "vdi-delete")
 public class VdiDeleteCommand extends AbstractCommand {
 
     @CheckForNull

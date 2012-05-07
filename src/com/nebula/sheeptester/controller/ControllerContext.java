@@ -100,6 +100,11 @@ public class ControllerContext {
     }
 
     @Nonnull
+    public RootConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    @Nonnull
     public ExecutorService getExecutor() {
         return executor;
     }

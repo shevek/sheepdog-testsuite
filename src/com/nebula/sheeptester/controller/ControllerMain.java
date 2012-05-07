@@ -90,6 +90,8 @@ public class ControllerMain {
             if (tests != null) {
                 for (String test : tests) {
                     TestConfiguration config = configuration.getTest(test);
+                    if (config == null)
+                        throw new NullPointerException("No such test " + test);
                     config.run(context);
                 }
             } else {

@@ -53,6 +53,11 @@ public class TargetProcess {
     }
 
     @Nonnull
+    public TargetContext getContext() {
+        return context;
+    }
+
+    @Nonnull
     public ByteArrayOutputStream getOutput() {
         return output;
     }
@@ -102,7 +107,7 @@ public class TargetProcess {
             if (retval != 0)
                 throw new ExecuteException("Process returned nonzero exit value " + retval, retval);
         } catch (ExecuteException e) {
-            throw new TargetException("Execution failed:\nOutput:\n" + getOutput() + "\nError:\n" + getError(), e);
+            throw new TargetException("Execution of " + commandline + " failed:\nOutput:\n" + getOutput() + "\nError:\n" + getError(), e);
         }
     }
 

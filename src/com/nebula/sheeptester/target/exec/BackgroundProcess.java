@@ -22,16 +22,22 @@ public class BackgroundProcess extends TargetProcess {
 
     private static final Log LOG = LogFactory.getLog(BackgroundProcess.class);
 
-    private static class Handler implements ExecuteResultHandler {
+    private class Handler implements ExecuteResultHandler {
+
+        private final CommandLine commandline;
+
+        public Handler(CommandLine commandline) {
+            this.commandline = commandline;
+        }
 
         @Override
         public void onProcessComplete(int exitValue) {
-            LOG.error("Process exited with result code " + exitValue);
+            LOG.error(getContext().getHostId() + ": Process " + commandline + " exited with result code " + exitValue);
         }
 
         @Override
         public void onProcessFailed(ExecuteException e) {
-            LOG.error("Process failed", e);
+            LOG.error(getContext().getHostId() + ": Process " + commandline + " failed", e);
         }
     }
 
@@ -41,6 +47,6 @@ public class BackgroundProcess extends TargetProcess {
 
     @Override
     protected void execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
-        executor.execute(commandline, new Handler());
+        executor.execute(commandline, new Handler(commandline));
     }
 }
