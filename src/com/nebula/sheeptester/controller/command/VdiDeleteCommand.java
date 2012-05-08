@@ -32,6 +32,7 @@ public class VdiDeleteCommand extends AbstractCommand {
     public void run(ControllerContext context) throws InterruptedException, ExecutionException {
         Sheep sheep = toSheep(context, sheepId);
         Vdi vdi = toVdi(context, name);
+        vdi = context.removeVdi(vdi.getName());
         VdiDeleteOperator request = new VdiDeleteOperator(sheep.getConfig().getPort(), vdi.getName());
 
         Host host = sheep.getHost();

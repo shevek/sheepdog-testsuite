@@ -13,12 +13,16 @@ import java.util.List;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author shevek
  */
 public class SheepListOperator extends AbstractOperator {
+
+    private static final Log LOG = LogFactory.getLog(SheepListOperator.class);
 
     public static class SheepListResponse extends AbstractResponse {
 
@@ -85,8 +89,10 @@ public class SheepListOperator extends AbstractOperator {
             int idx;
 
             idx = words[6].indexOf('/');
-            if (idx == -1)
-                throw new TargetException("Bad line from netstat (cmd-idx): " + line);
+            if (idx == -1) {
+                LOG.warn("Bad line from netstat (cmd-idx): " + line);
+                continue;
+            }
             String proc = words[6].substring(idx + 1);
             if (!"sheep".equals(proc))
                 continue;

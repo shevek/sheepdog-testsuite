@@ -20,7 +20,7 @@ public class SheepKillOperator extends AbstractProcessOperator {
     }
 
     public SheepKillOperator(int pid) {
-        if (pid <= 0)
+        if (pid <= 10)
             throw new IllegalArgumentException("Illegal pid " + pid);
         this.pid = pid;
     }

@@ -42,6 +42,8 @@ public class VdiWriteCommand extends AbstractCommand {
         int _length = length;
         if (_length <= 0)
             _length = vdi.newLength(_offset);
+        else
+            _length = _length * 1024 * 1024;
 
         Host host = sheep.getHost();
         VdiWriteOperator request = new VdiWriteOperator(sheep.getConfig().getPort(), vdi.getName(), _offset, _length);

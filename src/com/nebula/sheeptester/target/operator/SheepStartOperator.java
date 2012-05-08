@@ -30,7 +30,7 @@ public class SheepStartOperator extends AbstractProcessOperator {
     public Response run(TargetContext context) throws Exception {
         File dir = new File(directory);
         if (!dir.isDirectory()) {
-            TimedProcess process = new TimedProcess(context, 500, "sudo", "mkdir", "-m", "755", directory);
+            TimedProcess process = new TimedProcess(context, 500, "sudo", "mkdir", "-pm", "755", directory);
             process.execute();
         }
 

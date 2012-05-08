@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.KnownHosts;
 import com.nebula.sheeptester.controller.command.SheepStatCommand;
 import com.nebula.sheeptester.controller.config.HostConfiguration;
 import com.nebula.sheeptester.controller.config.RootConfiguration;
@@ -17,7 +16,6 @@ import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
 import com.nebula.sheeptester.target.operator.ConfigOperator;
-import com.nebula.sheeptester.target.operator.SheepListOperator;
 import com.nebula.sheeptester.target.operator.Operator;
 import com.nebula.sheeptester.target.operator.OperatorAdapter;
 import com.nebula.sheeptester.target.operator.OperatorResponseAdapter;
@@ -174,8 +172,12 @@ public class ControllerContext {
         return vdiMap.get(name);
     }
 
-    public void addVdi(Vdi vdi) {
+    public void addVdi(@Nonnull Vdi vdi) {
         vdiMap.put(vdi.getName(), vdi);
+    }
+
+    public Vdi removeVdi(@Nonnull String name) {
+        return vdiMap.remove(name);
     }
 
     public void addError(@Nonnull String message, @CheckForNull Throwable t) {
