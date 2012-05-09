@@ -45,6 +45,6 @@ public class ClusterFormatCommand extends AbstractCommand {
         if (sheepId != null)
             buf.append(" sheepId=").append(sheepId);
         else
-            buf.append(" <all-sheep>");
+            buf.append(" <any-sheep>");
     }
 }

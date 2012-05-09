@@ -32,7 +32,10 @@ public class BackgroundProcess extends TargetProcess {
 
         @Override
         public void onProcessComplete(int exitValue) {
-            LOG.error(getContext().getHostId() + ": Process " + commandline + " exited with result code " + exitValue);
+            if (exitValue == 0)
+                LOG.info(getContext().getHostId() + ": Process " + commandline + " done.");
+            else
+                LOG.info(getContext().getHostId() + ": Process " + commandline + " exited with result code " + exitValue);
         }
 
         @Override

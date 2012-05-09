@@ -60,8 +60,8 @@
 		<sheep-wipe />
 	</test>
 
-	<test id="shevek">
-		<sheep-wipe />
+	<test id="step0">
+		<sheep-kill />
 		<sheep-start sheepId="host0-7000" />
 		<sheep-start sheepId="host0-7001" />
 		<sheep-start sheepId="host0-7002" />
@@ -71,18 +71,27 @@
 		<sheep-start sheepId="host1-7002" />
 
 		<cluster-format copies="2" />
+	</test>
 
-		<sleep msecs="1000" />
-
+	<test id="step1">
 		<vdi-create sheepId="host0-7000" name="test-vdi" size="20" />
 		<vdi-write sheepId="host0-7000" name="test-vdi" offset="0" length="20" />
 		<vdi-read sheepId="host1-7000" name="test-vdi" offset="0" length="20" />
+	</test>
 
+	<test id="step2">
 		<sheep-start sheepId="host2-7000" />
 		<sheep-start sheepId="host2-7001" />
 		<sheep-start sheepId="host2-7002" />
+	</test>
 
+	<test id="step3">
 		<vdi-read sheepId="host2-7000" name="test-vdi" offset="0" length="20" />
+	</test>
+
+	<test id="desync">
+		<subtest testId="wipe" />
+		<subtest testId="step0" />
 	</test>
 
 	<test id="simple-exercise">
@@ -169,30 +178,38 @@
 <!--
 	<test id="start">
 		<sheep-wipe />
-		<sheep-start sheepId="shoebox-103-7000" />
-		<sheep-start sheepId="shoebox-103-7001" />
-		<sheep-start sheepId="shoebox-103-7002" />
+		<sheep-start sheepId="host0-7000" />
+		<sheep-start sheepId="host0-7001" />
+		<sheep-start sheepId="host0-7002" />
 		<cluster-format copies="1" />
 		<vdi-create name="test0" />
 	</test>
 
 	<test id="create">
 		<sheep-wipe />
-		<sheep-start sheepId="shoebox-103-7000" />
+		<sheep-start sheepId="host0-7000" />
 		<cluster-format copies="1" />
 		<vdi-create name="test0" />
 	</test>
 -->
 
-	<test id="joinstorm">
+	<test id="joinstorm-init">
 		<sheep-wipe />
-		<sheep-start sheepId="shoebox-103-7000" />
+		<sheep-start sheepId="host0-7000" />
+		<cluster-format copies="1" />
+	</test>
+
+	<test id="joinstorm-storm">
 		<parallel>
-			<sheep-start sheepId="shoebox-103-7001" />
-			<sheep-start sheepId="shoebox-103-7002" />
-			<sheep-start sheepId="shoebox-103-7003" />
-			<sheep-start sheepId="shoebox-103-7004" />
+			<sheep-start sheepId="host0-7001" />
+			<sheep-start sheepId="host0-7002" />
+			<sheep-start sheepId="host0-7003" />
 		</parallel>
+	</test>
+
+	<test id="joinstorm">
+		<subtest testId="joinstorm-init" />
+		<subtest testId="joinstorm-storm" />
 	</test>
 
 </configuration>

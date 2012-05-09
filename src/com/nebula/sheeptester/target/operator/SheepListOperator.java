@@ -94,14 +94,20 @@ public class SheepListOperator extends AbstractOperator {
                 continue;
             }
             String proc = words[6].substring(idx + 1);
-            if (!"sheep".equals(proc))
-                continue;
             int pid = Integer.parseInt(words[6].substring(0, idx));
 
             idx = words[3].lastIndexOf(':');
             if (idx == -1)
                 throw new TargetException("Bad line from netstat (port-idx): " + line);
             int port = Integer.parseInt(words[3].substring(idx + 1));
+
+            if (!"sheep".equals(proc)) {
+                // LOG.info("Not a sheep: proc=" + proc + ", port=" + port );
+                // Special case: Detect sheep running under valgrind.
+                if (!(port >= 7000 && port <= 7100 && "valgrind.bin".equals(proc)))
+                    continue;
+                // LOG.info("But it is special.");
+            }
 
             SheepProcess sheep = new SheepProcess(port, pid);
             sheeps.add(sheep);

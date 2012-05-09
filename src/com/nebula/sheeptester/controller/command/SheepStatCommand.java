@@ -8,8 +8,11 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepListOperator;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -28,9 +31,21 @@ public class SheepStatCommand extends AbstractCommand {
     private static final Log LOG = LogFactory.getLog(SheepStatCommand.class);
 
     @Override
-    public void run(final ControllerContext context) throws InterruptedException, ExecutionException {
-
+    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
         Collection<? extends Host> hosts = context.getHosts();
+        run(context, hosts);
+        List<String> texts = new ArrayList<String>();
+        for (Sheep sheep : context.getSheep().values()) {
+            if (sheep.isRunning())
+                texts.add(sheep.toString());
+        }
+        Collections.sort(texts);
+        for (String text : texts) {
+            LOG.info(text);
+        }
+    }
+
+    public static void run(final ControllerContext context, Collection<? extends Host> hosts) throws InterruptedException, ExecutionException {
         final CountDownLatch latch = new CountDownLatch(hosts.size());
         final ExecutorService executor = context.getExecutor();
         for (final Host host : hosts) {

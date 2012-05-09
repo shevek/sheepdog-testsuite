@@ -18,6 +18,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Serializer;
@@ -88,11 +89,13 @@ public class ControllerMain {
         try {
             String[] tests = cmdline.getOptionValues(OPT_TEST);
             if (tests != null) {
-                for (String test : tests) {
-                    TestConfiguration config = configuration.getTest(test);
-                    if (config == null)
-                        throw new NullPointerException("No such test " + test);
-                    config.run(context);
+                for (String testlist : tests) {
+                    for (String test : StringUtils.split(testlist, ',')) {
+                        TestConfiguration config = configuration.getTest(test);
+                        if (config == null)
+                            throw new NullPointerException("No such test " + test);
+                        config.run(context);
+                    }
                 }
             } else {
                 for (TestConfiguration config : configuration.getTests()) {

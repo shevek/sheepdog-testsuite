@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.target.operator;
 
 import com.nebula.sheeptester.target.TargetContext;
+import com.nebula.sheeptester.target.exec.BackgroundProcess;
 import com.nebula.sheeptester.target.exec.TargetProcess;
 import com.nebula.sheeptester.target.exec.TimedProcess;
 import java.io.File;
@@ -17,6 +18,8 @@ public class SheepStartOperator extends AbstractProcessOperator {
 
     private int port;
     private String directory;
+    public boolean strace;
+    public boolean valgrind;
 
     public SheepStartOperator() {
     }
@@ -39,8 +42,11 @@ public class SheepStartOperator extends AbstractProcessOperator {
 
     @Override
     protected TargetProcess newProcess(TargetContext context) {
-        // -f -l7 -d -p $port /tmp/sheepdog/${port}
-        // return new BackgroundProcess(context, "sudo", context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port), directory);
-        return new TimedProcess(context, 1000, "sudo", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+        if (strace)
+            return new BackgroundProcess(context, "sudo", "strace", "-f", "-o", directory + "/strace.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+        if (valgrind)
+            return new BackgroundProcess(context, "sudo", "valgrind", "--trace-children=yes", "--log-file=" + directory + "/valgrind.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+        // return new TimedProcess(context, 1000, "sudo", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+        return new BackgroundProcess(context, "sudo", context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port), directory);
     }
 }
