@@ -224,7 +224,10 @@
 	</test>
 
 	<test id="fpe-fail">
-		<sheep-start sheepId="host2-7000,host2-7001,host2-7002" parallel="true" strace="true" />
+		<sheep-start sheepId="host2-7000" valgrind="true" />
+		<!--
+		<sheep-start sheepId="host2-7000,host2-7001,host2-7002" parallel="true" valgrind="true" />
+		-->
 		<sleep msecs="2000" />
 		<!-- Fails because the sheep on host2 died with an FPE. -->
 		<vdi-read sheepId="host2-7000" name="test-vdi" offset="0" length="20480" />

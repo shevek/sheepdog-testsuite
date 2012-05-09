@@ -37,12 +37,8 @@ public class TestConfiguration extends AbstractMultiCommand {
     @Override
     public void run(@Nonnull ControllerContext context) throws InterruptedException, ExecutionException {
         LOG.info("Executing test:\n" + this);
-        try {
-            for (Command command : getCommands())
-                command.run(context);
-        } catch (Throwable t) {
-            LOG.error("Failed", t);
-        }
+        for (Command command : getCommands())
+            command.run(context);
     }
 
     @Override
