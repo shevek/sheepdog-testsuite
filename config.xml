@@ -64,7 +64,7 @@
 		<sheep-kill />
 		<sheep-start sheepId="host0-7000" />
 		<sheep-start sheepId="host0-7001,host0-7002" parallel="true" />
-		<sheep-start sheepId="host1-7000,host1-7000,host1-7002" parallel="true" />
+		<sheep-start sheepId="host1-7000,host1-7001,host1-7002" parallel="true" />
 
 		<cluster-format copies="2" />
 	</test>
@@ -76,7 +76,7 @@
 	</test>
 
 	<test id="step2">
-		<sheep-start sheepId="host2-7000,host2-7001,host2-7002" parallel="true" />
+		<sheep-start sheepId="host2-7000,host2-7001,host2-7002" parallel="true" strace="true" />
 	</test>
 
 	<test id="step3">

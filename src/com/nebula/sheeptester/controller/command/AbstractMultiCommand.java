@@ -23,6 +23,7 @@ public abstract class AbstractMultiCommand extends AbstractCommand {
         @ElementList(inline = true, type = AssertFailCommand.class, required = false),
         @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),
         @ElementList(inline = true, type = EchoCommand.class, required = false),
+        @ElementList(inline = true, type = ExecCommand.class, required = false),
         @ElementList(inline = true, type = ParallelCommand.class, required = false),
         @ElementList(inline = true, type = SheepKillCommand.class, required = false),
         @ElementList(inline = true, type = SheepStartCommand.class, required = false),

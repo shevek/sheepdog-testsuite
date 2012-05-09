@@ -9,6 +9,7 @@ import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepKillOperator;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -38,18 +39,16 @@ public class SheepKillCommand extends AbstractCommand {
             run(context, sheep);
         } else if (hostId != null) {
             Host host = getHost(context, hostId);
-            for (Sheep sheep : context.getSheep(host).values()) {
-                run(context, sheep);
-            }
+            run(context, host);
         } else {
-            for (Sheep sheep : context.getSheep().values()) {
-                run(context, sheep);
+            for (Host host : context.getHosts()) {
+                run(context, host);
             }
         }
         Thread.sleep(200);
     }
 
-    public static void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {
+    public static void run(@Nonnull ControllerContext context, @Nonnull Sheep sheep) throws InterruptedException, ExecutionException {
         if (!sheep.isRunning())
             return;
 
@@ -58,5 +57,13 @@ public class SheepKillCommand extends AbstractCommand {
         Host host = sheep.getHost();
         context.execute(host, operator);
         sheep.setPid(-1);
+    }
+
+    public static void run(@Nonnull ControllerContext context, @Nonnull Host host) throws InterruptedException, ExecutionException {
+        SheepKillOperator operator = new SheepKillOperator(-1);
+
+        context.execute(host, operator);
+        for (Sheep sheep : context.getSheep(host).values())
+            sheep.setPid(-1);
     }
 }

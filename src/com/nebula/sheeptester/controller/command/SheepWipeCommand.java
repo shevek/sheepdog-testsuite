@@ -31,13 +31,18 @@ public class SheepWipeCommand extends AbstractCommand {
     public void run(ControllerContext context) throws InterruptedException, ExecutionException {
         if (sheepId != null) {
             Sheep sheep = getSheep(context, sheepId);
+            SheepKillCommand.run(context, sheep);
             run(context, sheep);
         } else if (hostId != null) {
             Host host = getHost(context, hostId);
+            SheepKillCommand.run(context, host);
             for (Sheep sheep : context.getSheep(host).values()) {
                 run(context, sheep);
             }
         } else {
+            for (Host host : context.getHosts()) {
+                SheepKillCommand.run(context, host);
+            }
             for (Sheep sheep : context.getSheep().values()) {
                 run(context, sheep);
             }
@@ -46,9 +51,6 @@ public class SheepWipeCommand extends AbstractCommand {
     }
 
     public static void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {
-        if (sheep.isRunning())
-            SheepKillCommand.run(context, sheep);
-
         SheepWipeOperator operator = new SheepWipeOperator(sheep.getConfig().getDirectory());
 
         Host host = sheep.getHost();

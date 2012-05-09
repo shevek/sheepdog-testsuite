@@ -27,6 +27,19 @@ public abstract class AbstractCommand implements Command {
         return host;
     }
 
+    @Nonnull
+    protected Host toHost(@Nonnull ControllerContext context, @CheckForNull String id) {
+        if (id != null)
+            return getHost(context, id);
+        List<Host> hosts = new ArrayList<Host>();
+        for (Host host : context.getHosts()) {
+            hosts.add(host);
+        }
+        if (hosts.isEmpty())
+            throw new IllegalStateException("Cannot select a random running host: No hosts are available.");
+        return RandomUtils.getRandom(hosts);
+    }
+
     protected Sheep getSheep(@Nonnull ControllerContext context, @Nonnull String id) {
         Sheep sheep = context.getSheep(id);
         if (sheep == null)
