@@ -5,9 +5,9 @@
 package com.nebula.sheeptester.target.operator;
 
 import com.nebula.sheeptester.target.TargetContext;
-import com.nebula.sheeptester.target.exec.InputProcess;
+import com.nebula.sheeptester.target.exec.OutputProcess;
 import com.nebula.sheeptester.target.exec.TargetProcess;
-import com.nebula.sheeptester.util.GeneratorInputStream;
+import com.nebula.sheeptester.util.GeneratorOutputStream;
 
 /**
  *
@@ -32,8 +32,8 @@ public class VdiReadOperator extends AbstractProcessOperator {
 
     @Override
     protected TargetProcess newProcess(TargetContext context) {
-        GeneratorInputStream input = new GeneratorInputStream(offset, length);
-        InputProcess process = new InputProcess(context, input, context.getCollie(), "vdi", "read", "-p", String.valueOf(port), vdi, String.valueOf(offset), String.valueOf(length));
+        GeneratorOutputStream output = new GeneratorOutputStream(offset, length);
+        OutputProcess process = new OutputProcess(context, output, context.getCollie(), "vdi", "read", "-p", String.valueOf(port), vdi, String.valueOf(offset), String.valueOf(length));
         return process;
     }
 }

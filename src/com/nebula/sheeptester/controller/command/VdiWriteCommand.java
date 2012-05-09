@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.CheckForNull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Transient;
+import org.simpleframework.xml.convert.Convert;
 
 /**
  *
@@ -37,13 +39,15 @@ public class VdiWriteCommand extends AbstractCommand {
         Sheep sheep = toSheep(context, sheepId);
         Vdi vdi = toVdi(context, name);
         long _offset = offset;
-        if (_offset <= 0)
+        if (_offset < 0)
             _offset = vdi.newOffset();
+        else
+            _offset = _offset * 1024;
         int _length = length;
         if (_length <= 0)
             _length = vdi.newLength(_offset);
         else
-            _length = _length * 1024 * 1024;
+            _length = _length * 1024;
 
         Host host = sheep.getHost();
         VdiWriteOperator request = new VdiWriteOperator(sheep.getConfig().getPort(), vdi.getName(), _offset, _length);

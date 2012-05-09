@@ -46,49 +46,47 @@ public class SheepStartCommand extends AbstractCommand {
 
     @Override
     public void run(ControllerContext context) throws InterruptedException, ExecutionException {
-        Set<Host> hosts = new HashSet<Host>();
-        try {
-            if (sheepId != null) {
-                Sheep sheep = getSheep(context, sheepId);
+        List<Sheep> sheeps = new ArrayList<Sheep>();
+        if (sheepId != null) {
+            for (String id : StringUtils.split(sheepId, ", ")) {
+                Sheep sheep = getSheep(context, id);
                 if (sheep.isRunning()) {
                     LOG.warn("Sheep already running: " + sheep);
-                    return;
+                    continue;
                 }
-                hosts.add(sheep.getHost());
-                run(context, sheep);
-            } else if (hostId != null) {
-                List<Sheep> sheeps = new ArrayList<Sheep>();
-                Host host = getHost(context, hostId);
+                sheeps.add(sheep);
+            }
+        } else if (hostId != null) {
+            for (String id : StringUtils.split(hostId, ", ")) {
+                Host host = getHost(context, id);
                 for (Sheep sheep : context.getSheep(host).values()) {
                     if (sheep.isRunning())
                         continue;
-                    hosts.add(sheep.getHost());
-                    if (parallel)
-                        sheeps.add(sheep);
-                    else
-                        SheepStartCommand.this.run(context, sheep);
+                    sheeps.add(sheep);
                 }
-                if (parallel)
-                    run(context, sheeps);
-            } else {
-                List<Sheep> sheeps = new ArrayList<Sheep>();
-                for (Sheep sheep : context.getSheep().values()) {
-                    if (sheep.isRunning())
-                        continue;
-                    hosts.add(sheep.getHost());
-                    if (parallel)
-                        sheeps.add(sheep);
-                    else
-                        run(context, sheep);
-                }
-                if (parallel)
-                    run(context, sheeps);
             }
+        } else {
+            for (Sheep sheep : context.getSheep().values()) {
+                if (sheep.isRunning())
+                    continue;
+                sheeps.add(sheep);
+            }
+        }
+
+        Set<Host> hosts = new HashSet<Host>();
+        try {
+            for (Sheep sheep : sheeps) {
+                hosts.add(sheep.getHost());
+                if (!parallel)
+                    run(context, sheep);
+            }
+            if (parallel)
+                run(context, sheeps);
         } finally {
             if (valgrind)
-                Thread.sleep(2000);
+                Thread.sleep(4000);
             else
-                Thread.sleep(200);
+                Thread.sleep(100);
             SheepStatCommand.run(context, hosts);
         }
     }

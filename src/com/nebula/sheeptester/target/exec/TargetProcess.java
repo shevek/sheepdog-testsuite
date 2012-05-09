@@ -81,6 +81,9 @@ public class TargetProcess {
 
     @OverridingMethodsMustInvokeSuper
     protected void init(@Nonnull Executor executor) {
+        // LOG.info("InputStream = " + inputStream);
+        // LOG.info("OutputStream = " + outputStream);
+        // LOG.info("ErrorStream = " + errorStream);
         executor.setStreamHandler(new PumpStreamHandler(outputStream, errorStream, inputStream));
     }
 

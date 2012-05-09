@@ -6,6 +6,8 @@ package com.nebula.sheeptester.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -13,6 +15,7 @@ import java.io.InputStream;
  */
 public class GeneratorInputStream extends InputStream {
 
+    private static final Log LOG = LogFactory.getLog(GeneratorInputStream.class);
     private long offset;
     private int length;
 
@@ -26,6 +29,12 @@ public class GeneratorInputStream extends InputStream {
         if (length <= 0)
             return -1;
         length--;
-        return (byte) (offset++);
+        return (int) offset++ & 0xFF;
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        LOG.info("Closed.");
     }
 }

@@ -6,6 +6,8 @@ package com.nebula.sheeptester.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -13,8 +15,10 @@ import java.io.OutputStream;
  */
 public class GeneratorOutputStream extends OutputStream {
 
+    private static final Log LOG = LogFactory.getLog(GeneratorOutputStream.class);
     private long offset;
     private int length;
+    private boolean error = false;
 
     public GeneratorOutputStream(long offset, int length) {
         this.offset = offset;
@@ -23,17 +27,29 @@ public class GeneratorOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        if (length <= 0)
-            throw new IOException("Unexpected byte.");
+        if (error)
+            return;
+        if (length == 0) {
+            error = true;
+            LOG.warn("Unexpected extra byte.");
+            return;
+        }
         length--;
-        if ((byte) b != (byte) offset)
-            throw new IOException("Expected " + ((byte) offset) + " but got " + b);
-        offset++;
+        try {
+            if ((byte) b != (byte) offset) {
+                error = true;
+                LOG.warn("Expected " + ((byte) offset) + " but got " + b);
+                return;
+            }
+        } finally {
+            offset++;
+        }
     }
 
     @Override
     public void close() throws IOException {
         super.close();
+        LOG.info("Closed.");
         if (length != 0)
             throw new IOException("Closed with length " + length);
     }

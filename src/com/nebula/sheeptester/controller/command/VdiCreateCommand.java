@@ -40,7 +40,7 @@ public class VdiCreateCommand extends AbstractCommand {
         if (_size <= 0)
             _size = Vdi.newSize();
         else
-            _size = _size * 1024 * 1024;
+            _size = _size * 1024;
 
         Host host = sheep.getHost();
         VdiCreateOperator request = new VdiCreateOperator(sheep.getConfig().getPort(), _name, _size);

@@ -22,7 +22,7 @@ public class Vdi {
     private static final long KILOBYTE = 1024;
     private static final long MEGABYTE = 1024 * KILOBYTE;
     private static final long GIGABYTE = MEGABYTE * 1024;
-    private static final long BLOCKSIZE = 4 * MEGABYTE;
+    private static final long BLOCKSIZE = 512 * KILOBYTE;
     private static final Random RANDOM = new Random();
 
     // Really, these should be longs, but in tests, we never use gigabytes
