@@ -45,7 +45,7 @@ public class SheepStartOperator extends AbstractProcessOperator {
         if (strace)
             return new BackgroundProcess(context, "sudo", "strace", "-f", "-o", directory + "/strace.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
         if (valgrind)
-            return new BackgroundProcess(context, "sudo", "valgrind", "--trace-children=yes", "--log-file=" + directory + "/valgrind.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+            return new BackgroundProcess(context, "sudo", "valgrind", "--trace-children=yes", "--leak-check=full", "--log-file=" + directory + "/valgrind.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
         // return new TimedProcess(context, 1000, "sudo", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
         return new BackgroundProcess(context, "sudo", context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port), directory);
     }

@@ -4,13 +4,11 @@
  */
 package com.nebula.sheeptester.util;
 
-import org.apache.commons.logging.impl.SimpleLog;
-
 /**
  *
  * @author shevek
  */
-public class TestLog extends SimpleLog {
+public class TestLog extends ConciseLog {
 
     public TestLog(String name) {
         super(name);

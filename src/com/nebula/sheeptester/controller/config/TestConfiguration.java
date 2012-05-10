@@ -52,6 +52,7 @@ public class TestConfiguration extends AbstractMultiCommand {
         StringBuilder buf = new StringBuilder();
         buf.append(getId()).append(":\n");
         toStringBuilder(buf, 0);
-        return buf.toString();
+        int length = buf.length();
+        return buf.toString().substring(0, length - 1);
     }
 }

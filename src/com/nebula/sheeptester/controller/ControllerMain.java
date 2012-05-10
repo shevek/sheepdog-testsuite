@@ -104,7 +104,10 @@ public class ControllerMain {
                     }
                 }
             }
-
+        } catch (ControllerException e) {
+            LOG.error("Failed.", e);
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted!", e);
         } finally {
             context.fini();
         }
