@@ -28,9 +28,9 @@ public class VdiWriteCommand extends AbstractCommand {
     @Attribute(required = false)
     private String name;
     @Attribute(required = false)
-    private long offset;
+    private long offset = -1;
     @Attribute(required = false)
-    private int length;
+    private int length = -1;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {

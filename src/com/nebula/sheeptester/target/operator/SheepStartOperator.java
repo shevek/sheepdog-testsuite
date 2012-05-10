@@ -9,6 +9,10 @@ import com.nebula.sheeptester.target.exec.BackgroundProcess;
 import com.nebula.sheeptester.target.exec.TargetProcess;
 import com.nebula.sheeptester.target.exec.TimedProcess;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  *
@@ -18,6 +22,7 @@ public class SheepStartOperator extends AbstractProcessOperator {
 
     private int port;
     private String directory;
+    public int vnodes = -1;
     public boolean strace;
     public boolean valgrind;
 
@@ -42,11 +47,17 @@ public class SheepStartOperator extends AbstractProcessOperator {
 
     @Override
     protected TargetProcess newProcess(TargetContext context) {
+        List<String> command = new ArrayList<String>();
+        command.add("sudo");
         if (strace)
-            return new BackgroundProcess(context, "sudo", "strace", "-f", "-o", directory + "/strace.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+            command.addAll(Arrays.asList("strace", "-f", "-o", directory + "/strace.out"));
         if (valgrind)
-            return new BackgroundProcess(context, "sudo", "valgrind", "--trace-children=yes", "--leak-check=full", "--log-file=" + directory + "/valgrind.out", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
+            command.addAll(Arrays.asList("valgrind", "--trace-children=yes", "--leak-check=full", "--log-file=" + directory + "/valgrind.out"));
         // return new TimedProcess(context, 1000, "sudo", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
-        return new BackgroundProcess(context, "sudo", context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port), directory);
+        command.addAll(Arrays.asList(context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port)));
+        if (vnodes >= 0)
+            command.addAll(Arrays.asList("-v", String.valueOf(vnodes)));
+        command.add(directory);
+        return new BackgroundProcess(context, command.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
     }
 }

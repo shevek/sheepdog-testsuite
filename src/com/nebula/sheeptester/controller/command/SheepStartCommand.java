@@ -37,6 +37,8 @@ public class SheepStartCommand extends AbstractCommand {
     @Attribute(required = false)
     private String sheepId;
     @Attribute(required = false)
+    private int vnodes = -1;
+    @Attribute(required = false)
     private boolean parallel;
     @Attribute(required = false)
     private boolean strace;
@@ -107,6 +109,7 @@ public class SheepStartCommand extends AbstractCommand {
     public void run(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
         SheepConfiguration config = sheep.getConfig();
         SheepStartOperator operator = new SheepStartOperator(config.getPort(), config.getDirectory());
+        operator.vnodes = vnodes;
         operator.strace = strace;
         operator.valgrind = valgrind;
 
@@ -130,5 +133,11 @@ public class SheepStartCommand extends AbstractCommand {
             buf.append(" sheepId=").append(sheepId);
         else
             buf.append(" <all-sheep>");
+        if (vnodes >= 0)
+            buf.append(" vnodes=").append(vnodes);
+        if (strace)
+            buf.append(" <strace>");
+        if (valgrind)
+            buf.append(" <valgrind>");
     }
 }

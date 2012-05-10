@@ -48,15 +48,19 @@
 	<sheep hostId="C" port="7011" directory="/tmp/sheepdog/7011" />
 	<sheep hostId="C" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<test id="stat">
+	<test id="stat" skip="true">
 		<sheep-stat />
 	</test>
 
-	<test id="kill">
+	<test id="kill" skip="true">
 		<sheep-kill />
 	</test>
 
-	<test id="wipe">
+	<test id="shutdown" skip="true">
+		<cluster-shutdown />
+	</test>
+
+	<test id="wipe" skip="true">
 		<sheep-wipe />
 	</test>
 
@@ -191,19 +195,17 @@
 	<test id="desync-init">
 		<sheep-wipe />
 		<sheep-start sheepId="A-7000" />
-		<sheep-start sheepId="A-7001,A-7002,B-7000,B-7001,B-7002" parallel="true" />
 
-		<cluster-format copies="2" />
+		<cluster-format copies="1" />
 
-		<vdi-create sheepId="A-7000" name="test-vdi" size="204800" />
-		<vdi-write sheepId="A-7000" name="test-vdi" offset="0" length="204800" />
-		<vdi-read sheepId="B-7000" name="test-vdi" offset="0" length="204800" />
+		<vdi-create sheepId="A-7000" name="test-vdi" size="102400" />
+		<vdi-write sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
+		<vdi-read sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
 	</test>
 
 	<test id="desync-fail">
-		<sheep-start sheepId="C-7000,C-7001,C-7002" parallel="true" valgrind="true" />
-		<sleep msecs="5000" />
-		<vdi-read sheepId="C-7000" name="test-vdi" offset="0" length="204800" />
+		<sheep-start sheepId="C-7000" parallel="true" valgrind="true" />
+		<vdi-read sheepId="C-7000" name="test-vdi" offset="0" length="102400" />
 	</test>
 
 	<test id="desync">

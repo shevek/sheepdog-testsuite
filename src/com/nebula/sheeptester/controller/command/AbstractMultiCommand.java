@@ -8,7 +8,6 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.ControllerException;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
@@ -23,6 +22,7 @@ public abstract class AbstractMultiCommand extends AbstractCommand {
     
         @ElementList(inline = true, type = AssertFailCommand.class, required = false),
         @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),
+        @ElementList(inline = true, type = ClusterShutdownCommand.class, required = false),
         @ElementList(inline = true, type = EchoCommand.class, required = false),
         @ElementList(inline = true, type = ExecCommand.class, required = false),
         @ElementList(inline = true, type = ParallelCommand.class, required = false),
