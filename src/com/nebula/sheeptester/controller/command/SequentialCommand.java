@@ -20,11 +20,15 @@ public class SequentialCommand extends AbstractMultiCommand {
 
     private static final Log LOG = LogFactory.getLog(SequentialCommand.class);
     @Attribute(required = false)
-    private int repeat;
+    private int repeat = 1;
 
     @Override
     public void run(final ControllerContext context) throws ControllerException, InterruptedException {
-        for (int i = 0; i < repeat; i++)
+        int _repeat = repeat;
+        if (_repeat <= 0)
+            _repeat = 1;
+
+        for (int i = 0; i < _repeat; i++)
             for (Command command : getCommands())
                 run(context, command);
     }

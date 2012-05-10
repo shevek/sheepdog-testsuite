@@ -52,7 +52,6 @@ public class ControllerMain {
         options.addOption(OptionBuilder.hasArg().withDescription("Path to sheeptester JAR.").create(OPT_JAR));
         options.addOption(OptionBuilder.hasArg().withDescription("Path to sheep binary.").create(OPT_SHEEP));
         options.addOption(OptionBuilder.hasArg().withDescription("Path to collie binary.").create(OPT_COLLIE));
-        options.addOption(OptionBuilder.hasArg().withDescription("Number of threads.").create(OPT_THREADS));
         options.addOption(OptionBuilder.withDescription("Operate as if on the target host (Do not use).").create(OPT_TARGET));
 
         CommandLineParser cmdparser = new GnuParser();
@@ -94,13 +93,21 @@ public class ControllerMain {
                         TestConfiguration config = configuration.getTest(test);
                         if (config == null)
                             throw new NullPointerException("No such test " + test);
-                        config.run(context);
+                        try {
+                            config.run(context);
+                        } catch (ControllerAssertionException e) {
+                            LOG.error("Test failed: " + e.getMessage());
+                        }
                     }
                 }
             } else {
                 for (TestConfiguration config : configuration.getTests()) {
-                    if (!config.isSkip()) {
-                        config.run(context);
+                    if (config.isAuto()) {
+                        try {
+                            config.run(context);
+                        } catch (ControllerAssertionException e) {
+                            LOG.error("Test failed: " + e.getMessage());
+                        }
                     }
                 }
             }

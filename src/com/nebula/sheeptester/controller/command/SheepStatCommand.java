@@ -9,6 +9,8 @@ import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.ControllerExecutor;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
+import com.nebula.sheeptester.target.operator.AbstractProcessOperator.ProcessResponse;
+import com.nebula.sheeptester.target.operator.ClusterInfoOperator;
 import com.nebula.sheeptester.target.operator.SheepListOperator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +48,8 @@ public class SheepStatCommand extends AbstractCommand {
         for (String text : texts) {
             LOG.info(text);
         }
+
+        run(context, context.getSheep().values());
     }
 
     public static void run(final ControllerContext context, Collection<? extends Host> hosts, final boolean check) throws ControllerException, InterruptedException {
@@ -90,5 +94,28 @@ public class SheepStatCommand extends AbstractCommand {
         }
         if (!failed.isEmpty())
             throw new ControllerException("Failure in sheep assertions:\n" + StringUtils.join(failed, "\n"));
+    }
+
+    public static void run(final ControllerContext context, Collection<? extends Sheep> sheeps) throws ControllerException, InterruptedException {
+        ControllerExecutor executor = context.newExecutor(sheeps.size());
+        for (final Sheep sheep : sheeps) {
+            executor.submit("Stat sheep " + sheep, new ControllerExecutor.Task() {
+
+                @Override
+                public void run() throws Exception {
+                    SheepStatCommand.run(context, sheep);
+                }
+            });
+        }
+        executor.await();
+    }
+
+    public static void run(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
+        if (!sheep.isRunning())
+            return;
+        ClusterInfoOperator operator = new ClusterInfoOperator(sheep.getConfig().getPort());
+
+        Host host = sheep.getHost();
+        ProcessResponse response = (ProcessResponse) context.execute(host, operator);
     }
 }

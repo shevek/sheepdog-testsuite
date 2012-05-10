@@ -4,6 +4,7 @@
  */
 package com.nebula.sheeptester.target.exec;
 
+import com.nebula.sheeptester.target.TargetAssertionException;
 import com.nebula.sheeptester.target.TargetContext;
 import com.nebula.sheeptester.target.TargetException;
 import java.io.ByteArrayOutputStream;
@@ -112,20 +113,21 @@ public class TargetProcess {
         } catch (ExecuteException e) {
             StringBuilder buf = new StringBuilder();
             buf.append("Execution of ").append(commandline).append(" failed:");
+            buf.append("\n\t").append(e).append("\n");
 
+            buf.append("Standard output:");
             if (getOutput().size() > 0)
-                buf.append("\nStandard output:\n").append(getOutput());
+                buf.append(":\n").append(getOutput()).append("\n");
             else
-                buf.append(" (no data on stdout)");
+                buf.append(" (no data on stdout)\n");
 
+            buf.append("Standard error:");
             if (getError().size() > 0)
-                buf.append("\nStandard error:\n").append(getError());
+                buf.append("\n").append(getError());
             else
                 buf.append(" (no data on stderr)");
 
-            buf.append(": ").append(e);
-
-            throw new TargetException(buf.toString());
+            throw new TargetAssertionException(buf.toString());
         }
     }
 

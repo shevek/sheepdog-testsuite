@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.target.operator;
 
 import com.nebula.sheeptester.target.TargetContext;
+import com.nebula.sheeptester.target.TargetException;
 import com.nebula.sheeptester.target.exec.BackgroundProcess;
 import com.nebula.sheeptester.target.exec.TargetProcess;
 import com.nebula.sheeptester.target.exec.TimedProcess;
@@ -40,6 +41,9 @@ public class SheepStartOperator extends AbstractProcessOperator {
         if (!dir.isDirectory()) {
             TimedProcess process = new TimedProcess(context, 500, "sudo", "mkdir", "-pm", "755", directory);
             process.execute();
+        }
+        if (!dir.isDirectory()) {
+            throw new TargetException("Failed to make directory " + directory);
         }
 
         return super.run(context);

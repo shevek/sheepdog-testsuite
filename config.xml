@@ -48,19 +48,19 @@
 	<sheep hostId="C" port="7011" directory="/tmp/sheepdog/7011" />
 	<sheep hostId="C" port="7012" directory="/tmp/sheepdog/7012" />
 
-	<test id="stat" skip="true">
+	<test id="stat" auto="false">
 		<sheep-stat />
 	</test>
 
-	<test id="kill" skip="true">
+	<test id="kill" auto="false">
 		<sheep-kill />
 	</test>
 
-	<test id="shutdown" skip="true">
+	<test id="shutdown" auto="false">
 		<cluster-shutdown />
 	</test>
 
-	<test id="wipe" skip="true">
+	<test id="wipe" auto="false">
 		<sheep-wipe />
 	</test>
 
@@ -145,13 +145,13 @@
 		</parallel>
 	</test>
 
-	<test id="joinstorm-init">
+	<test id="joinstorm-init" auto="false">
 		<sheep-wipe />
 		<sheep-start sheepId="A-7000" />
 		<cluster-format copies="1" />
 	</test>
 
-	<test id="joinstorm-fail">
+	<test id="joinstorm-fail" auto="false">
 		<parallel>
 			<sheep-start sheepId="A-7001" />
 			<sheep-start sheepId="A-7002" />
@@ -164,7 +164,7 @@
 		<subtest testId="joinstorm-fail" />
 	</test>
 
-	<test id="fpe-init">
+	<test id="fpe-init" auto="false">
 		<sheep-wipe />
 		<sheep-start sheepId="A-7000" />
 		<sheep-start sheepId="A-7001,A-7002" parallel="true" />
@@ -177,7 +177,7 @@
 		<vdi-read sheepId="B-7000" name="test-vdi" offset="0" length="20480" />
 	</test>
 
-	<test id="fpe-fail">
+	<test id="fpe-fail" auto="false">
 		<sheep-start sheepId="C-7000" valgrind="true" />
 		<!--
 		<sheep-start sheepId="C-7000,C-7001,C-7002" parallel="true" valgrind="true" />
@@ -187,30 +187,60 @@
 		<vdi-read sheepId="C-7000" name="test-vdi" offset="0" length="20480" />
 	</test>
 
+	<test id="fpe-stress" auto="false">
+		<sheep-start sheepId="C-7001,C-7002" parallel="true" />
+		<sleep msecs="2000" />
+		<vdi-read sheepId="C-7002" name="test-vdi" offset="0" length="20480" />
+	</test>
+
 	<test id="fpe">
 		<subtest testId="fpe-init" />
 		<subtest testId="fpe-fail" />
 	</test>
 
-	<test id="desync-init">
+	<test id="desync-init" auto="false">
 		<sheep-wipe />
 		<sheep-start sheepId="A-7000" />
 
 		<cluster-format copies="1" />
 
-		<vdi-create sheepId="A-7000" name="test-vdi" size="102400" />
-		<vdi-write sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
-		<vdi-read sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
+		<!-- It needs enough data to really barf. -->
+		<vdi-create sheepId="A-7000" name="test-vdi" size="300000" />
+		<vdi-write sheepId="A-7000" name="test-vdi" offset="0" length="300000" />
+		<!-- vdi-read sheepId="A-7000" name="test-vdi" offset="0" length="300000" / -->
 	</test>
 
-	<test id="desync-fail">
-		<sheep-start sheepId="C-7000" parallel="true" valgrind="true" />
-		<vdi-read sheepId="C-7000" name="test-vdi" offset="0" length="102400" />
+	<test id="desync-fail" auto="false">
+		<sheep-start sheepId="A-7001" />
+		<!-- Allow enough extra time for recovery to kick in. -->
+		<sleep msecs="5000" />
+		<vdi-read sheepId="A-7001" name="test-vdi" offset="0" length="300000" />
 	</test>
 
 	<test id="desync">
 		<subtest testId="desync-init" />
 		<subtest testId="desync-fail" />
+	</test>
+
+	<test id="valgrind">
+		<sheep-wipe />
+		<sheep-start sheepId="A-7000" valgrind="true" />
+		<sheep-start sheepId="A-7001" valgrind="true" />
+		<sheep-start sheepId="A-7002" valgrind="true" />
+		<cluster-format copies="1" />
+		<vdi-create sheepId="A-7000" name="test-vdi" size="102400" />
+		<vdi-write sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
+		<vdi-read sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
+		<cluster-shutdown />
+	</test>
+
+	<test id="no-vnode-write">
+		<sheep-wipe />
+		<sheep-start sheepId="A-7000" vnodes="0" />
+		<cluster-format copies="1" />
+		<assert-fail>
+			<vdi-create name="test-vdi" size="1024" />
+		</assert-fail>
 	</test>
 
 </configuration>

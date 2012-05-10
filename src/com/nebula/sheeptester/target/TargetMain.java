@@ -48,6 +48,8 @@ public class TargetMain {
                     LOG.warn("Operator gave null response: " + input);
                     response = new DefaultResponse(operator);
                 }
+            } catch (TargetAssertionException t) {
+                response = new ExceptionResponse(operator, t.getMessage());
             } catch (Throwable t) {
                 response = new ExceptionResponse(operator, t);
             }

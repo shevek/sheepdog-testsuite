@@ -12,6 +12,7 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import com.nebula.sheeptester.controller.ControllerAssertionException;
 import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.config.HostConfiguration;
 import com.nebula.sheeptester.target.operator.ExceptionResponse;
@@ -145,15 +146,15 @@ public class Host {
             response = future.get();
         } catch (ExecutionException e) {
             if (e.getCause() != null)
-                throw new ControllerException("Failed while executing " + object, e.getCause());
+                throw new ControllerAssertionException("Failed while executing " + object, e.getCause());
             else
-                throw new ControllerException("Failed while executing " + object, e);
+                throw new ControllerAssertionException("Failed while executing " + object, e);
         }
         if (response == null)
             throw new NullPointerException("Request did not generate a response: " + object);
         if (response instanceof ExceptionResponse) {
             ExceptionResponse eresponse = (ExceptionResponse) response;
-            throw new ControllerException(eresponse.getMessage());
+            throw new ControllerAssertionException(eresponse.getMessage());
         }
         return response;
     }

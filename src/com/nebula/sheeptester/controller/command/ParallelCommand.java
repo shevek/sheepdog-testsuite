@@ -21,7 +21,7 @@ public class ParallelCommand extends AbstractMultiCommand {
 
     private static final Log LOG = LogFactory.getLog(ParallelCommand.class);
     @Attribute(required = false)
-    private int repeat;
+    private int repeat = 1;
 
     @Override
     public void run(final ControllerContext context) throws ControllerException, InterruptedException {

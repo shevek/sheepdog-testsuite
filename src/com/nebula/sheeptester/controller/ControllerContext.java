@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +51,6 @@ public class ControllerContext {
     private static final Log LOG = LogFactory.getLog(ControllerContext.class);
     private final RootConfiguration configuration;
     private final JSch jsch = new JSch();
-    private final int nthreads;
     private final ExecutorService executor;
     private final Gson gson;
     private final File jarFile;
@@ -67,8 +65,7 @@ public class ControllerContext {
         File hosts = new File(SystemUtils.getUserHome(), ".ssh/known_hosts");
         this.jsch.setKnownHosts(hosts.getAbsolutePath());
 
-        this.nthreads = getOptionInteger(cmdline, ControllerMain.OPT_THREADS, ControllerMain.DFLT_THREADS);
-        this.executor = Executors.newFixedThreadPool(nthreads);
+        this.executor = Executors.newFixedThreadPool(configuration.getThreads());
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Operator.class, new OperatorAdapter());
         builder.registerTypeAdapter(Response.class, new OperatorResponseAdapter());

@@ -29,4 +29,9 @@ public class ExceptionResponse extends AbstractResponse {
         throwable.printStackTrace(pw);
         this.message = sw.toString();
     }
+
+    public ExceptionResponse(Operator operator, String message) {
+        super(operator);
+        this.message = message;
+    }
 }

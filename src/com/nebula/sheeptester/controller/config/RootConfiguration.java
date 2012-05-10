@@ -7,7 +7,9 @@ package com.nebula.sheeptester.controller.config;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
@@ -18,12 +20,19 @@ import org.simpleframework.xml.Root;
 @Root(name = "configuration")
 public class RootConfiguration {
 
+    @Attribute(required = false)
+    private int threads = 20;
     @ElementList(inline = true, entry = "host", required = false)
     private List<HostConfiguration> hosts;
     @ElementList(inline = true, entry = "sheep", required = false)
     private List<SheepConfiguration> sheeps;
     @ElementList(inline = true, entry = "test", required = false)
     private List<TestConfiguration> tests;
+
+    @Nonnegative
+    public int getThreads() {
+        return threads;
+    }
 
     @Nonnull
     public List<? extends HostConfiguration> getHosts() {

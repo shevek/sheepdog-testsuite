@@ -27,7 +27,7 @@ public class TestConfiguration extends AbstractMultiCommand {
     @Attribute(required = false)
     private String id;
     @Attribute(required = false)
-    private boolean skip;
+    private boolean auto = true;
 
     @Nonnull
     public String getId() {
@@ -36,8 +36,8 @@ public class TestConfiguration extends AbstractMultiCommand {
         return id;
     }
 
-    public boolean isSkip() {
-        return skip;
+    public boolean isAuto() {
+        return auto;
     }
 
     @Override

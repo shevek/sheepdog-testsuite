@@ -4,8 +4,6 @@
  */
 package com.nebula.sheeptester.controller;
 
-import com.nebula.sheeptester.target.*;
-
 /**
  *
  * @author shevek
