@@ -32,7 +32,7 @@ public abstract class HostOutputStream extends OutputStream {
             try {
                 process(buffer.toString());
             } catch (Throwable t) {
-                context.addError("Failed while processing incoming data", t);
+                LOG.error("Failed while processing incoming data", t);
             } finally {
                 buffer.reset();
             }

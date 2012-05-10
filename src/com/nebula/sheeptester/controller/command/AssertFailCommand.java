@@ -5,7 +5,7 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
-import java.util.concurrent.ExecutionException;
+import com.nebula.sheeptester.controller.ControllerException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Root;
@@ -20,14 +20,14 @@ public class AssertFailCommand extends SequentialCommand {
     private static final Log LOG = LogFactory.getLog(AssertFailCommand.class);
 
     @Override
-    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
         try {
             super.run(context);
-        } catch (Throwable t) {
+        } catch (ControllerException t) {
             LOG.info("Execution failed (as desired): " + t);
             return;
         }
         // Execution succeeded, but did not.
-        throw new ExecutionException("Expected execution to fail (erroneously succeeded) in " + this, null);
+        throw new ControllerException("Expected execution to fail (erroneously succeeded) in " + this);
     }
 }

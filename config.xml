@@ -178,7 +178,7 @@
 		<!--
 		<sheep-start sheepId="C-7000,C-7001,C-7002" parallel="true" valgrind="true" />
 		-->
-		<sleep msecs="2000" />
+		<sleep msecs="1000" />
 		<!-- Fails because the sheep on C died with an FPE. -->
 		<vdi-read sheepId="C-7000" name="test-vdi" offset="0" length="20480" />
 	</test>

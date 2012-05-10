@@ -5,7 +5,7 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
-import java.util.concurrent.ExecutionException;
+import com.nebula.sheeptester.controller.ControllerException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -23,7 +23,7 @@ public class SequentialCommand extends AbstractMultiCommand {
     private int repeat;
 
     @Override
-    public void run(final ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(final ControllerContext context) throws ControllerException, InterruptedException {
         for (int i = 0; i < repeat; i++)
             for (Command command : getCommands())
                 run(context, command);

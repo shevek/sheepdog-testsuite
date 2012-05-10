@@ -5,9 +5,9 @@
 package com.nebula.sheeptester.controller.config;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.command.AbstractMultiCommand;
 import com.nebula.sheeptester.controller.command.Command;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import org.apache.commons.logging.Log;
@@ -41,7 +41,7 @@ public class TestConfiguration extends AbstractMultiCommand {
     }
 
     @Override
-    public void run(@Nonnull ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(@Nonnull ControllerContext context) throws ControllerException, InterruptedException {
         LOG.info("Executing test:\n" + this);
         for (Command command : getCommands())
             command.run(context);

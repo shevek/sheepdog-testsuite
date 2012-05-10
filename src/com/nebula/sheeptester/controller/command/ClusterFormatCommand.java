@@ -5,10 +5,10 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.ClusterFormatOperator;
-import java.util.concurrent.ExecutionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -28,7 +28,7 @@ public class ClusterFormatCommand extends AbstractCommand {
     private int copies;
 
     @Override
-    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
         Sheep sheep = toSheep(context, sheepId);
         int _copies = copies;
         if (_copies <= 0)

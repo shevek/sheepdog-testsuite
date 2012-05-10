@@ -31,12 +31,12 @@ public class SheepWipeOperator extends AbstractProcessOperator {
     public Response run(TargetContext context) throws Exception {
         File dir = new File(directory);
         if (!dir.isDirectory()) {
-            LOG.warn(context.getHostId() + ": Directory not found: " + dir);
+            // LOG.warn(context.getHostId() + ": Directory not found: " + dir);
             return new DefaultResponse(this);
         }
         File log = new File(dir, "sheep.log");
         if (!log.isFile()) {
-            LOG.warn(context.getHostId() + ": Log file not found: " + log);
+            // LOG.warn(context.getHostId() + ": Log file not found: " + log);
             return new DefaultResponse(this);
         }
 

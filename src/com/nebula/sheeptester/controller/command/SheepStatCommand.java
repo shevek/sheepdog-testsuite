@@ -5,6 +5,8 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
+import com.nebula.sheeptester.controller.ControllerExecutor;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepListOperator;
@@ -14,9 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +34,7 @@ public class SheepStatCommand extends AbstractCommand {
     private boolean check;
 
     @Override
-    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
         Collection<? extends Host> hosts = context.getHosts();
         run(context, hosts, check);
         List<String> texts = new ArrayList<String>();
@@ -49,29 +48,21 @@ public class SheepStatCommand extends AbstractCommand {
         }
     }
 
-    public static void run(final ControllerContext context, Collection<? extends Host> hosts, final boolean check) throws InterruptedException, ExecutionException {
-        final CountDownLatch latch = new CountDownLatch(hosts.size());
-        final ExecutorService executor = context.getExecutor();
+    public static void run(final ControllerContext context, Collection<? extends Host> hosts, final boolean check) throws ControllerException, InterruptedException {
+        final ControllerExecutor executor = context.newExecutor(hosts.size());
         for (final Host host : hosts) {
-            Runnable runnable = new Runnable() {
+            executor.submit("Stat on " + host, new ControllerExecutor.Task() {
 
                 @Override
-                public void run() {
-                    try {
-                        SheepStatCommand.run(context, host, check);
-                    } catch (Exception e) {
-                        context.addError("Failed while executing on " + host, e);
-                    } finally {
-                        latch.countDown();
-                    }
+                public void run() throws Exception {
+                    SheepStatCommand.run(context, host, check);
                 }
-            };
-            executor.submit(runnable);
+            });
         }
-        latch.await();
+        executor.await();
     }
 
-    public static void run(ControllerContext context, Host host, boolean check) throws InterruptedException, ExecutionException {
+    public static void run(ControllerContext context, Host host, boolean check) throws ControllerException, InterruptedException {
         List<String> failed = new ArrayList<String>();
         Map<Integer, Sheep> hostSheepMap = new HashMap<Integer, Sheep>();
         for (Sheep sheep : context.getSheep(host).values()) {
@@ -98,6 +89,6 @@ public class SheepStatCommand extends AbstractCommand {
             sheep.setPid(-1);
         }
         if (!failed.isEmpty())
-            throw new ExecutionException("Failure in sheep assertions:\n" + StringUtils.join(failed, "\n"), null);
+            throw new ControllerException("Failure in sheep assertions:\n" + StringUtils.join(failed, "\n"));
     }
 }

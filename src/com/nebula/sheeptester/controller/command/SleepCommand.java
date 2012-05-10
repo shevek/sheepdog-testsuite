@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
@@ -19,12 +20,8 @@ public class SleepCommand extends AbstractCommand {
     private long msecs;
 
     @Override
-    public void run(ControllerContext context) {
-        try {
-            Thread.sleep(msecs);
-        } catch (InterruptedException e) {
-            context.addError("Sleep interrupted", e);
-        }
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
+        Thread.sleep(msecs);
     }
 
     @Override

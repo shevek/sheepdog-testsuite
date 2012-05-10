@@ -5,9 +5,9 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.config.RootConfiguration;
 import com.nebula.sheeptester.controller.config.TestConfiguration;
-import java.util.concurrent.ExecutionException;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
@@ -22,9 +22,15 @@ public class SubtestCommand extends AbstractCommand {
     private String testId;
 
     @Override
-    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
         RootConfiguration configuration = context.getConfiguration();
         TestConfiguration test = configuration.getTest(testId);
         test.run(context);
+    }
+
+    @Override
+    public void toStringBuilderArgs(StringBuilder buf) {
+        super.toStringBuilderArgs(buf);
+        buf.append(" testId=").append(testId);
     }
 }

@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +46,7 @@ public abstract class AbstractMultiCommand extends AbstractCommand {
         return commands;
     }
 
-    protected void run(@Nonnull ControllerContext context, @Nonnull Command command) throws InterruptedException, ExecutionException {
+    protected void run(@Nonnull ControllerContext context, @Nonnull Command command) throws ControllerException, InterruptedException {
         command.run(context);
     }
 

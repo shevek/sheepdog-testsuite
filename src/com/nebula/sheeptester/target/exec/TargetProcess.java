@@ -110,7 +110,22 @@ public class TargetProcess {
             if (retval != 0)
                 throw new ExecuteException("Process returned nonzero exit value " + retval, retval);
         } catch (ExecuteException e) {
-            throw new TargetException("Execution of " + commandline + " failed:\nOutput:\n" + getOutput() + "\nError:\n" + getError(), e);
+            StringBuilder buf = new StringBuilder();
+            buf.append("Execution of ").append(commandline).append(" failed:");
+
+            if (getOutput().size() > 0)
+                buf.append("\nStandard output:\n").append(getOutput());
+            else
+                buf.append(" (no data on stdout)");
+
+            if (getError().size() > 0)
+                buf.append("\nStandard error:\n").append(getError());
+            else
+                buf.append(" (no data on stderr)");
+
+            buf.append(": ").append(e);
+
+            throw new TargetException(buf.toString());
         }
     }
 

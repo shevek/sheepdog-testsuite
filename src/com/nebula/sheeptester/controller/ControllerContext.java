@@ -21,7 +21,6 @@ import com.nebula.sheeptester.target.operator.OperatorAdapter;
 import com.nebula.sheeptester.target.operator.OperatorResponseAdapter;
 import com.nebula.sheeptester.target.operator.Response;
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -31,9 +30,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -105,6 +104,11 @@ public class ControllerContext {
     @Nonnull
     public ExecutorService getExecutor() {
         return executor;
+    }
+
+    @Nonnull
+    public ControllerExecutor newExecutor(int size) {
+        return new ControllerExecutor(this, size);
     }
 
     @Nonnull
@@ -180,10 +184,6 @@ public class ControllerContext {
         return vdiMap.remove(name);
     }
 
-    public void addError(@Nonnull String message, @CheckForNull Throwable t) {
-        LOG.error(message, t);
-    }
-
     private static int getOptionInteger(@Nonnull CommandLine cmdline, @Nonnull String option, int dflt) {
         String value = cmdline.getOptionValue(option);
         if (value == null)
@@ -191,7 +191,7 @@ public class ControllerContext {
         return Integer.parseInt(value);
     }
 
-    public void init() throws IOException, InterruptedException {
+    public void init() throws ControllerException, InterruptedException {
         for (HostConfiguration config : configuration.getHosts()) {
             config.init();
             Host host = new Host(this, config);
@@ -207,28 +207,22 @@ public class ControllerContext {
             sheepMap.put(config.getId(), sheep);
         }
 
-        final CountDownLatch latch = new CountDownLatch(hostMap.size());
+        ControllerExecutor executor = newExecutor(hostMap.size());
         for (final Map.Entry<String, Host> e : hostMap.entrySet()) {
-            getExecutor().submit(new Runnable() {
+            executor.submit("Loading sheep on " + e.getValue(), new ControllerExecutor.Task() {
 
                 @Override
-                public void run() {
+                public void run() throws Exception {
                     String hostId = e.getKey();
                     Host host = e.getValue();
-                    try {
-                        HostConfiguration config = host.getConfig();
-                        host.connect();
-                        execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie()));
-                        SheepStatCommand.run(ControllerContext.this, host, false);
-                    } catch (Exception e) {
-                        addError("Failed while executing on " + host, e);
-                    } finally {
-                        latch.countDown();
-                    }
+                    HostConfiguration config = host.getConfig();
+                    host.connect();
+                    execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie()));
+                    SheepStatCommand.run(ControllerContext.this, host, false);
                 }
             });
         }
-        latch.await();
+        executor.await();
     }
 
     public void fini() throws InterruptedException, ExecutionException {
@@ -238,7 +232,7 @@ public class ControllerContext {
         executor.shutdown();
     }
 
-    public Response execute(@Nonnull Host host, @Nonnull Operator operator) throws InterruptedException, ExecutionException {
+    public Response execute(@Nonnull Host host, @Nonnull Operator operator) throws ControllerException, InterruptedException {
         return host.execute(this, operator);
     }
 }

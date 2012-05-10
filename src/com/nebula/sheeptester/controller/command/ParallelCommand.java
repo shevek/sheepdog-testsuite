@@ -5,8 +5,8 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
+import com.nebula.sheeptester.controller.ControllerException;
+import com.nebula.sheeptester.controller.ControllerExecutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -24,36 +24,24 @@ public class ParallelCommand extends AbstractMultiCommand {
     private int repeat;
 
     @Override
-    public void run(final ControllerContext context) {
+    public void run(final ControllerContext context) throws ControllerException, InterruptedException {
         int _repeat = repeat;
         if (_repeat <= 0)
             _repeat = 1;
 
-        try {
-            int total = getCommands().size() * _repeat;
-            final CountDownLatch latch = new CountDownLatch(total);
-            final ExecutorService executor = context.getExecutor();
-            for (int i = 0; i < _repeat; i++) {
-                for (final Command command : getCommands()) {
-                    Runnable runnable = new Runnable() {
+        int total = getCommands().size() * _repeat;
+        ControllerExecutor executor = context.newExecutor(total);
+        for (int i = 0; i < _repeat; i++) {
+            for (final Command command : getCommands()) {
+                executor.submit("Executing sub-command " + command, new ControllerExecutor.Task() {
 
-                        @Override
-                        public void run() {
-                            try {
-                                ParallelCommand.this.run(context, command);
-                            } catch (Throwable t) {
-                                context.addError("Failed while running " + command, t);
-                            } finally {
-                                latch.countDown();
-                            }
-                        }
-                    };
-                    executor.submit(runnable);
-                }
+                    @Override
+                    public void run() throws Exception {
+                        ParallelCommand.this.run(context, command);
+                    }
+                });
             }
-            latch.await();
-        } catch (InterruptedException e) {
-            context.addError("<parallel> was interrupted.", e);
         }
+        executor.await();
     }
 }

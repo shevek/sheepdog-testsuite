@@ -5,10 +5,12 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
+import com.nebula.sheeptester.controller.ControllerExecutor;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepWipeOperator;
-import java.util.concurrent.ExecutionException;
+import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -28,7 +30,7 @@ public class SheepWipeCommand extends AbstractCommand {
     private String sheepId;
 
     @Override
-    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(final ControllerContext context) throws ControllerException, InterruptedException {
         if (sheepId != null) {
             Sheep sheep = getSheep(context, sheepId);
             SheepKillCommand.run(context, sheep);
@@ -40,20 +42,37 @@ public class SheepWipeCommand extends AbstractCommand {
                 run(context, sheep);
             }
         } else {
-            for (Host host : context.getHosts()) {
-                SheepKillCommand.run(context, host);
-            }
-            for (Sheep sheep : context.getSheep().values()) {
-                run(context, sheep);
+            SheepKillCommand.run(context, context.getHosts());
+            Collection<? extends Sheep> sheeps = context.getSheep().values();
+            ControllerExecutor executor = context.newExecutor(sheeps.size());
+            for (final Sheep sheep : sheeps) {
+                executor.submit("Wiping sheep " + sheep, new ControllerExecutor.Task() {
+
+                    @Override
+                    public void run() throws Exception {
+                        SheepWipeCommand.run(context, sheep);
+                    }
+                });
             }
         }
         Thread.sleep(2000);
     }
 
-    public static void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {
+    public static void run(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
         SheepWipeOperator operator = new SheepWipeOperator(sheep.getConfig().getDirectory());
 
         Host host = sheep.getHost();
         context.execute(host, operator);
+    }
+
+    @Override
+    public void toStringBuilderArgs(StringBuilder buf) {
+        super.toStringBuilderArgs(buf);
+        if (sheepId != null)
+            buf.append(" sheepId=").append(sheepId);
+        if (hostId != null)
+            buf.append(" hostId=").append(hostId);
+        if (sheepId == null && hostId == null)
+            buf.append(" <all-sheep>");
     }
 }

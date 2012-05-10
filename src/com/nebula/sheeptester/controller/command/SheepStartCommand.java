@@ -5,6 +5,8 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
+import com.nebula.sheeptester.controller.ControllerExecutor;
 import com.nebula.sheeptester.controller.config.SheepConfiguration;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
@@ -16,9 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,7 +45,7 @@ public class SheepStartCommand extends AbstractCommand {
     private boolean valgrind;
 
     @Override
-    public void run(ControllerContext context) throws InterruptedException, ExecutionException {
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
         List<Sheep> sheeps = new ArrayList<Sheep>();
         if (sheepId != null) {
             for (String id : StringUtils.split(sheepId, ", ")) {
@@ -91,29 +91,21 @@ public class SheepStartCommand extends AbstractCommand {
         }
     }
 
-    public void run(final ControllerContext context, Collection<? extends Sheep> sheeps) throws InterruptedException, ExecutionException {
-        final CountDownLatch latch = new CountDownLatch(sheeps.size());
-        final ExecutorService executor = context.getExecutor();
+    public void run(final ControllerContext context, Collection<? extends Sheep> sheeps) throws ControllerException, InterruptedException {
+        final ControllerExecutor executor = context.newExecutor(sheeps.size());
         for (final Sheep sheep : sheeps) {
-            Runnable runnable = new Runnable() {
+            executor.submit("Starting sheep " + sheep, new ControllerExecutor.Task() {
 
                 @Override
-                public void run() {
-                    try {
-                        SheepStartCommand.this.run(context, sheep);
-                    } catch (Exception e) {
-                        context.addError("Failed while starting " + sheep, e);
-                    } finally {
-                        latch.countDown();
-                    }
+                public void run() throws Exception {
+                    SheepStartCommand.this.run(context, sheep);
                 }
-            };
-            executor.submit(runnable);
+            });
         }
-        latch.await();
+        executor.await();
     }
 
-    public void run(ControllerContext context, Sheep sheep) throws InterruptedException, ExecutionException {
+    public void run(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
         SheepConfiguration config = sheep.getConfig();
         SheepStartOperator operator = new SheepStartOperator(config.getPort(), config.getDirectory());
         operator.strace = strace;

@@ -12,6 +12,7 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.config.HostConfiguration;
 import com.nebula.sheeptester.target.operator.ExceptionResponse;
 import com.nebula.sheeptester.target.operator.Operator;
@@ -24,6 +25,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.io.FileUtils;
@@ -128,7 +131,7 @@ public class Host {
         }
     }
 
-    public Response execute(ControllerContext context, Operator object) throws InterruptedException, ExecutionException {
+    public Response execute(ControllerContext context, Operator object) throws ControllerException, InterruptedException {
         String text = context.getGson().toJson(object, Operator.class);
         // LOG.info("Run " + this + ": " + text);
         // LOG.info(Host.this + " >>> " + text);
@@ -137,12 +140,20 @@ public class Host {
             requests.put(object.getId(), future);
             writer.println(text);   // synchronizes internally and flushes
         }
-        Response response = future.get();
+        Response response;
+        try {
+            response = future.get();
+        } catch (ExecutionException e) {
+            if (e.getCause() != null)
+                throw new ControllerException("Failed while executing " + object, e.getCause());
+            else
+                throw new ControllerException("Failed while executing " + object, e);
+        }
         if (response == null)
             throw new NullPointerException("Request did not generate a response: " + object);
         if (response instanceof ExceptionResponse) {
             ExceptionResponse eresponse = (ExceptionResponse) response;
-            throw new ExecutionException(eresponse.getMessage(), null);
+            throw new ControllerException(eresponse.getMessage());
         }
         return response;
     }

@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
  */
 public interface Command {
 
-    public void run(@Nonnull ControllerContext context) throws InterruptedException, ExecutionException;
+    public void run(@Nonnull ControllerContext context) throws ControllerException, InterruptedException;
 
     public void toStringBuilder(@Nonnull StringBuilder buf, @Nonnegative int depth);
 }
