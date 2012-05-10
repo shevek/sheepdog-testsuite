@@ -26,5 +26,4 @@ public class OffsetTransform implements Transform<Long> {
             return null;
         return String.valueOf(value);
     }
-
 }

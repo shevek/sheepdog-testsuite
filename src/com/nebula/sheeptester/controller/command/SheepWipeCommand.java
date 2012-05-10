@@ -54,6 +54,7 @@ public class SheepWipeCommand extends AbstractCommand {
                     }
                 });
             }
+            executor.await();
         }
         Thread.sleep(2000);
     }
