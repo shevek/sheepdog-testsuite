@@ -99,7 +99,9 @@ public class ControllerMain {
                 }
             } else {
                 for (TestConfiguration config : configuration.getTests()) {
-                    config.run(context);
+                    if (!config.isSkip()) {
+                        config.run(context);
+                    }
                 }
             }
 

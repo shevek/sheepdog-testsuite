@@ -52,6 +52,10 @@ public class SheepKillCommand extends AbstractCommand {
         if (!sheep.isRunning())
             return;
 
+        if (sheep.getPid() == Integer.MAX_VALUE) {
+            LOG.warn("Cannot kill sheep with unknown pid " + sheep);
+            return;
+        }
         SheepKillOperator operator = new SheepKillOperator(sheep.getPid());
 
         Host host = sheep.getHost();

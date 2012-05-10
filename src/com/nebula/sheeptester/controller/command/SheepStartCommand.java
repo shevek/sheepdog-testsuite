@@ -87,7 +87,7 @@ public class SheepStartCommand extends AbstractCommand {
                 Thread.sleep(4000);
             else
                 Thread.sleep(100);
-            SheepStatCommand.run(context, hosts);
+            SheepStatCommand.run(context, hosts, true);
         }
     }
 

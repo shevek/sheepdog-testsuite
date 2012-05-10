@@ -219,7 +219,7 @@ public class ControllerContext {
                         HostConfiguration config = host.getConfig();
                         host.connect();
                         execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie()));
-                        SheepStatCommand.run(ControllerContext.this, host);
+                        SheepStatCommand.run(ControllerContext.this, host, false);
                     } catch (Exception e) {
                         addError("Failed while executing on " + host, e);
                     } finally {

@@ -26,12 +26,18 @@ public class TestConfiguration extends AbstractMultiCommand {
     private static final AtomicInteger COUNTER = new AtomicInteger();
     @Attribute(required = false)
     private String id;
+    @Attribute(required = false)
+    private boolean skip;
 
     @Nonnull
     public String getId() {
         if (id == null)
             id = "_test_" + COUNTER.getAndIncrement();
         return id;
+    }
+
+    public boolean isSkip() {
+        return skip;
     }
 
     @Override

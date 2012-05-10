@@ -17,8 +17,10 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
 /**
@@ -29,11 +31,13 @@ import org.simpleframework.xml.Root;
 public class SheepStatCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(SheepStatCommand.class);
+    @Attribute(required = false)
+    private boolean check;
 
     @Override
     public void run(ControllerContext context) throws InterruptedException, ExecutionException {
         Collection<? extends Host> hosts = context.getHosts();
-        run(context, hosts);
+        run(context, hosts, check);
         List<String> texts = new ArrayList<String>();
         for (Sheep sheep : context.getSheep().values()) {
             if (sheep.isRunning())
@@ -45,7 +49,7 @@ public class SheepStatCommand extends AbstractCommand {
         }
     }
 
-    public static void run(final ControllerContext context, Collection<? extends Host> hosts) throws InterruptedException, ExecutionException {
+    public static void run(final ControllerContext context, Collection<? extends Host> hosts, final boolean check) throws InterruptedException, ExecutionException {
         final CountDownLatch latch = new CountDownLatch(hosts.size());
         final ExecutorService executor = context.getExecutor();
         for (final Host host : hosts) {
@@ -54,7 +58,7 @@ public class SheepStatCommand extends AbstractCommand {
                 @Override
                 public void run() {
                     try {
-                        SheepStatCommand.run(context, host);
+                        SheepStatCommand.run(context, host, check);
                     } catch (Exception e) {
                         context.addError("Failed while executing on " + host, e);
                     } finally {
@@ -67,7 +71,8 @@ public class SheepStatCommand extends AbstractCommand {
         latch.await();
     }
 
-    public static void run(ControllerContext context, Host host) throws InterruptedException, ExecutionException {
+    public static void run(ControllerContext context, Host host, boolean check) throws InterruptedException, ExecutionException {
+        List<String> failed = new ArrayList<String>();
         Map<Integer, Sheep> hostSheepMap = new HashMap<Integer, Sheep>();
         for (Sheep sheep : context.getSheep(host).values()) {
             hostSheepMap.put(sheep.getConfig().getPort(), sheep);
@@ -80,10 +85,19 @@ public class SheepStatCommand extends AbstractCommand {
                 LOG.warn(host.getConfig().getId() + ": Found an unexpected sheep listening on port " + process.port);
                 continue;
             }
+            boolean running = sheep.isRunning();
             sheep.setPid(process.pid);
+            if (check)
+                if (!running)
+                    failed.add("Unexpectedly running: " + sheep);
         }
         for (Sheep sheep : hostSheepMap.values()) {
+            if (check)
+                if (sheep.isRunning())
+                    failed.add("Unexpectedly died: " + sheep);
             sheep.setPid(-1);
         }
+        if (!failed.isEmpty())
+            throw new ExecutionException("Failure in sheep assertions:\n" + StringUtils.join(failed, "\n"), null);
     }
 }
