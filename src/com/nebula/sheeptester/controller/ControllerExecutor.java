@@ -39,7 +39,7 @@ public class ControllerExecutor {
                     task.run();
                 } catch (Throwable t) {
                     if (!throwable.compareAndSet(null, t))
-                        LOG.error("Additional failure: " + message, t);
+                        LOG.error("Additional failure: " + message + ": " + t.getMessage());
                 } finally {
                     latch.countDown();
                 }

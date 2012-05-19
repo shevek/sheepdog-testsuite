@@ -22,9 +22,14 @@ public abstract class AbstractMultiCommand extends AbstractCommand {
     
         @ElementList(inline = true, type = AssertFailCommand.class, required = false),
         @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),
+        @ElementList(inline = true, type = ClusterInfoCommand.class, required = false),
+        @ElementList(inline = true, type = ClusterRecoverCommand.class, required = false),
+        @ElementList(inline = true, type = ClusterRestartCommand.class, required = false),
         @ElementList(inline = true, type = ClusterShutdownCommand.class, required = false),
         @ElementList(inline = true, type = EchoCommand.class, required = false),
         @ElementList(inline = true, type = ExecCommand.class, required = false),
+        @ElementList(inline = true, type = NodeInfoCommand.class, required = false),
+        @ElementList(inline = true, type = NodeListCommand.class, required = false),
         @ElementList(inline = true, type = ParallelCommand.class, required = false),
         @ElementList(inline = true, type = SheepKillCommand.class, required = false),
         @ElementList(inline = true, type = SheepStartCommand.class, required = false),
@@ -34,6 +39,7 @@ public abstract class AbstractMultiCommand extends AbstractCommand {
         @ElementList(inline = true, type = SubtestCommand.class, required = false),
         @ElementList(inline = true, type = VdiCreateCommand.class, required = false),
         @ElementList(inline = true, type = VdiDeleteCommand.class, required = false),
+        @ElementList(inline = true, type = VdiListCommand.class, required = false),
         @ElementList(inline = true, type = VdiReadCommand.class, required = false),
         @ElementList(inline = true, type = VdiWriteCommand.class, required = false),
 

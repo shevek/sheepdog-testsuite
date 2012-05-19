@@ -20,14 +20,13 @@ import com.nebula.sheeptester.target.operator.Operator;
 import com.nebula.sheeptester.target.operator.QuitOperator;
 import com.nebula.sheeptester.target.operator.Response;
 import com.nebula.sheeptester.util.SimpleFuture;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.io.FileUtils;
@@ -99,7 +98,8 @@ public class Host {
 
                     @Override
                     protected void process(String line) {
-                        // LOG.info(Host.this + " <<< " + line);
+                        if (context.isVerbose())
+                            LOG.info(Host.this + " <<< " + line);
                         Response response = gson.fromJson(line, Response.class);
                         SimpleFuture<Response> future;
                         synchronized (lock) {
@@ -109,6 +109,14 @@ public class Host {
                             LOG.warn("No future for request " + response.getId());
                         else
                             future.setValue(response);
+                    }
+
+                    @Override
+                    public void close() throws IOException {
+                        synchronized (lock) {
+                            for (SimpleFuture<?> f : requests.values())
+                                f.setThrowable(new EOFException());
+                        }
                     }
                 });
 
@@ -135,7 +143,8 @@ public class Host {
     public Response execute(ControllerContext context, Operator object) throws ControllerException, InterruptedException {
         String text = context.getGson().toJson(object, Operator.class);
         // LOG.info("Run " + this + ": " + text);
-        // LOG.info(Host.this + " >>> " + text);
+        if (context.isVerbose())
+            LOG.info(Host.this + " >>> " + text);
         SimpleFuture<Response> future = new SimpleFuture<Response>();
         synchronized (lock) {
             requests.put(object.getId(), future);

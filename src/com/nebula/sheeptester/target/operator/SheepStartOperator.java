@@ -24,6 +24,7 @@ public class SheepStartOperator extends AbstractProcessOperator {
     private int port;
     private String directory;
     public int vnodes = -1;
+    public int zone = -1;
     public boolean strace;
     public boolean valgrind;
 
@@ -58,9 +59,11 @@ public class SheepStartOperator extends AbstractProcessOperator {
         if (valgrind)
             command.addAll(Arrays.asList("valgrind", "--trace-children=yes", "--leak-check=full", "--log-file=" + directory + "/valgrind.out"));
         // return new TimedProcess(context, 1000, "sudo", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
-        command.addAll(Arrays.asList(context.getSheep(), "-f", "-l7", "-d", "-p", String.valueOf(port)));
+        command.addAll(Arrays.asList(context.getSheep(), "--disable-cache", "-f", "-l7", "-d", "-p", String.valueOf(port)));
         if (vnodes >= 0)
             command.addAll(Arrays.asList("-v", String.valueOf(vnodes)));
+        if (zone >= 0)
+            command.addAll(Arrays.asList("-z", String.valueOf(zone)));
         command.add(directory);
         return new BackgroundProcess(context, command.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
     }

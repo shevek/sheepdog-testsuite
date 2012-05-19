@@ -9,7 +9,7 @@ import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
-import com.nebula.sheeptester.target.operator.VdiCreateOperator;
+import com.nebula.sheeptester.target.operator.ExecOperator;
 import javax.annotation.CheckForNull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
@@ -41,11 +41,15 @@ public class VdiCreateCommand extends AbstractCommand {
             _size = Vdi.newSize();
         else
             _size = _size * 1024;
+        run(context, sheep, _name, _size);
+    }
 
+    public Vdi run(ControllerContext context, Sheep sheep, String _name, long _size) throws ControllerException, InterruptedException {
         Host host = sheep.getHost();
-        VdiCreateOperator request = new VdiCreateOperator(sheep.getConfig().getPort(), _name, _size);
-        context.execute(host, request);
+        ExecOperator operator = new ExecOperator(5000, "${COLLIE}", "vdi", "create", "-p", String.valueOf(sheep.getConfig().getPort()), _name, String.valueOf(_size));
+        context.execute(host, operator);
         Vdi vdi = new Vdi(_name, _size);
         context.addVdi(vdi);
+        return vdi;
     }
 }

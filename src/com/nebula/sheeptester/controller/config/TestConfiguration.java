@@ -8,8 +8,11 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.command.AbstractMultiCommand;
 import com.nebula.sheeptester.controller.command.Command;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -27,6 +30,8 @@ public class TestConfiguration extends AbstractMultiCommand {
     @Attribute(required = false)
     private String id;
     @Attribute(required = false)
+    private String group;
+    @Attribute(required = false)
     private boolean auto = true;
 
     @Nonnull
@@ -34,6 +39,10 @@ public class TestConfiguration extends AbstractMultiCommand {
         if (id == null)
             id = "_test_" + COUNTER.getAndIncrement();
         return id;
+    }
+
+    public List<? extends String> getGroups() {
+        return Arrays.asList(StringUtils.split(group, ", "));
     }
 
     public boolean isAuto() {
@@ -53,6 +62,6 @@ public class TestConfiguration extends AbstractMultiCommand {
         buf.append(getId()).append(":\n");
         toStringBuilder(buf, 0);
         int length = buf.length();
-        return buf.toString().substring(0, length - 1);
+        return buf.substring(0, length - 1);
     }
 }

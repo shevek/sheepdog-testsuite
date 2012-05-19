@@ -243,4 +243,159 @@
 		</assert-fail>
 	</test>
 
+	<test id="ls">
+		<exec>
+			ls
+		</exec>
+	</test>
+
+	<test id="restart_assert_running_ok" auto="false">
+		<sleep msecs="2000" />
+		<vdi-list sheepId="A-7000" />
+		<vdi-read sheepId="A-7000" name="test-vdi" />
+	</test>
+
+	<test id="restart_assert_running_missing" auto="false">
+		<sleep msecs="2000" />
+		<assert-fail message="No VDI found|No object found">
+			<!-- Sometimes succeeds, but should probably fail. -->
+			<vdi-list sheepId="A-7000" />
+			<!-- Always fails. -->
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+		</assert-fail>
+		<assert-fail message="Cluster is running">
+			<cluster-recover sheepId="A-7000" />
+		</assert-fail>
+		<assert-fail message="No VDI found|No object found">
+			<!-- One of these will fail, not sure which.
+			   - Depends on whether it loses the first block
+			   - of the VDI or a subsequent block. -->
+			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+		</assert-fail>
+	</test>
+
+	<test id="restart_assert_recover_ok" auto="false">
+		<sleep msecs="2000" />
+		<assert-fail message="Waiting for other nodes">
+			<!-- Sometimes succeeds, but should probably fail. -->
+			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+		</assert-fail>
+		<cluster-recover sheepId="A-7000" />
+		<vdi-list sheepId="A-7000" />
+		<vdi-read sheepId="A-7000" name="test-vdi" />
+	</test>
+
+	<test id="restart_assert_recover_missing" auto="false">
+		<sleep msecs="2000" />
+		<assert-fail message="Waiting for other nodes">
+			<!-- Sometimes succeeds, but should probably fail. -->
+			<vdi-list sheepId="A-7000" />
+			<!-- Always fails. -->
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+		</assert-fail>
+		<cluster-recover sheepId="A-7000" />
+		<assert-fail message="No VDI found|No object found">
+			<!-- One of these will fail, not sure which.
+			   - Depends on whether it loses the first block
+			   - of the VDI or a subsequent block. -->
+			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+		</assert-fail>
+	</test>
+
+	<!-- Passes -->
+	<test id="restart_RRRR_c1">
+		<cluster-restart pattern="RRRR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Passes -->
+	<test id="restart_RRRR_c3">
+		<cluster-restart pattern="RRRR" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Fails because of APPLIANCE-2069 -->
+	<test id="restart_RRRRN_c1">
+		<cluster-restart pattern="RRRRN" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Fails because of APPLIANCE-2069 -->
+	<test id="restart_RRRRN_c3">
+		<cluster-restart pattern="RRRRN" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Fails because of APPLIANCE-2069 -->
+	<test id="restart_RRNRR_c1">
+		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Fails because of APPLIANCE-2069 -->
+	<test id="restart_RRNRR_c3">
+		<cluster-restart pattern="RRNRR" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Passes (correctly dies) -->
+	<test id="restart_RRRRX_c1">
+		<cluster-restart pattern="RRRRX" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_missing" />
+	</test>
+
+	<!-- Fails, ticket APPLIANCE-2068 -->
+	<test id="restart_RRRRX_c3">
+		<cluster-restart pattern="RRRRX" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_ok" />
+	</test>
+
+	<!-- Fails because recovery can't detect a W node. -->
+	<test id="restart_RWRRRR_c1">
+		<cluster-restart pattern="RWRRRR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_missing" />
+	</test>
+
+	<!-- Fails because recovery can't detect a W node,
+	   - or because of APPLIANCE-2069, very hard to tell. -->
+	<test id="restart_RWRRRR_c3">
+		<cluster-restart pattern="RWRRRR" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Difficult to say because of APPLIANCE-2069 -->
+	<test id="restart_RRNRRX_c1">
+		<cluster-restart pattern="RRNRRX" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_missing" />
+	</test>
+
+	<!-- Would pass, incorrectly, but fails,
+	   - probably because of APPLIANCE-2068 or APPLIANCE-2069 -->
+	<test id="restart_RRNRRX_c3">
+		<cluster-restart pattern="RRNRRX" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_ok" />
+	</test>
+
+	<!-- ?? Passes incorrectly, because of N node. -->
+	<test id="restart_RRRNXX_c1">
+		<cluster-restart pattern="RRRNR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_missing" />
+	</test>
+
+	<!-- ?? Fails, ticket APPLIANCE-2068 -->
+	<test id="restart_RRRNXX_c3">
+		<cluster-restart pattern="RRRNXX" copies="3" sheepId="A-7000" hostId="A" />
+		<echo message="This should be recover_ok, but the N node kicks it online." />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Passes -->
+	<test id="restart_RRRRXXXX_c3">
+		<cluster-restart pattern="RRRRXXXX" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_missing" />
+	</test>
+
 </configuration>

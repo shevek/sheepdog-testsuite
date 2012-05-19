@@ -8,7 +8,7 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
-import com.nebula.sheeptester.target.operator.ClusterFormatOperator;
+import com.nebula.sheeptester.target.operator.ExecOperator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -33,7 +33,11 @@ public class ClusterFormatCommand extends AbstractCommand {
         int _copies = copies;
         if (_copies <= 0)
             _copies = 3;
-        ClusterFormatOperator operator = new ClusterFormatOperator(sheep.getConfig().getPort(), _copies);
+        run(context, sheep, _copies);
+    }
+
+    public static void run(ControllerContext context, Sheep sheep, int _copies) throws ControllerException, InterruptedException {
+        ExecOperator operator = new ExecOperator(5000, "${COLLIE}", "cluster", "format", "-c", String.valueOf(_copies), "-p", String.valueOf(sheep.getConfig().getPort()));
 
         Host host = sheep.getHost();
         context.execute(host, operator);

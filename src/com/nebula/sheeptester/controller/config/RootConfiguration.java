@@ -56,7 +56,7 @@ public class RootConfiguration {
     }
 
     @CheckForNull
-    public TestConfiguration getTest(String id) {
+    public TestConfiguration getTest(@Nonnull String id) {
         for (TestConfiguration test : getTests())
             if (id.equals(test.getId()))
                 return test;

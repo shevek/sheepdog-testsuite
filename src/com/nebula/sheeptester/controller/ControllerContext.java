@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,8 +58,9 @@ public class ControllerContext {
     private final File jarFile;
     private final File sheepFile;
     private final File collieFile;
+    private final boolean verbose;
     private ConcurrentMap<String, Host> hostMap = new ConcurrentHashMap<String, Host>();
-    private ConcurrentMap<String, Sheep> sheepMap = new ConcurrentHashMap<String, Sheep>();
+    private ConcurrentNavigableMap<String, Sheep> sheepMap = new ConcurrentSkipListMap<String, Sheep>();
     private ConcurrentMap<String, Vdi> vdiMap = new ConcurrentHashMap<String, Vdi>();
 
     public ControllerContext(RootConfiguration configuration, CommandLine cmdline) throws UnsupportedEncodingException, JSchException {
@@ -91,6 +94,8 @@ public class ControllerContext {
             throw new IllegalStateException("Self-jar " + jarFile + " does not exist.");
         this.sheepFile = new File(cmdline.getOptionValue(ControllerMain.OPT_SHEEP, "sheep"));
         this.collieFile = new File(cmdline.getOptionValue(ControllerMain.OPT_COLLIE, "collie"));
+
+        this.verbose = cmdline.hasOption(ControllerMain.OPT_VERBOSE);
     }
 
     @Nonnull
@@ -131,6 +136,10 @@ public class ControllerContext {
     @Nonnull
     public File getCollieFile() {
         return collieFile;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
     }
 
     @Nonnull

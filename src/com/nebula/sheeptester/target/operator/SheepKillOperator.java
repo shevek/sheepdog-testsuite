@@ -34,7 +34,13 @@ public class SheepKillOperator extends AbstractProcessOperator {
     @Override
     protected TargetProcess newProcess(TargetContext context) {
         if (pid < 0)
-            return new TimedProcess(context, 500, "sudo", "killall", "-w", "sheep") {
+            return new TimedProcess(context, 500, "sudo", "killall", "-s9", "-w", "sheep") {
+
+                @Override
+                protected void init(Executor executor) {
+                    super.init(executor);
+                    executor.setExitValues(new int[]{0, 1});
+                }
 
                 @Override
                 protected void execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
@@ -45,7 +51,8 @@ public class SheepKillOperator extends AbstractProcessOperator {
                     }
                 }
             };
-        else
+        else {
             return new TimedProcess(context, 500, "sudo", "kill", "-9", String.valueOf(pid));
+        }
     }
 }

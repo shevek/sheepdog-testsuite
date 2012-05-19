@@ -33,17 +33,19 @@ public class SheepStartCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(SheepStartCommand.class);
     @Attribute(required = false)
-    private String hostId;
+    public String hostId;
     @Attribute(required = false)
-    private String sheepId;
+    public String sheepId;
     @Attribute(required = false)
-    private int vnodes = -1;
+    public int vnodes = -1;
     @Attribute(required = false)
-    private boolean parallel;
+    public int zone = -1;
     @Attribute(required = false)
-    private boolean strace;
+    public boolean parallel = false;
     @Attribute(required = false)
-    private boolean valgrind;
+    public boolean strace = false;
+    @Attribute(required = false)
+    public boolean valgrind = false;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
@@ -110,6 +112,7 @@ public class SheepStartCommand extends AbstractCommand {
         SheepConfiguration config = sheep.getConfig();
         SheepStartOperator operator = new SheepStartOperator(config.getPort(), config.getDirectory());
         operator.vnodes = vnodes;
+        operator.zone = zone;
         operator.strace = strace;
         operator.valgrind = valgrind;
 

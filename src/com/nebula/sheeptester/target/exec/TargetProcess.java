@@ -127,7 +127,7 @@ public class TargetProcess {
             else
                 buf.append(" (no data on stderr)");
 
-            throw new TargetAssertionException(buf.toString());
+            throw new TargetAssertionException(buf.toString(), e);
         }
     }
 

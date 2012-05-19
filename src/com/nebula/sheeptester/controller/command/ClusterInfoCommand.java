@@ -5,8 +5,11 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
-import com.nebula.sheeptester.target.TargetContext;
-import com.nebula.sheeptester.target.exec.TimedProcess;
+import com.nebula.sheeptester.controller.ControllerException;
+import com.nebula.sheeptester.controller.model.Host;
+import com.nebula.sheeptester.controller.model.Sheep;
+import com.nebula.sheeptester.target.operator.ExecOperator;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
 /**
@@ -16,13 +19,16 @@ import org.simpleframework.xml.Root;
 @Root(name = "cluster-info")
 public class ClusterInfoCommand extends AbstractCommand {
 
-    @Override
-    public void run(ControllerContext context) {
-        throw new UnsupportedOperationException();
-    }
+    @Attribute(required = false)
+    private String sheepId;
 
-    public void run(TargetContext context) {
-        // TimedProcess process = new TimedProcess(context, "${COLLIE}", "cluster", "info", "-p", port, 1000);
-        // process.start();
+    @Override
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
+        Sheep sheep = toSheep(context, sheepId);
+
+        ExecOperator operator = new ExecOperator(1000, "${COLLIE}", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
+
+        Host host = sheep.getHost();
+        context.execute(host, operator);
     }
 }

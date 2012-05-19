@@ -12,6 +12,7 @@ import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepKillOperator;
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -33,12 +34,14 @@ public class SheepKillCommand extends AbstractCommand {
     @Override
     public void run(final ControllerContext context) throws ControllerException, InterruptedException {
         if (sheepId != null) {
-            Sheep sheep = getSheep(context, sheepId);
-            if (!sheep.isRunning()) {
-                LOG.warn("Attempted to kill sheep which is not running: " + sheep);
-                return;
+            for (String id : StringUtils.split(sheepId, ", ")) {
+                Sheep sheep = getSheep(context, id);
+                if (!sheep.isRunning()) {
+                    LOG.warn("Attempted to kill sheep which is not running: " + sheep);
+                    return;
+                }
+                run(context, sheep);
             }
-            run(context, sheep);
         } else if (hostId != null) {
             Host host = getHost(context, hostId);
             run(context, host);

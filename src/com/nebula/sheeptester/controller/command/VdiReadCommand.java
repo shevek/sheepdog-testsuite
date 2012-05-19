@@ -28,24 +28,30 @@ public class VdiReadCommand extends AbstractCommand {
     @Attribute(required = false)
     private String name;
     @Attribute(required = false)
-    private long offset = -1;
+    private long offset = 0;
     @Attribute(required = false)
     private int length = -1;
+    @Attribute(required = false)
+    private boolean random = false;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
         Sheep sheep = toSheep(context, sheepId);
         Vdi vdi = toVdi(context, name);
-        long _offset = offset;
-        if (_offset < 0)
+
+        long _offset;
+        if (random)
             _offset = vdi.newOffset();
         else
-            _offset = _offset * 1024;
-        int _length = length;
-        if (_length <= 0)
+            _offset = offset * 1024;
+
+        int _length;
+        if (length <= 0)
+            _length = (int) vdi.getSize();
+        else if (random)
             _length = vdi.newLength(_offset);
         else
-            _length = _length * 1024;
+            _length = length * 1024;
 
         Host host = sheep.getHost();
         VdiReadOperator request = new VdiReadOperator(sheep.getConfig().getPort(), vdi.getName(), _offset, _length);

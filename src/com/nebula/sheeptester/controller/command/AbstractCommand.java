@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -61,6 +62,23 @@ public abstract class AbstractCommand implements Command {
         return RandomUtils.getRandom(sheeps);
     }
 
+    @Nonnull
+    protected List< Sheep> toSheeps(@Nonnull ControllerContext context, @CheckForNull String sheepId) {
+        List<Sheep> out = new ArrayList<Sheep>();
+        if (sheepId == null || "*".equals(sheepId)) {
+            for (Sheep sheep : context.getSheep().values())
+                if (sheep.isRunning())
+                    out.add(sheep);
+        } else {
+            for (String id : StringUtils.split(sheepId, ", ")) {
+                Sheep sheep = getSheep(context, id);
+                if (sheep.isRunning())
+                    out.add(sheep);
+            }
+        }
+        return out;
+    }
+
     protected Vdi getVdi(@Nonnull ControllerContext context, @Nonnull String id) {
         Vdi vdi = context.getVdi(id);
         if (vdi == null)
@@ -90,5 +108,13 @@ public abstract class AbstractCommand implements Command {
         buf.append(getClass().getSimpleName());
         toStringBuilderArgs(buf);
         buf.append("\n");
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        toStringBuilder(buf, 0);
+        int length = buf.length();
+        return buf.substring(0, length - 1);
     }
 }

@@ -9,6 +9,8 @@ import com.nebula.sheeptester.controller.config.TestConfiguration;
 import com.nebula.sheeptester.target.TargetMain;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -22,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.PersistenceException;
 import org.simpleframework.xml.core.Persister;
 
 /**
@@ -37,8 +40,8 @@ public class ControllerMain {
     public static final String OPT_COLLIE = "collie";
     public static final String OPT_SHEEP = "sheep";
     public static final String OPT_TEST = "test";
-    public static final String OPT_THREADS = "threads";
     public static final String OPT_TARGET = "target";
+    public static final String OPT_VERBOSE = "verbose";
     public static final int DFLT_THREADS = 20;
 
     /**
@@ -53,6 +56,7 @@ public class ControllerMain {
         options.addOption(OptionBuilder.hasArg().withDescription("Path to sheep binary.").create(OPT_SHEEP));
         options.addOption(OptionBuilder.hasArg().withDescription("Path to collie binary.").create(OPT_COLLIE));
         options.addOption(OptionBuilder.withDescription("Operate as if on the target host (Do not use).").create(OPT_TARGET));
+        options.addOption(OptionBuilder.withDescription("Operate verbosely.").create(OPT_VERBOSE));
 
         CommandLineParser cmdparser = new GnuParser();
         CommandLine cmdline = cmdparser.parse(options, args);
@@ -76,6 +80,9 @@ public class ControllerMain {
             try {
                 Serializer serializer = new Persister();
                 configuration = serializer.read(RootConfiguration.class, in);
+            } catch (PersistenceException e) {
+                LOG.error("Failed to load configuration file: " + e.getMessage());
+                return;
             } finally {
                 IOUtils.closeQuietly(in);
             }
@@ -85,6 +92,7 @@ public class ControllerMain {
 
         context.init();
 
+        Map<String, String> results = new TreeMap<String, String>();
         try {
             String[] tests = cmdline.getOptionValues(OPT_TEST);
             if (tests != null) {
@@ -94,23 +102,42 @@ public class ControllerMain {
                         if (config == null)
                             throw new NullPointerException("No such test " + test);
                         try {
+                            results.put(test, "OK");
                             config.run(context);
                         } catch (ControllerAssertionException e) {
                             LOG.error("Test failed: " + e.getMessage());
+                            results.put(test, e.getMessage());
                         }
                     }
                 }
             } else {
                 for (TestConfiguration config : configuration.getTests()) {
                     if (config.isAuto()) {
+                        String test = config.getId();
+                        if (test == null)
+                            test = "Test@" + System.identityHashCode(config);
                         try {
+                            results.put(test, "OK");
                             config.run(context);
                         } catch (ControllerAssertionException e) {
+                            results.put(test, e.getMessage());
                             LOG.error("Test failed: " + e.getMessage());
                         }
                     }
                 }
             }
+
+            LOG.info("");
+            LOG.info("");
+            LOG.info("=== Test Results ===");
+            for (Map.Entry<String, String> e : results.entrySet()) {
+                String value = e.getValue();
+                int idx = value.indexOf('\n');
+                if (idx > 0)
+                    value = value.substring(0, idx);
+                LOG.info(e.getKey() + ": " + value);
+            }
+
         } catch (ControllerException e) {
             LOG.error("Failed.", e);
         } catch (InterruptedException e) {
