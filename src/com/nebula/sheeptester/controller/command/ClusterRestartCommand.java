@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
@@ -27,6 +29,7 @@ import org.simpleframework.xml.Root;
 @Root(name = "cluster-restart")
 public class ClusterRestartCommand extends AbstractCommand {
 
+    private static final Log LOG = LogFactory.getLog(ClusterRestartCommand.class);
     @Attribute
     private String pattern;
     @Attribute
@@ -35,6 +38,10 @@ public class ClusterRestartCommand extends AbstractCommand {
     private String hostId;
     @Attribute(required = false)
     private String sheepId;
+    @Attribute(required = false)
+    private String backend;
+    @Attribute(required = false)
+    private String cluster;
     @Attribute(required = false)
     private String vdiName = "test-vdi";
     @Attribute(required = false)
@@ -83,6 +90,7 @@ public class ClusterRestartCommand extends AbstractCommand {
         }
 
         SheepStartCommand start = new SheepStartCommand();
+        start.cluster = cluster;
         START:
         {
             Role role = Role.NONE;
@@ -109,7 +117,7 @@ public class ClusterRestartCommand extends AbstractCommand {
 
         FORMAT:
         {
-            ClusterFormatCommand.run(context, sheeps.get(0), copies);
+            ClusterFormatCommand.run(context, sheeps.get(0), backend, copies);
         }
         // Thread.sleep(300);
 
@@ -126,6 +134,11 @@ public class ClusterRestartCommand extends AbstractCommand {
         {
             ClusterShutdownCommand shutdown = new ClusterShutdownCommand();
             shutdown.run(context, sheeps.get(0));
+        }
+
+        if (StringUtils.contains(cluster, "zookeeper")) {
+            LOG.info("Sleeping to wait for ZooKeeper sessions to expire.");
+            Thread.sleep(40000);
         }
 
         RESTART:

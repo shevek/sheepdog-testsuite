@@ -23,14 +23,18 @@ public class ControllerExecutor {
     }
     private final ControllerContext context;
     private final CountDownLatch latch;
+    private int count;
     private final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
 
     public ControllerExecutor(ControllerContext context, int count) {
         this.context = context;
         this.latch = new CountDownLatch(count);
+        this.count = count;
     }
 
     public void submit(final String message, final Task task) {
+        if (count <= 0)
+            throw new IllegalStateException("Already submitted enough tasks for latch.");
         context.getExecutor().submit(new Runnable() {
 
             @Override
@@ -45,9 +49,12 @@ public class ControllerExecutor {
                 }
             }
         });
+        count--;
     }
 
     public void await() throws ControllerException, InterruptedException {
+        if (count != 0)
+            throw new IllegalStateException("Not submitted enough tasks.");
         latch.await();
         Throwable t = throwable.get();
         if (t == null)

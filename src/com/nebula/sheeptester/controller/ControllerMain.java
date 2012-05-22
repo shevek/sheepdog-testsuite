@@ -23,6 +23,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oro.text.GlobCompiler;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.Perl5Matcher;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.PersistenceException;
 import org.simpleframework.xml.core.Persister;
@@ -96,32 +100,41 @@ public class ControllerMain {
         try {
             String[] tests = cmdline.getOptionValues(OPT_TEST);
             if (tests != null) {
+                GlobCompiler compiler = new GlobCompiler();
+                PatternMatcher matcher = new Perl5Matcher();
                 for (String testlist : tests) {
-                    for (String test : StringUtils.split(testlist, ',')) {
-                        TestConfiguration config = configuration.getTest(test);
-                        if (config == null)
-                            throw new NullPointerException("No such test " + test);
-                        try {
-                            results.put(test, "OK");
-                            config.run(context);
-                        } catch (ControllerAssertionException e) {
-                            LOG.error("Test failed: " + e.getMessage());
-                            results.put(test, e.getMessage());
+                    for (String testGlob : StringUtils.split(testlist, ',')) {
+                        Pattern pattern = compiler.compile(testGlob);
+                        boolean found = false;
+                        for (TestConfiguration config : configuration.getTests()) {
+                            String testId = config.getId();
+                            if (matcher.matches(testId, pattern)) {
+                                found = true;
+                                try {
+                                    results.put(testId, "Started...");
+                                    config.run(context);
+                                    results.put(testId, "OK");
+                                } catch (ControllerAssertionException e) {
+                                    LOG.error("Test failed: " + e.getMessage());
+                                    results.put(testId, e.getMessage());
+                                }
+                            }
                         }
+                        if (!found)
+                            throw new NullPointerException("No such test " + testGlob);
                     }
                 }
             } else {
                 for (TestConfiguration config : configuration.getTests()) {
+                    String testId = config.getId();
                     if (config.isAuto()) {
-                        String test = config.getId();
-                        if (test == null)
-                            test = "Test@" + System.identityHashCode(config);
                         try {
-                            results.put(test, "OK");
+                            results.put(testId, "Started...");
                             config.run(context);
+                            results.put(testId, "OK");
                         } catch (ControllerAssertionException e) {
-                            results.put(test, e.getMessage());
                             LOG.error("Test failed: " + e.getMessage());
+                            results.put(testId, e.getMessage());
                         }
                     }
                 }

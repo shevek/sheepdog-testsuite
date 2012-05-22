@@ -15,7 +15,7 @@ import org.simpleframework.xml.Root;
  *
  * @author shevek
  */
-@Root(name = "parallel")
+@Root(name = "sequential")
 public class SequentialCommand extends AbstractMultiCommand {
 
     private static final Log LOG = LogFactory.getLog(SequentialCommand.class);

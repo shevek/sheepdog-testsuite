@@ -64,7 +64,7 @@
 		<sheep-wipe />
 	</test>
 
-	<test id="simple-exercise">
+	<test id="simple-exercise" auto="false">
 		<parallel repeat="10">
 			<vdi-create />
 		</parallel>
@@ -122,7 +122,7 @@
 		<subtest testId="simple-exercise" />
 	</test>
 
-	<test id="simple-multihost-parallel">
+	<test id="start-small">
 		<sheep-wipe />
 		<sheep-start sheepId="A-7000" />
 		<sheep-start sheepId="A-7001" />
@@ -131,6 +131,10 @@
 		<sheep-start sheepId="C-7000" />
 		<sheep-start sheepId="C-7001" />
 		<cluster-format copies="2" />
+	</test>
+
+	<test id="simple-multihost-parallel">
+		<subtest testId="start-small" />
 		<parallel>
 			<vdi-create name="test-vdi-0" />
 			<vdi-create name="test-vdi-1" />
@@ -142,6 +146,49 @@
 			<vdi-create name="test-vdi-7" />
 			<vdi-create name="test-vdi-8" />
 			<vdi-create name="test-vdi-9" />
+		</parallel>
+	</test>
+
+	<test id="parallel-exercise">
+		<subtest testId="start-small" />
+		<parallel repeat="100">
+
+			<sequential>
+				<vdi-create name="test-vdi-0" size="102400" />
+				<vdi-write name="test-vdi-0" />
+				<vdi-read name="test-vdi-0" />
+			</sequential>
+
+			<sequential>
+				<vdi-create name="test-vdi-1" size="102400" />
+				<vdi-write name="test-vdi-1" />
+				<vdi-read name="test-vdi-1" />
+			</sequential>
+
+			<sequential>
+				<vdi-create name="test-vdi-2" size="102400" />
+				<vdi-write name="test-vdi-2" />
+				<vdi-read name="test-vdi-2" />
+			</sequential>
+
+			<sequential>
+				<vdi-create name="test-vdi-3" size="102400" />
+				<vdi-write name="test-vdi-3" />
+				<vdi-read name="test-vdi-3" />
+			</sequential>
+
+			<sequential>
+				<vdi-create name="test-vdi-4" size="102400" />
+				<vdi-write name="test-vdi-4" />
+				<vdi-read name="test-vdi-4" />
+			</sequential>
+
+			<sequential>
+				<vdi-create name="test-vdi-5" size="102400" />
+				<vdi-write name="test-vdi-5" />
+				<vdi-read name="test-vdi-5" />
+			</sequential>
+
 		</parallel>
 	</test>
 
@@ -243,20 +290,21 @@
 		</assert-fail>
 	</test>
 
-	<test id="ls">
-		<exec>
-			ls
-		</exec>
+	<test id="restart_assert_common" auto="false">
+		<sleep msecs="2000" />
 	</test>
 
 	<test id="restart_assert_running_ok" auto="false">
-		<sleep msecs="2000" />
+		<subtest testId="restart_assert_common" />
+		<sheep-stat status="RUNNING" check="true" />
 		<vdi-list sheepId="A-7000" />
 		<vdi-read sheepId="A-7000" name="test-vdi" />
+		<sheep-stat status="RUNNING" check="true" />
 	</test>
 
 	<test id="restart_assert_running_missing" auto="false">
-		<sleep msecs="2000" />
+		<subtest testId="restart_assert_common" />
+		<sheep-stat status="RUNNING" check="true" />
 		<assert-fail message="No VDI found|No object found">
 			<!-- Sometimes succeeds, but should probably fail. -->
 			<vdi-list sheepId="A-7000" />
@@ -273,10 +321,12 @@
 			<vdi-list sheepId="A-7000" />
 			<vdi-read sheepId="A-7000" name="test-vdi" />
 		</assert-fail>
+		<sheep-stat status="RUNNING" check="true" />
 	</test>
 
 	<test id="restart_assert_recover_ok" auto="false">
-		<sleep msecs="2000" />
+		<subtest testId="restart_assert_common" />
+		<sheep-stat status="WAITING" check="true" />
 		<assert-fail message="Waiting for other nodes">
 			<!-- Sometimes succeeds, but should probably fail. -->
 			<vdi-list sheepId="A-7000" />
@@ -285,10 +335,12 @@
 		<cluster-recover sheepId="A-7000" />
 		<vdi-list sheepId="A-7000" />
 		<vdi-read sheepId="A-7000" name="test-vdi" />
+		<sheep-stat status="RUNNING" check="true" />
 	</test>
 
 	<test id="restart_assert_recover_missing" auto="false">
-		<sleep msecs="2000" />
+		<subtest testId="restart_assert_common" />
+		<sheep-stat status="WAITING" check="true" />
 		<assert-fail message="Waiting for other nodes">
 			<!-- Sometimes succeeds, but should probably fail. -->
 			<vdi-list sheepId="A-7000" />
@@ -301,6 +353,18 @@
 			   - Depends on whether it loses the first block
 			   - of the VDI or a subsequent block. -->
 			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+		</assert-fail>
+		<sheep-stat status="RUNNING" check="true" />
+	</test>
+
+	<test id="restart_assert_unformatted" auto="false">
+		<subtest testId="restart_assert_common" />
+		<sheep-stat status="NEEDSFORMAT" check="true" />
+		<assert-fail message="Waiting for cluster to be formatted">
+			<!-- Sometimes succeeds, but should probably fail. -->
+			<vdi-list sheepId="A-7000" />
+			<!-- Always fails. -->
 			<vdi-read sheepId="A-7000" name="test-vdi" />
 		</assert-fail>
 	</test>
@@ -329,9 +393,26 @@
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
+	<!-- XXX -->
+	<test id="restart_RRRRN_c3_zk">
+		<sheep-wipe />
+		<sleep msecs="30000" />
+		<cluster-restart pattern="RRRRN" copies="3" sheepId="A-7000" hostId="A"
+			cluster="zookeeper:10.144.11.103:2181" />
+		<sleep msecs="20000" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
 	<!-- Fails because of APPLIANCE-2069 -->
 	<test id="restart_RRNRR_c1">
 		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- XXX -->
+	<test id="restart_RRNRR_c1_zk">
+		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A"
+			cluster="zookeeper:10.144.11.103:2181" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
@@ -347,9 +428,16 @@
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
 
-	<!-- Fails, ticket APPLIANCE-2068 -->
+	<!-- Passes, but requires farm backend. -->
 	<test id="restart_RRRRX_c3">
 		<cluster-restart pattern="RRRRX" copies="3" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_ok" />
+	</test>
+
+	<!-- Fails, because of APPLIANCE-2068 -->
+	<test id="restart_RRRRX_c3_simple" auto="false">
+		<cluster-restart pattern="RRRRX" copies="3" sheepId="A-7000" hostId="A"
+			backend="simple" />
 		<subtest testId="restart_assert_recover_ok" />
 	</test>
 
@@ -396,6 +484,21 @@
 	<test id="restart_RRRRXXXX_c3">
 		<cluster-restart pattern="RRRRXXXX" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_missing" />
+	</test>
+
+	<!-- Fails because all the R sheep suicide with invalid epoch -->
+	<!-- Test fails because the first sheep can't be formatted. -->
+	<!--
+	<test id="restart_NRRRR_c1">
+		<cluster-restart pattern="NRRRR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_recover_missing" />
+	</test>
+	-->
+
+	<!-- Fails because all the R sheep suicide with invalid epoch -->
+	<test id="restart_WRRRR_c1">
+		<cluster-restart pattern="WRRRR" copies="1" sheepId="A-7000" hostId="A" />
+		<subtest testId="restart_assert_unformatted" />
 	</test>
 
 </configuration>

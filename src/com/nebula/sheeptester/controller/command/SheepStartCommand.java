@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,8 @@ public class SheepStartCommand extends AbstractCommand {
     public String hostId;
     @Attribute(required = false)
     public String sheepId;
+    @Attribute(required = false)
+    public String cluster;
     @Attribute(required = false)
     public int vnodes = -1;
     @Attribute(required = false)
@@ -90,7 +93,8 @@ public class SheepStartCommand extends AbstractCommand {
                 Thread.sleep(4000);
             else
                 Thread.sleep(200);
-            SheepStatCommand.run(context, hosts, true);
+            SheepStatCommand stat = new SheepStatCommand();
+            stat.statHosts(context, hosts, true);
         }
     }
 
@@ -111,6 +115,7 @@ public class SheepStartCommand extends AbstractCommand {
     public void run(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
         SheepConfiguration config = sheep.getConfig();
         SheepStartOperator operator = new SheepStartOperator(config.getPort(), config.getDirectory());
+        operator.cluster = cluster;
         operator.vnodes = vnodes;
         operator.zone = zone;
         operator.strace = strace;
@@ -120,10 +125,10 @@ public class SheepStartCommand extends AbstractCommand {
         Response response = context.execute(host, operator);
         if (response instanceof ProcessResponse) {
             ProcessResponse presponse = (ProcessResponse) response;
-            if (!StringUtils.isBlank(presponse.getOutput()))
-                LOG.info("Output was\n" + presponse.getOutput());
-            if (!StringUtils.isBlank(presponse.getError()))
-                LOG.info("Error was\n" + presponse.getOutput());
+            if (!ArrayUtils.isEmpty(presponse.getOutput()))
+                LOG.info("Output was\n" + presponse.getOutputAsString());
+            if (!ArrayUtils.isEmpty(presponse.getError()))
+                LOG.info("Error was\n" + presponse.getOutputAsString());
         }
 
         sheep.setPid(Integer.MAX_VALUE);

@@ -11,6 +11,7 @@ import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepKillOperator;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -34,14 +35,8 @@ public class SheepKillCommand extends AbstractCommand {
     @Override
     public void run(final ControllerContext context) throws ControllerException, InterruptedException {
         if (sheepId != null) {
-            for (String id : StringUtils.split(sheepId, ", ")) {
-                Sheep sheep = getSheep(context, id);
-                if (!sheep.isRunning()) {
-                    LOG.warn("Attempted to kill sheep which is not running: " + sheep);
-                    return;
-                }
-                run(context, sheep);
-            }
+            List<Sheep> sheeps = toSheeps(context, sheepId);
+            run_sheeps(context, sheeps);
         } else if (hostId != null) {
             Host host = getHost(context, hostId);
             run(context, host);
@@ -50,6 +45,20 @@ public class SheepKillCommand extends AbstractCommand {
             run(context, hosts);
         }
         Thread.sleep(200);
+    }
+
+    public static void run_sheeps(@Nonnull final ControllerContext context, @Nonnull Collection<? extends Sheep> sheeps) throws ControllerException, InterruptedException {
+        ControllerExecutor executor = context.newExecutor(sheeps.size());
+        for (final Sheep sheep : sheeps) {
+            executor.submit("Killing sheep " + sheep, new ControllerExecutor.Task() {
+
+                @Override
+                public void run() throws Exception {
+                    SheepKillCommand.run(context, sheep);
+                }
+            });
+        }
+        executor.await();
     }
 
     public static void run(@Nonnull ControllerContext context, @Nonnull Sheep sheep) throws ControllerException, InterruptedException {
@@ -69,7 +78,7 @@ public class SheepKillCommand extends AbstractCommand {
 
     public static void run(@Nonnull final ControllerContext context, @Nonnull Collection<? extends Host> hosts) throws ControllerException, InterruptedException {
         ControllerExecutor executor = context.newExecutor(hosts.size());
-        for (final Host host : context.getHosts()) {
+        for (final Host host : hosts) {
             executor.submit("Killing all sheep on " + host, new ControllerExecutor.Task() {
 
                 @Override

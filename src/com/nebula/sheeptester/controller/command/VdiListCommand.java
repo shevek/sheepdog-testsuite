@@ -54,7 +54,7 @@ public class VdiListCommand extends AbstractCommand {
 
         Host host = sheep.getHost();
         ProcessResponse response = (ProcessResponse) context.execute(host, operator);
-        if (response.getError().contains("Failed to read"))
+        if (response.getErrorAsString().contains("Failed to read"))
             throw new ControllerAssertionException(host + ": vdi list failed: " + response.getError());
     }
 

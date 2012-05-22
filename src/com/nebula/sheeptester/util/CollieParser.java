@@ -4,6 +4,10 @@
  */
 package com.nebula.sheeptester.util;
 
+import com.nebula.sheeptester.controller.model.ClusterInfo;
+import com.nebula.sheeptester.controller.model.ClusterEpoch;
+import com.nebula.sheeptester.controller.model.ClusterStatus;
+import com.nebula.sheeptester.controller.model.SheepAddress;
 import com.nebula.sheeptester.controller.model.Vdi;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -11,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.InetAddress;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,33 +29,11 @@ import org.apache.commons.lang3.StringUtils;
  * @author shevek
  */
 public class CollieParser {
-
-    public static class Epoch extends ArrayList<InetAddress> {
-
-        private int id;
-        private long time;
-    }
-
-    public static enum Status {
-
-        RUNNING, WAITING, UNKNOWN;
-
-        private static Status forString(String text) {
-            if (text.startsWith("running"))
-                return RUNNING;
-            throw new IllegalArgumentException("Unknown status " + text);
-        }
-    }
-
-    public static class ClusterInfo {
-
-        public Status status;
-        public final List<Epoch> epochs = new ArrayList<Epoch>();
-    }
     private static final String STATUS_PREFIX = "Cluster status: ";
     private static final String CREATED_PREFIX = "Cluster created at ";
+    private static final String EPOCH_PREFIX = "Epoch Time ";
 
-    public ClusterInfo parseClusterInfo(byte[] data) throws IOException {
+    public static ClusterInfo parseClusterInfo(byte[] data) throws IOException {
         InputStream is = new ByteArrayInputStream(data);
         Reader ir = new InputStreamReader(is, "US-ASCII");
         BufferedReader br = new BufferedReader(ir);
@@ -64,7 +45,7 @@ public class CollieParser {
             String statusLine = br.readLine();
             if (!statusLine.startsWith(STATUS_PREFIX))
                 throw new IllegalArgumentException("Expected " + STATUS_PREFIX + ", not " + statusLine);
-            out.status = Status.forString(statusLine.substring(STATUS_PREFIX.length()));
+            out.status = ClusterStatus.forString(statusLine.substring(STATUS_PREFIX.length()));
         }
 
         line = br.readLine();
@@ -81,6 +62,10 @@ public class CollieParser {
         if (!StringUtils.isBlank(line))
             throw new IllegalArgumentException("Expected blank, not " + line);
 
+        line = br.readLine();
+        if (!StringUtils.startsWith(line, EPOCH_PREFIX))
+            throw new IllegalArgumentException("Expected " + EPOCH_PREFIX + ", not " + line);
+
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Pattern pattern = Pattern.compile("\\s*(\\d+)\\s+\\[(.*)\\]");
         for (;;) {
@@ -88,7 +73,7 @@ public class CollieParser {
             if (epochLine == null)
                 break;
 
-            Epoch epoch = new Epoch();
+            ClusterEpoch epoch = new ClusterEpoch();
 
             ParsePosition pos = new ParsePosition(0);
             Date date = format.parse(epochLine, pos);
@@ -104,8 +89,13 @@ public class CollieParser {
 
             epoch.id = Integer.parseInt(m.group(1));
 
-            for (String addr : StringUtils.split(m.group(2), ", ")) {
-                epoch.add(InetAddress.getByName(addr));
+            for (String saddr : StringUtils.split(m.group(2), ", ")) {
+                int idx = saddr.indexOf(':');
+                if (idx < 0)
+                    throw new IllegalStateException("Cannot parse an InetSocketAddress from " + saddr + ": Didn't find a colon between address and port.");
+                String addr = saddr.substring(0, idx);
+                int port = Integer.parseInt(saddr.substring(idx + 1));
+                epoch.add(new SheepAddress(addr, port));
             }
 
             out.epochs.add(epoch);
@@ -114,7 +104,7 @@ public class CollieParser {
         return out;
     }
 
-    public List<Vdi> parseVdiList(byte[] data) throws IOException {
+    public static List<Vdi> parseVdiList(byte[] data) throws IOException {
         InputStream is = new ByteArrayInputStream(data);
         Reader ir = new InputStreamReader(is, "US-ASCII");
         BufferedReader br = new BufferedReader(ir);

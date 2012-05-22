@@ -14,6 +14,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Text;
 
 /**
  *
@@ -32,8 +33,10 @@ public class VdiWriteCommand extends AbstractCommand {
     private long offset = 0;
     @Attribute(required = false)
     private int length = -1;
-    @Attribute(required=false)
+    @Attribute(required = false)
     private boolean random;
+    @Text(required = false)
+    private String data;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {

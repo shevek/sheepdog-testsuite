@@ -13,6 +13,7 @@ import com.nebula.sheeptester.target.operator.VdiReadOperator;
 import javax.annotation.CheckForNull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Text;
 
 /**
  *
@@ -33,6 +34,8 @@ public class VdiReadCommand extends AbstractCommand {
     private int length = -1;
     @Attribute(required = false)
     private boolean random = false;
+    @Text(required = false)
+    private String data;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
