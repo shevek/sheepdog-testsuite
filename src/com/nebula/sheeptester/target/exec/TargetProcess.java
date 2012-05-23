@@ -107,9 +107,7 @@ public class TargetProcess {
 
     protected void execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
         try {
-            int retval = executor.execute(commandline);
-            if (retval != 0)
-                throw new ExecuteException("Process returned nonzero exit value " + retval, retval);
+            executor.execute(commandline);
         } catch (ExecuteException e) {
             StringBuilder buf = new StringBuilder();
             buf.append("Execution of ").append(commandline).append(" failed:");

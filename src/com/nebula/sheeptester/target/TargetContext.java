@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nebula.sheeptester.target.operator.ConfigOperator;
 import com.nebula.sheeptester.target.operator.Operator;
-import com.nebula.sheeptester.target.operator.OperatorResponseAdapter;
+import com.nebula.sheeptester.target.operator.ResponseAdapter;
 import com.nebula.sheeptester.target.operator.Response;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +31,7 @@ public class TargetContext {
     public TargetContext() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Operator.class, new OperatorAdapter());
-        builder.registerTypeAdapter(Response.class, new OperatorResponseAdapter());
+        builder.registerTypeAdapter(Response.class, new ResponseAdapter());
         gson = builder.create();
         executor = Executors.newCachedThreadPool();
     }

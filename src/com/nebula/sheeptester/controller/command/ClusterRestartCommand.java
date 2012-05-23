@@ -46,6 +46,8 @@ public class ClusterRestartCommand extends AbstractCommand {
     private String vdiName = "test-vdi";
     @Attribute(required = false)
     private long vdiSize = 100 * 1024;
+    @Attribute(required = false)
+    private boolean valgrind = false;
 
     private void addSheep(List<Sheep> out, Collection<? extends Sheep> in) {
         Set<Sheep> set = new HashSet<Sheep>(in);
@@ -60,6 +62,10 @@ public class ClusterRestartCommand extends AbstractCommand {
         });
         int length = Math.max(0, pattern.length() - out.size());
         out.addAll(list.subList(0, length));
+    }
+
+    private boolean isZooKeeper() {
+        return StringUtils.contains(cluster, "zookeeper");
     }
 
     @Override
@@ -91,6 +97,7 @@ public class ClusterRestartCommand extends AbstractCommand {
 
         SheepStartCommand start = new SheepStartCommand();
         start.cluster = cluster;
+        start.valgrind = valgrind;
         START:
         {
             Role role = Role.NONE;
@@ -106,6 +113,9 @@ public class ClusterRestartCommand extends AbstractCommand {
                         break;
                     case 'N':
                         break;
+                    case '_':
+                        Thread.sleep(1000);
+                        break;
                     default:
                         throw new IllegalArgumentException("Illegal pattern character in " + pattern);
                 }
@@ -115,11 +125,21 @@ public class ClusterRestartCommand extends AbstractCommand {
         }
         Thread.sleep(300);
 
+        if (isZooKeeper()) {
+            LOG.info("Sleeping to wait for ZooKeeper sessions to create.");
+            Thread.sleep(10000);
+        }
+
         FORMAT:
         {
             ClusterFormatCommand.run(context, sheeps.get(0), backend, copies);
         }
         // Thread.sleep(300);
+
+        if (isZooKeeper()) {
+            LOG.info("Sleeping to wait for ZooKeeper sessions to update.");
+            Thread.sleep(10000);
+        }
 
         Vdi vdi;
         WRITE:
@@ -162,6 +182,9 @@ public class ClusterRestartCommand extends AbstractCommand {
                     case 'N':
                         start.run(context, sheep);
                         role = role.next();
+                        break;
+                    case '_':
+                        Thread.sleep(1000);
                         break;
                     default:
                         throw new IllegalArgumentException("Illegal pattern character in " + pattern);

@@ -18,7 +18,7 @@ import com.nebula.sheeptester.controller.model.Vdi;
 import com.nebula.sheeptester.target.operator.ConfigOperator;
 import com.nebula.sheeptester.target.operator.Operator;
 import com.nebula.sheeptester.target.operator.OperatorAdapter;
-import com.nebula.sheeptester.target.operator.OperatorResponseAdapter;
+import com.nebula.sheeptester.target.operator.ResponseAdapter;
 import com.nebula.sheeptester.target.operator.Response;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -71,7 +71,7 @@ public class ControllerContext {
         this.executor = Executors.newFixedThreadPool(configuration.getThreads());
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Operator.class, new OperatorAdapter());
-        builder.registerTypeAdapter(Response.class, new OperatorResponseAdapter());
+        builder.registerTypeAdapter(Response.class, new ResponseAdapter());
         this.gson = builder.create();
 
         if (cmdline.hasOption(ControllerMain.OPT_JAR)) {

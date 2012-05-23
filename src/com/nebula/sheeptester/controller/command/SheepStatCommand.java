@@ -52,7 +52,7 @@ public class SheepStatCommand extends AbstractCommand {
         List<String> texts = new ArrayList<String>();
         for (Sheep sheep : context.getSheep().values()) {
             if (sheep.isRunning())
-                texts.add(sheep.toString());
+                texts.add("Running sheep: " + sheep);
         }
         Collections.sort(texts);
         for (String text : texts) {
@@ -130,11 +130,17 @@ public class SheepStatCommand extends AbstractCommand {
             epochs.get(e.getValue().getEpoch()).add(e.getKey());
         }
         // LOG.info("Epochs: " + epochs);
-        if (epochs.size() != 1) {
-            throw new ControllerAssertionException("Epoch mismatch: " + epochs);
+        switch (epochs.size()) {
+            case 0:
+                LOG.warn("No sheep!");
+                break;
+            case 1:
+                LOG.info("All sheep have epoch " + epochs.keySet().iterator().next());
+                break;
+            default:
+                throw new ControllerAssertionException("Epoch mismatch: " + epochs);
         }
 
-        LOG.info("All sheep have epoch " + epochs.keySet().iterator().next());
 
         return out;
     }

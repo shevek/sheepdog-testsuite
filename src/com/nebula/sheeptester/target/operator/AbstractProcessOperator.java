@@ -9,8 +9,6 @@ import com.nebula.sheeptester.target.TargetException;
 import com.nebula.sheeptester.target.exec.TargetProcess;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**

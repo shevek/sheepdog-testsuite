@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author shevek
  */
-public class OperatorResponseAdapter implements JsonSerializer<Response>, JsonDeserializer<Response> {
+public class ResponseAdapter implements JsonSerializer<Response>, JsonDeserializer<Response> {
 
     private static final Log LOG = LogFactory.getLog(OperatorAdapter.class);
     public static final String ID = "id";
