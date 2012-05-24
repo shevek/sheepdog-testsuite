@@ -52,7 +52,7 @@ public class SheepStatCommand extends AbstractCommand {
         List<String> texts = new ArrayList<String>();
         for (Sheep sheep : context.getSheep().values()) {
             if (sheep.isRunning())
-                texts.add("Running sheep: " + sheep);
+                texts.add("Sheep is running: " + sheep);
         }
         Collections.sort(texts);
         for (String text : texts) {
@@ -150,7 +150,7 @@ public class SheepStatCommand extends AbstractCommand {
         try {
             if (!sheep.isRunning())
                 return null;
-            ExecOperator operator = new ExecOperator(1000, "collie", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
+            ExecOperator operator = new ExecOperator(1000, "${COLLIE}", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
 
             Host host = sheep.getHost();
             ProcessResponse response = (ProcessResponse) context.execute(host, operator);

@@ -48,6 +48,11 @@ public class TargetContext {
     }
 
     @Nonnull
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    @Nonnull
     public String getHostId() {
         return hostId;
     }

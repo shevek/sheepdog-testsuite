@@ -22,6 +22,12 @@ public abstract class AbstractProcessOperator extends AbstractOperator {
         private byte[] output;
         private byte[] error;
 
+        public ProcessResponse(Operator operator, TargetProcess process) {
+            super(operator);
+            output = process.getOutput().toByteArray();
+            error = process.getError().toByteArray();
+        }
+
         public ProcessResponse() {
         }
 
@@ -51,12 +57,6 @@ public abstract class AbstractProcessOperator extends AbstractOperator {
             } catch (UnsupportedEncodingException e) {
                 throw new IllegalStateException(e);
             }
-        }
-
-        public ProcessResponse(AbstractOperator operator, TargetProcess process) {
-            super(operator);
-            output = process.getOutput().toByteArray();
-            error = process.getError().toByteArray();
         }
     }
 

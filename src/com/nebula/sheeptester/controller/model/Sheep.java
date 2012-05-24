@@ -5,8 +5,8 @@
 package com.nebula.sheeptester.controller.model;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.config.HostConfiguration;
 import com.nebula.sheeptester.controller.config.SheepConfiguration;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -56,14 +56,20 @@ public class Sheep {
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append("Sheep(");
-        buf.append(getHost());
-        buf.append(", ");
-        buf.append(getConfig());
-        buf.append(")=");
+
+        Host h = getHost();
+        HostConfiguration hc = h.getConfig();
+        SheepConfiguration sc = getConfig();
+
+        buf.append(hc.getUser()).append('@').append(hc.getHost());
+        buf.append(':').append(sc.getDirectory());
+        buf.append(";pid=");
         if (isRunning())
             buf.append(getPid());
         else
             buf.append("<not-running>");
+
+        buf.append(")");
         return buf.toString();
     }
 }

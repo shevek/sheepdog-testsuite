@@ -41,6 +41,20 @@ public abstract class AbstractCommand implements Command {
         return RandomUtils.getRandom(hosts);
     }
 
+    @Nonnull
+    protected List<Host> toHosts(@Nonnull ControllerContext context, @CheckForNull String hostId) {
+        List<Host> out = new ArrayList<Host>();
+        if (hostId == null || "*".equals(hostId)) {
+            out.addAll(context.getHosts());
+        } else {
+            for (String id : StringUtils.split(hostId, ", ")) {
+                Host host = getHost(context, id);
+                out.add(host);
+            }
+        }
+        return out;
+    }
+
     protected Sheep getSheep(@Nonnull ControllerContext context, @Nonnull String id) {
         Sheep sheep = context.getSheep(id);
         if (sheep == null)
@@ -63,7 +77,7 @@ public abstract class AbstractCommand implements Command {
     }
 
     @Nonnull
-    protected List< Sheep> toSheeps(@Nonnull ControllerContext context, @CheckForNull String sheepId) {
+    protected List<Sheep> toSheeps(@Nonnull ControllerContext context, @CheckForNull String sheepId) {
         List<Sheep> out = new ArrayList<Sheep>();
         if (sheepId == null || "*".equals(sheepId)) {
             for (Sheep sheep : context.getSheep().values())

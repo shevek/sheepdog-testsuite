@@ -62,6 +62,10 @@
 		<sheep-stat />
 	</test>
 
+	<test id="scan" auto="false">
+		<sheep-scan />
+	</test>
+
 	<test id="kill" auto="false">
 		<sheep-kill />
 	</test>
@@ -300,6 +304,24 @@
 		</assert-fail>
 	</test>
 
+	<test id="restart_zk_wipe" auto="false">
+		<sheep-wipe />
+		<exec>
+			sudo service zookeeper stop
+			sudo rm -rf /var/lib/zookeeper/version-2/
+			sudo mkdir -p /var/lib/zookeeper/version-2/
+			sudo chown zookeeper:zookeeper /var/lib/zookeeper/version-2/
+		</exec>
+		<!-- Separating the 'exec's introduces a barrier. -->
+		<exec>
+			sudo service zookeeper start
+		</exec>
+	</test>
+
+	<test id="restart_zk_settle" auto="false">
+		<sleep msecs="2000" />
+	</test>
+
 	<test id="restart_assert_common" auto="false">
 		<sleep msecs="2000" />
 	</test>
@@ -310,6 +332,7 @@
 		<vdi-list sheepId="A-7000" />
 		<vdi-read sheepId="A-7000" name="test-vdi" />
 		<sheep-stat status="RUNNING" check="true" />
+		<sheep-scan />
 	</test>
 
 	<test id="restart_assert_running_missing" auto="false">
@@ -332,6 +355,7 @@
 			<vdi-read sheepId="A-7000" name="test-vdi" />
 		</assert-fail>
 		<sheep-stat status="RUNNING" check="true" />
+		<sheep-scan />
 	</test>
 
 	<test id="restart_assert_recover_ok" auto="false">
@@ -346,6 +370,7 @@
 		<vdi-list sheepId="A-7000" />
 		<vdi-read sheepId="A-7000" name="test-vdi" />
 		<sheep-stat status="RUNNING" check="true" />
+		<sheep-scan />
 	</test>
 
 	<test id="restart_assert_recover_missing" auto="false">
@@ -366,6 +391,7 @@
 			<vdi-read sheepId="A-7000" name="test-vdi" />
 		</assert-fail>
 		<sheep-stat status="RUNNING" check="true" />
+		<sheep-scan />
 	</test>
 
 	<test id="restart_assert_unformatted" auto="false">
@@ -386,6 +412,16 @@
 	</test>
 
 	<!-- Passes -->
+	<test id="restart_RRRR_c1_zk">
+		<subtest testId="restart_zk_wipe" />
+		<cluster-restart pattern="RRRR" copies="1" sheepId="A-7000" hostId="A"
+			cluster="zookeeper:localhost:2181"
+			valgrind="true" />
+		<subtest testId="restart_zk_settle" />
+		<subtest testId="restart_assert_running_ok" />
+	</test>
+
+	<!-- Passes -->
 	<test id="restart_RRRR_c3">
 		<cluster-restart pattern="RRRR" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
@@ -393,12 +429,12 @@
 
 	<!-- XXX -->
 	<test id="restart_RRRR_c3_zk">
-		<sheep-wipe />
-		<sleep msecs="40000" />
+		<subtest testId="restart_zk_wipe" />
 		<cluster-restart pattern="RRRRRRR" copies="3" sheepId="A-7000" hostId="A"
 			cluster="zookeeper:localhost:2181"
 			valgrind="true" />
 		<sleep msecs="20000" />
+		<subtest testId="restart_zk_settle" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
@@ -417,7 +453,7 @@
 	<!-- XXX -->
 	<test id="restart_RRRRN_c3_zk">
 		<sheep-wipe />
-		<sleep msecs="40000" />
+		<!-- sleep msecs="40000"  -->
 		<cluster-restart pattern="R__RRRRRRN" copies="3" sheepId="A-7000" hostId="A"
 			cluster="zookeeper:localhost:2181"
 			valgrind="true" />

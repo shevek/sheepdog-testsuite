@@ -43,7 +43,7 @@ public class SheepKillOperator extends AbstractProcessOperator {
     public Response run(TargetContext context) throws Exception {
         Response response = super.run(context);
 
-        {
+        if (pid < 0) {
             // We might have left something in valgrind.
             TargetProcess process = new SheepKillProcess(context, "sudo", "pkill", "-f", "valgrind.*" + context.getSheep());
             process.execute();
