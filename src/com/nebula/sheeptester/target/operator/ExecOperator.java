@@ -7,6 +7,8 @@ package com.nebula.sheeptester.target.operator;
 import com.nebula.sheeptester.target.TargetContext;
 import com.nebula.sheeptester.target.exec.TargetProcess;
 import com.nebula.sheeptester.target.exec.TimedProcess;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -14,6 +16,7 @@ import com.nebula.sheeptester.target.exec.TimedProcess;
  */
 public class ExecOperator extends AbstractProcessOperator {
 
+    private static final Log LOG = LogFactory.getLog(ExecOperator.class);
     private int timeout;
     private String[] command;
 

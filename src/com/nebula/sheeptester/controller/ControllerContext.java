@@ -58,10 +58,11 @@ public class ControllerContext {
     private final File jarFile;
     private final File sheepFile;
     private final File collieFile;
+    private final ConcurrentMap<String, String> properties = new ConcurrentHashMap<String, String>();
     private final boolean verbose;
-    private ConcurrentMap<String, Host> hostMap = new ConcurrentHashMap<String, Host>();
-    private ConcurrentNavigableMap<String, Sheep> sheepMap = new ConcurrentSkipListMap<String, Sheep>();
-    private ConcurrentMap<String, Vdi> vdiMap = new ConcurrentHashMap<String, Vdi>();
+    private final ConcurrentMap<String, Host> hostMap = new ConcurrentHashMap<String, Host>();
+    private final ConcurrentNavigableMap<String, Sheep> sheepMap = new ConcurrentSkipListMap<String, Sheep>();
+    private final ConcurrentMap<String, Vdi> vdiMap = new ConcurrentHashMap<String, Vdi>();
 
     public ControllerContext(RootConfiguration configuration, CommandLine cmdline) throws UnsupportedEncodingException, JSchException {
         this.configuration = configuration;
@@ -223,7 +224,7 @@ public class ControllerContext {
                     Host host = e.getValue();
                     HostConfiguration config = host.getConfig();
                     host.connect();
-                    execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie()));
+                    execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie(), new HashMap<String, String>(properties)));
 
                     SheepStatCommand stat = new SheepStatCommand();
                     stat.statHost(ControllerContext.this, host, false);

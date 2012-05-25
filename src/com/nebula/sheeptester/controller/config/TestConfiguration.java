@@ -9,6 +9,7 @@ import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.command.AbstractMultiCommand;
 import com.nebula.sheeptester.controller.command.Command;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -30,7 +31,7 @@ public class TestConfiguration extends AbstractMultiCommand {
     @Attribute(required = false)
     private String id;
     @Attribute(required = false)
-    private String group;
+    private String groups;
     @Attribute(required = false)
     private boolean auto = true;
 
@@ -41,8 +42,11 @@ public class TestConfiguration extends AbstractMultiCommand {
         return id;
     }
 
+    @Nonnull
     public List<? extends String> getGroups() {
-        return Arrays.asList(StringUtils.split(group, ", "));
+        if (groups == null)
+            return Collections.emptyList();
+        return Arrays.asList(StringUtils.split(groups, ", "));
     }
 
     public boolean isAuto() {

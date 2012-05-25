@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.exec.Executor;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -68,6 +69,13 @@ public class SheepStartOperator extends AbstractProcessOperator {
         if (zone >= 0)
             command.addAll(Arrays.asList("-z", String.valueOf(zone)));
         command.add(directory);
-        return new BackgroundProcess(context, command.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
+        return new BackgroundProcess(context, command.toArray(ArrayUtils.EMPTY_STRING_ARRAY)) {
+
+            @Override
+            protected void init(Executor executor) {
+                super.init(executor);
+                executor.setWorkingDirectory(new File(directory));
+            }
+        };
     }
 }

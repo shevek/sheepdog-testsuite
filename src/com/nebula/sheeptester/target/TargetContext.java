@@ -11,9 +11,12 @@ import com.nebula.sheeptester.target.operator.ConfigOperator;
 import com.nebula.sheeptester.target.operator.Operator;
 import com.nebula.sheeptester.target.operator.ResponseAdapter;
 import com.nebula.sheeptester.target.operator.Response;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -27,6 +30,7 @@ public class TargetContext {
     private String hostId = "<unknown>";
     private String sheep = "/usr/bin/sheep";
     private String collie = "/usr/bin/collie";
+    private Map<String, String> properties = Collections.emptyMap();
 
     public TargetContext() {
         GsonBuilder builder = new GsonBuilder();
@@ -40,6 +44,7 @@ public class TargetContext {
         hostId = StringUtils.defaultString(config.getHostId(), hostId);
         sheep = StringUtils.defaultString(config.getSheep(), sheep);
         collie = StringUtils.defaultString(config.getCollie(), collie);
+        properties = ObjectUtils.defaultIfNull(config.getProperties(), properties);
     }
 
     @Nonnull
@@ -65,5 +70,10 @@ public class TargetContext {
     @Nonnull
     public String getCollie() {
         return collie;
+    }
+
+    @Nonnull
+    public Map<? extends String, ? extends String> getProperties() {
+        return properties;
     }
 }

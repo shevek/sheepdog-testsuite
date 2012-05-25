@@ -94,6 +94,7 @@ public class TargetProcess {
             commandline.addArgument(command[i], false);
 
         Map<String, String> variables = new HashMap<String, String>();
+        variables.putAll(context.getProperties());
         variables.put("SHEEP", context.getSheep());
         variables.put("COLLIE", context.getCollie());
         commandline.setSubstitutionMap(variables);

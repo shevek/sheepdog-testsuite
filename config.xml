@@ -2,19 +2,25 @@
 
 <!--
 	<host id="A" host="10.144.11.103" user="maestro" password="maestro"
-			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
+			sheep="/home/maestro/sheep_source/sheep/sheep"
+			collie="/home/maestro/sheep_source/collie/collie" />
 	<host id="B" host="10.144.11.109" user="maestro" password="maestro"
-			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
+			sheep="/home/maestro/sheep_source/sheep/sheep"
+			collie="/home/maestro/sheep_source/collie/collie" />
 	<host id="C" host="10.144.11.116" user="maestro" password="maestro"
-			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
+			sheep="/home/maestro/sheep_source/sheep/sheep"
+			collie="/home/maestro/sheep_source/collie/collie" />
 -->
 
-	<host id="A" host="zt-1" user="ubuntu" password="ubuntu"
-			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
-	<host id="B" host="zt-2" user="ubuntu" password="ubuntu"
-			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
-	<host id="C" host="zt-3" user="ubuntu" password="ubuntu"
-			sheep="./sheep_source/sheep/sheep" collie="./sheep_source/collie/collie" />
+	<host id="A" host="10.144.11.121" user="ubuntu" password="ubuntu"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
+	<host id="B" host="10.144.11.122" user="ubuntu" password="ubuntu"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
+	<host id="C" host="10.144.11.123" user="ubuntu" password="ubuntu"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
 
 	<sheep hostId="A" port="7000" directory="/tmp/sheepdog/7000" />
 	<sheep hostId="A" port="7001" directory="/tmp/sheepdog/7001" />
@@ -412,7 +418,7 @@
 	</test>
 
 	<!-- Passes -->
-	<test id="restart_RRRR_c1_zk">
+	<test id="restart_RRRR_c1_zk" groups="@zk">
 		<subtest testId="restart_zk_wipe" />
 		<cluster-restart pattern="RRRR" copies="1" sheepId="A-7000" hostId="A"
 			cluster="zookeeper:localhost:2181"
@@ -428,7 +434,7 @@
 	</test>
 
 	<!-- XXX -->
-	<test id="restart_RRRR_c3_zk">
+	<test id="restart_RRRR_c3_zk" groups="@zk">
 		<subtest testId="restart_zk_wipe" />
 		<cluster-restart pattern="RRRRRRR" copies="3" sheepId="A-7000" hostId="A"
 			cluster="zookeeper:localhost:2181"
@@ -451,9 +457,8 @@
 	</test>
 
 	<!-- XXX -->
-	<test id="restart_RRRRN_c3_zk">
-		<sheep-wipe />
-		<!-- sleep msecs="40000"  -->
+	<test id="restart_RRRRN_c3_zk" groups="@zk">
+		<subtest testId="restart_zk_wipe" />
 		<cluster-restart pattern="R__RRRRRRN" copies="3" sheepId="A-7000" hostId="A"
 			cluster="zookeeper:localhost:2181"
 			valgrind="true" />
@@ -468,7 +473,8 @@
 	</test>
 
 	<!-- XXX -->
-	<test id="restart_RRNRR_c1_zk">
+	<test id="restart_RRNRR_c1_zk" groups="@zk">
+		<subtest testId="restart_zk_wipe" />
 		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A"
 			cluster="zookeeper:localhost:2181" />
 		<subtest testId="restart_assert_running_ok" />

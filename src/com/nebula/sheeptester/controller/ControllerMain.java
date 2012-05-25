@@ -9,6 +9,9 @@ import com.nebula.sheeptester.controller.config.TestConfiguration;
 import com.nebula.sheeptester.target.TargetMain;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.cli.CommandLine;
@@ -98,31 +101,29 @@ public class ControllerMain {
 
         Map<String, String> results = new TreeMap<String, String>();
         try {
-            String[] tests = cmdline.getOptionValues(OPT_TEST);
+            List<String> tests = getTests(cmdline);
             if (tests != null) {
                 GlobCompiler compiler = new GlobCompiler();
                 PatternMatcher matcher = new Perl5Matcher();
-                for (String testlist : tests) {
-                    for (String testGlob : StringUtils.split(testlist, ',')) {
-                        Pattern pattern = compiler.compile(testGlob);
-                        boolean found = false;
-                        for (TestConfiguration config : configuration.getTests()) {
-                            String testId = config.getId();
-                            if (matcher.matches(testId, pattern)) {
-                                found = true;
-                                try {
-                                    results.put(testId, "Started...");
-                                    config.run(context);
-                                    results.put(testId, "OK");
-                                } catch (ControllerAssertionException e) {
-                                    LOG.error("Test failed: " + e.getMessage());
-                                    results.put(testId, e.getMessage());
-                                }
+                for (String testGlob : tests) {
+                    Pattern pattern = compiler.compile(testGlob);
+                    boolean found = false;
+                    for (TestConfiguration config : configuration.getTests()) {
+                        String testId = config.getId();
+                        if (isTest(config, matcher, pattern)) {
+                            found = true;
+                            try {
+                                results.put(testId, "Started...");
+                                config.run(context);
+                                results.put(testId, "OK");
+                            } catch (ControllerAssertionException e) {
+                                LOG.error("Test failed: " + e.getMessage());
+                                results.put(testId, e.getMessage());
                             }
                         }
-                        if (!found)
-                            throw new NullPointerException("No such test " + testGlob);
                     }
+                    if (!found)
+                        throw new NullPointerException("No such test " + testGlob);
                 }
             } else {
                 for (TestConfiguration config : configuration.getTests()) {
@@ -158,5 +159,24 @@ public class ControllerMain {
         } finally {
             context.fini();
         }
+    }
+
+    private static List<String> getTests(CommandLine cmdline) {
+        String[] tests = cmdline.getOptionValues(OPT_TEST);
+        if (tests == null)
+            return null;
+        List<String> out = new ArrayList<String>();
+        for (String test : tests)
+            out.addAll(Arrays.asList(StringUtils.split(test, ", ")));
+        return out;
+    }
+
+    private static boolean isTest(TestConfiguration config, PatternMatcher matcher, Pattern pattern) {
+        if (matcher.matches(config.getId(), pattern))
+            return true;
+        for (String groupId : config.getGroups())
+            if (matcher.matches(groupId, pattern))
+                return true;
+        return false;
     }
 }

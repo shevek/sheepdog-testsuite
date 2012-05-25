@@ -90,7 +90,7 @@ public class Host {
 
                 ChannelExec exec = (ChannelExec) session.openChannel("exec");
                 exec.setPty(false);
-                exec.setCommand("java -jar sheeptester.jar --target");
+                exec.setCommand("ulimit -c unlimited && java -jar sheeptester.jar --target");
                 exec.setErrStream(new CloseShieldOutputStream(System.err));
                 exec.setOutputStream(new HostOutputStream(context) {
 
