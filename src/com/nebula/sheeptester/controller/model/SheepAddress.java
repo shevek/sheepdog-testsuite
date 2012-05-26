@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  *
  * @author shevek
  */
-public class SheepAddress {
+public class SheepAddress implements Comparable<SheepAddress> {
 
     private final String hostname;
     private final int port;
@@ -30,6 +30,23 @@ public class SheepAddress {
     }
 
     @Override
+    public int compareTo(SheepAddress o) {
+        int cmp;
+        cmp = getHostname().compareTo(o.getHostname());
+        if (cmp != 0)
+            return cmp;
+        return getPort() - o.getPort();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + (this.hostname != null ? this.hostname.hashCode() : 0);
+        hash = 37 * hash + this.port;
+        return hash;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null)
             return false;
@@ -41,14 +58,6 @@ public class SheepAddress {
         if (this.port != other.port)
             return false;
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 37 * hash + (this.hostname != null ? this.hostname.hashCode() : 0);
-        hash = 37 * hash + this.port;
-        return hash;
     }
 
     @Override

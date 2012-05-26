@@ -26,7 +26,7 @@ public class ClusterInfoCommand extends AbstractCommand {
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
         Sheep sheep = toSheep(context, sheepId);
 
-        ExecOperator operator = new ExecOperator(1000, "${COLLIE}", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
+        ExecOperator operator = new ExecOperator(5000, "${COLLIE}", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
 
         Host host = sheep.getHost();
         context.execute(host, operator);

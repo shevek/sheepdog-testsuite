@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -132,6 +133,6 @@ public class TargetProcess {
 
     @Override
     public String toString() {
-        return context + ": " + command;
+        return context.getHostId() + ": " + Arrays.toString(command);
     }
 }

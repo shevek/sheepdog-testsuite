@@ -25,6 +25,8 @@ public class SubtestCommand extends AbstractCommand {
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
         RootConfiguration configuration = context.getConfiguration();
         TestConfiguration test = configuration.getTest(testId);
+        if (test == null)
+            throw new NullPointerException("No such test " + testId);
         test.run(context);
     }
 

@@ -78,15 +78,28 @@ public abstract class AbstractCommand implements Command {
 
     @Nonnull
     protected List<Sheep> toSheeps(@Nonnull ControllerContext context, @CheckForNull String sheepId) {
+        return toSheeps(context, sheepId, Boolean.TRUE);
+    }
+
+    private static boolean isRunState(Sheep sheep, Boolean runstate) {
+        if (runstate == null)
+            return true;
+        if (sheep.isRunning() == runstate.booleanValue())
+            return true;
+        return false;
+    }
+
+    @Nonnull
+    protected List<Sheep> toSheeps(@Nonnull ControllerContext context, @CheckForNull String sheepId, Boolean runstate) {
         List<Sheep> out = new ArrayList<Sheep>();
         if (sheepId == null || "*".equals(sheepId)) {
             for (Sheep sheep : context.getSheep().values())
-                if (sheep.isRunning())
+                if (isRunState(sheep, runstate))
                     out.add(sheep);
         } else {
             for (String id : StringUtils.split(sheepId, ", ")) {
                 Sheep sheep = getSheep(context, id);
-                if (sheep.isRunning())
+                if (isRunState(sheep, runstate))
                     out.add(sheep);
             }
         }

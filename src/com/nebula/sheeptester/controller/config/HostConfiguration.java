@@ -14,6 +14,10 @@ import org.simpleframework.xml.Root;
 @Root(name = "host")
 public class HostConfiguration {
 
+    public static final String PROP_SHEEP = "SHEEP";
+    public static final String PROP_COLLIE = "COLLIE";
+    public static final String PROP_CLUSTER = "CLUSTER";
+
     @Attribute(required = false)
     private String id;
     @Attribute
@@ -28,6 +32,8 @@ public class HostConfiguration {
     private String sheep;
     @Attribute(required = false)
     private String collie;
+    @Attribute(required = false)
+    private String cluster;
 
     public void init() {
         if (id == null)
@@ -60,6 +66,10 @@ public class HostConfiguration {
 
     public String getCollie() {
         return collie;
+    }
+
+    public String getCluster() {
+        return cluster;
     }
 
     public String toStringAddress() {

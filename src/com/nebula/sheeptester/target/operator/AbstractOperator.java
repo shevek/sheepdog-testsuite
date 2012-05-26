@@ -14,7 +14,7 @@ import org.apache.commons.lang3.ClassUtils;
  */
 public abstract class AbstractOperator implements Operator {
 
-    private static final AtomicInteger ID = new AtomicInteger(0);
+    private static final AtomicInteger ID = new AtomicInteger(1);
     private transient int id = ID.getAndIncrement();
 
     @Override

@@ -8,6 +8,7 @@ import com.nebula.sheeptester.controller.ControllerAssertionException;
 import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.ControllerExecutor;
+import com.nebula.sheeptester.controller.model.ClusterEpoch;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.AbstractProcessOperator.ProcessResponse;
@@ -15,7 +16,11 @@ import com.nebula.sheeptester.target.operator.ExecOperator;
 import com.nebula.sheeptester.target.operator.SheepListOperator;
 import com.nebula.sheeptester.util.CollieParser;
 import com.nebula.sheeptester.controller.model.ClusterInfo;
+import com.nebula.sheeptester.controller.model.SheepAddress;
+import com.nebula.sheeptester.target.operator.SheepStatOperator;
+import com.nebula.sheeptester.target.operator.SheepStatOperator.StatResponse;
 import com.nebula.sheeptester.util.ListFactory;
+import com.nebula.sheeptester.util.MapFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +28,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.CheckForNull;
 import org.apache.commons.collections15.map.LazyMap;
@@ -41,7 +49,7 @@ public class SheepStatCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(SheepStatCommand.class);
     @Attribute(required = false)
-    private boolean check;
+    private boolean check = true;
     @Attribute(required = false)
     private String status;
 
@@ -124,23 +132,57 @@ public class SheepStatCommand extends AbstractCommand {
 
         // LOG.info("Sheep: " + out);
 
-        Map<Integer, List<Sheep>> epochs = new HashMap<Integer, List<Sheep>>();
-        epochs = LazyMap.decorate(epochs, new ListFactory<Sheep>());
-        for (Map.Entry<Sheep, ClusterInfo> e : out.entrySet()) {
-            epochs.get(e.getValue().getEpoch()).add(e.getKey());
-        }
-        // LOG.info("Epochs: " + epochs);
-        switch (epochs.size()) {
-            case 0:
-                LOG.warn("No sheep!");
-                break;
-            case 1:
-                LOG.info("All sheep have epoch " + epochs.keySet().iterator().next());
-                break;
-            default:
-                throw new ControllerAssertionException("Epoch mismatch: " + epochs);
+        EPOCH:
+        {
+            Map<Integer, List<Sheep>> epochs = new HashMap<Integer, List<Sheep>>();
+            epochs = LazyMap.decorate(epochs, new ListFactory<Sheep>());
+            for (Map.Entry<Sheep, ClusterInfo> e : out.entrySet()) {
+                epochs.get(e.getValue().getEpoch()).add(e.getKey());
+            }
+            // LOG.info("Epochs: " + epochs);
+            switch (epochs.size()) {
+                case 0:
+                    LOG.warn("No sheep!");
+                    break;
+                case 1:
+                    LOG.info("All sheep have epoch " + epochs.keySet().iterator().next());
+                    break;
+                default:
+                    throw new ControllerAssertionException("Epoch mismatch: " + epochs);
+            }
         }
 
+        MEMBERS:
+        {
+            Map<Integer, Map<Set<SheepAddress>, List<Sheep>>> members = new TreeMap<Integer, Map<Set<SheepAddress>, List<Sheep>>>();
+            members = LazyMap.decorate(members, new MapFactory<Set<SheepAddress>, List<Sheep>>() {
+
+                @Override
+                public Map<Set<SheepAddress>, List<Sheep>> create() {
+                    Map<Set<SheepAddress>, List<Sheep>> out = new HashMap<Set<SheepAddress>, List<Sheep>>();
+                    return LazyMap.decorate(out, new ListFactory<Sheep>());
+                }
+            });
+
+            for (Map.Entry<Sheep, ClusterInfo> e : out.entrySet()) {
+                for (ClusterEpoch epoch : e.getValue().epochs) {
+                    members.get(epoch.getId()).get(new TreeSet<SheepAddress>(epoch)).add(e.getKey());
+                }
+            }
+
+            StringBuilder buf = new StringBuilder();
+            for (Map.Entry<Integer, Map<Set<SheepAddress>, List<Sheep>>> e : members.entrySet()) {
+                if (e.getValue().size() != 1) {
+                    buf.append("Membership mismatch at epoch ").append(e.getKey()).append(":\n");
+                    for (Map.Entry<Set<SheepAddress>, List<Sheep>> f : e.getValue().entrySet()) {
+                        buf.append("\t").append(f.getKey()).append(": ").append(f.getValue()).append("\n");
+                    }
+                }
+            }
+            if (buf.length() > 0) {
+                throw new ControllerAssertionException(buf.substring(0, buf.length() - 1));
+            }
+        }
 
         return out;
     }
@@ -148,17 +190,24 @@ public class SheepStatCommand extends AbstractCommand {
     @CheckForNull
     public ClusterInfo statSheep(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
         try {
+            Host host = sheep.getHost();
+            StatResponse stat = (StatResponse) context.execute(host, new SheepStatOperator(sheep.getConfig().getDirectory()));
+            if (stat.hasCore)
+                throw new ControllerAssertionException("Sheep " + sheep + " generated a core file.");
+            if (stat.hasLeaks)
+                throw new ControllerAssertionException("Sheep " + sheep + " leaked memory.");
+
             if (!sheep.isRunning())
                 return null;
-            ExecOperator operator = new ExecOperator(1000, "${COLLIE}", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
+            ExecOperator operator = new ExecOperator(5000, "${COLLIE}", "cluster", "info", "-p", String.valueOf(sheep.getConfig().getPort()));
 
-            Host host = sheep.getHost();
             ProcessResponse response = (ProcessResponse) context.execute(host, operator);
             ClusterInfo clusterInfo = CollieParser.parseClusterInfo(response.getOutput());
             if (status != null) {
                 if (!status.equals(clusterInfo.status.name()))
                     throw new ControllerAssertionException("Sheep " + sheep + " had bad status: Expected " + status + " but got " + clusterInfo.status);
             }
+
             return clusterInfo;
         } catch (IOException e) {
             throw new ControllerException(e);

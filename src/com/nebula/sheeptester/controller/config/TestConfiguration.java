@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -31,6 +32,8 @@ public class TestConfiguration extends AbstractMultiCommand {
     @Attribute(required = false)
     private String id;
     @Attribute(required = false)
+    private String description;
+    @Attribute(required = false)
     private String groups;
     @Attribute(required = false)
     private boolean auto = true;
@@ -40,6 +43,11 @@ public class TestConfiguration extends AbstractMultiCommand {
         if (id == null)
             id = "_test_" + COUNTER.getAndIncrement();
         return id;
+    }
+
+    @CheckForNull
+    public String getDescription() {
+        return description;
     }
 
     @Nonnull
@@ -55,9 +63,14 @@ public class TestConfiguration extends AbstractMultiCommand {
 
     @Override
     public void run(@Nonnull ControllerContext context) throws ControllerException, InterruptedException {
-        LOG.info("Executing test:\n" + this);
-        for (Command command : getCommands())
-            command.run(context);
+        try {
+            LOG.info("=== Starting test " + getId() + " ===");
+            context.clearProperties();
+            for (Command command : getCommands())
+                command.run(context);
+        } finally {
+            LOG.info("=== Finished test " + getId() + " ===");
+        }
     }
 
     @Override

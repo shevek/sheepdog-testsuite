@@ -20,7 +20,7 @@ public class SheepKillOperator extends AbstractProcessOperator {
     private static class SheepKillProcess extends TimedProcess {
 
         public SheepKillProcess(TargetContext context, String... command) {
-            super(context, 500, command);
+            super(context, 5000, command);
         }
 
         @Override

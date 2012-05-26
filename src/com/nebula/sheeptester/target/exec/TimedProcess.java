@@ -7,6 +7,7 @@ package com.nebula.sheeptester.target.exec;
 import com.nebula.sheeptester.target.TargetContext;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.Watchdog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,6 +28,13 @@ public class TimedProcess extends TargetProcess {
     @Override
     protected void init(Executor executor) {
         super.init(executor);
-        executor.setWatchdog(new ExecuteWatchdog(msecs));
+        executor.setWatchdog(new ExecuteWatchdog(msecs) {
+
+            @Override
+            public synchronized void timeoutOccured(Watchdog w) {
+                LOG.warn("Timeout occurred: Killing process " + TimedProcess.this + " after " + msecs + " ms");
+                super.timeoutOccured(w);
+            }
+        });
     }
 }

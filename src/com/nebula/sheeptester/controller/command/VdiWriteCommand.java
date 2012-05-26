@@ -64,9 +64,9 @@ public class VdiWriteCommand extends AbstractCommand {
         run(context, sheep, vdi, 0L, (int) vdi.getSize());
     }
 
-    public void run(@Nonnull ControllerContext context, @Nonnull Sheep sheep, @Nonnull Vdi vdi, long _offset, int _length) throws ControllerException, InterruptedException {
+    public static void run(@Nonnull ControllerContext context, @Nonnull Sheep sheep, @Nonnull Vdi vdi, long offset, int length) throws ControllerException, InterruptedException {
         Host host = sheep.getHost();
-        VdiWriteOperator request = new VdiWriteOperator(sheep.getConfig().getPort(), vdi.getName(), _offset, _length);
+        VdiWriteOperator request = new VdiWriteOperator(sheep.getConfig().getPort(), vdi.getName(), offset, length);
         context.execute(host, request);
     }
 }

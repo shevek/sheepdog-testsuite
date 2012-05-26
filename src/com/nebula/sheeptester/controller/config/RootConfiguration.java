@@ -9,6 +9,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import org.apache.commons.collections15.ListUtils;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -28,6 +29,20 @@ public class RootConfiguration {
     private List<SheepConfiguration> sheeps;
     @ElementList(inline = true, entry = "test", required = false)
     private List<TestConfiguration> tests;
+
+    private static <T> List<T> add(List<T> a, List<T> b) {
+        if (a == null)
+            return b;
+        if (b == null)
+            return a;
+        return ListUtils.union(a, b);
+    }
+
+    public void addConfiguration(RootConfiguration other) {
+        hosts = add(hosts, other.hosts);
+        sheeps = add(sheeps, other.sheeps);
+        tests = add(tests, other.tests);
+    }
 
     @Nonnegative
     public int getThreads() {

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.nebula.sheeptester.controller.command;
+package com.nebula.sheeptester.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.simpleframework.xml.transform.Transform;

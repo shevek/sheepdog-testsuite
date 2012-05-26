@@ -34,7 +34,7 @@ public class SheepWipeCommand extends AbstractCommand {
     @Override
     public void run(final ControllerContext context) throws ControllerException, InterruptedException {
         if (sheepId != null) {
-            List<Sheep> sheeps = toSheeps(context, sheepId);
+            List<Sheep> sheeps = toSheeps(context, sheepId, null);
             SheepKillCommand.run_sheeps(context, sheeps);
             run(context, sheeps);
         } else if (hostId != null) {

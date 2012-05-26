@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
  *
  * @author shevek
  */
-public class Sheep {
+public class Sheep implements Comparable<Sheep> {
 
     @Nonnull
     private final Host host;
@@ -53,6 +53,14 @@ public class Sheep {
     }
 
     @Override
+    public int compareTo(Sheep o) {
+        int cmp = getHost().compareTo(o.getHost());
+        if (cmp != 0)
+            return cmp;
+        return getConfig().getPort() - o.getConfig().getPort();
+    }
+
+    @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append("Sheep(");
@@ -61,13 +69,12 @@ public class Sheep {
         HostConfiguration hc = h.getConfig();
         SheepConfiguration sc = getConfig();
 
-        buf.append(hc.getUser()).append('@').append(hc.getHost());
-        buf.append(':').append(sc.getDirectory());
-        buf.append(";pid=");
+        // buf.append(hc.getUser()).append('@');
+        buf.append(hc.getHost());
+        buf.append(':').append(sc.getPort());
+        // buf.append(':').append(sc.getDirectory());
         if (isRunning())
-            buf.append(getPid());
-        else
-            buf.append("<not-running>");
+            buf.append(";pid=").append(getPid());
 
         buf.append(")");
         return buf.toString();

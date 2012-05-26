@@ -35,6 +35,8 @@ public class OperatorAdapter implements JsonSerializer<Operator>, JsonDeserializ
         String typeName = src.getClass().getName();
         if (!typeName.startsWith(PACKAGE))
             throw new IllegalArgumentException("Illegal type " + typeName);
+        if (src.getId() <= 0)
+            throw new IllegalArgumentException("Illegal operator id " + src.getId());
         retValue.addProperty(ID, src.getId());
         retValue.addProperty(TYPE, typeName.substring(PACKAGE.length()));
         JsonElement request = context.serialize(src);

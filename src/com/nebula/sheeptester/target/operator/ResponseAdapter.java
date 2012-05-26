@@ -34,6 +34,8 @@ public class ResponseAdapter implements JsonSerializer<Response>, JsonDeserializ
         String typeName = src.getClass().getName();
         if (!typeName.startsWith(PACKAGE))
             throw new IllegalArgumentException("Illegal response type name " + typeName);
+        if (src.getId() <= 0)
+            throw new IllegalArgumentException("Illegal response id " + src.getId());
         retValue.addProperty(ID, src.getId());
         retValue.addProperty(TYPE, typeName.substring(PACKAGE.length()));
         JsonElement request = context.serialize(src);

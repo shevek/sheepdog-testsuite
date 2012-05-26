@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -80,18 +82,26 @@ public class ControllerMain {
             return;
         }
 
-        RootConfiguration configuration;
+        RootConfiguration configuration = null;
         {
-            String path = cmdline.getOptionValue(OPT_CONFIG);
-            InputStream in = FileUtils.openInputStream(new File(path));
-            try {
-                Serializer serializer = new Persister();
-                configuration = serializer.read(RootConfiguration.class, in);
-            } catch (PersistenceException e) {
-                LOG.error("Failed to load configuration file: " + e.getMessage());
-                return;
-            } finally {
-                IOUtils.closeQuietly(in);
+            String[] pathlists = cmdline.getOptionValues(OPT_CONFIG);
+            for (String pathlist : pathlists) {
+                for (String path : StringUtils.split(pathlist, ", ")) {
+                    InputStream in = FileUtils.openInputStream(new File(path));
+                    try {
+                        Serializer serializer = new Persister();
+                        RootConfiguration config = serializer.read(RootConfiguration.class, in);
+                        if (configuration == null)
+                            configuration = config;
+                        else
+                            configuration.addConfiguration(config);
+                    } catch (PersistenceException e) {
+                        LOG.error("Failed to load configuration file: " + e.getMessage());
+                        return;
+                    } finally {
+                        IOUtils.closeQuietly(in);
+                    }
+                }
             }
         }
 
@@ -113,6 +123,7 @@ public class ControllerMain {
                         if (isTest(config, matcher, pattern)) {
                             found = true;
                             try {
+                                LOG.info("\n\n---\n\n");
                                 results.put(testId, "Started...");
                                 config.run(context);
                                 results.put(testId, "OK");
@@ -130,6 +141,7 @@ public class ControllerMain {
                     String testId = config.getId();
                     if (config.isAuto()) {
                         try {
+                            LOG.info("\n\n---\n\n");
                             results.put(testId, "Started...");
                             config.run(context);
                             results.put(testId, "OK");
@@ -143,6 +155,27 @@ public class ControllerMain {
 
             LOG.info("");
             LOG.info("");
+
+            if (context.isVerbose()) {
+                LOG.info("=== Skipped Tests ===");
+                List<TestConfiguration> skipped = new ArrayList<TestConfiguration>();
+                for (TestConfiguration config : configuration.getTests()) {
+                    if (!results.containsKey(config.getId())) {
+                        skipped.add(config);
+                    }
+                }
+                Collections.sort(skipped, new Comparator<TestConfiguration>() {
+
+                    @Override
+                    public int compare(TestConfiguration o1, TestConfiguration o2) {
+                        return o1.getId().compareTo(o2.getId());
+                    }
+                });
+                for (TestConfiguration config : skipped) {
+                    LOG.info(config.getId() + ": " + config.getDescription());
+                }
+            }
+
             LOG.info("=== Test Results ===");
             for (Map.Entry<String, String> e : results.entrySet()) {
                 String value = e.getValue();

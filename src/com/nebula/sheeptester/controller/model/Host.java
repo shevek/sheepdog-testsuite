@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author shevek
  */
-public class Host {
+public class Host implements Comparable<Host> {
 
     private static final Log LOG = LogFactory.getLog(Host.class);
     private final ControllerContext context;
@@ -166,6 +166,11 @@ public class Host {
             throw new ControllerAssertionException(eresponse.getMessage());
         }
         return response;
+    }
+
+    @Override
+    public int compareTo(Host o) {
+        return getConfig().getId().compareTo(o.getConfig().getId());
     }
 
     @Override

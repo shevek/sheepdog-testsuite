@@ -7,6 +7,7 @@ package com.nebula.sheeptester.controller.command;
 import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.ControllerExecutor;
+import com.nebula.sheeptester.controller.config.HostConfiguration;
 import com.nebula.sheeptester.controller.config.SheepConfiguration;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
@@ -44,27 +45,75 @@ public class SheepStartCommand extends AbstractCommand {
     @Attribute(required = false)
     public int zone = -1;
     @Attribute(required = false)
-    public boolean parallel = false;
+    public int delay;
+    @Attribute(required = false)
+    public int predelay;
+    @Attribute(required = false)
+    public int interdelay;
+    @Attribute(required = false)
+    public int postdelay;
     @Attribute(required = false)
     public boolean strace = false;
     @Attribute(required = false)
     public boolean valgrind = false;
 
+    private int getPreDelay() {
+        if (predelay > 0)
+            return predelay;
+        if (delay > 0)
+            return delay;
+        return 0;
+    }
+
+    private int getInterDelay() {
+        if (interdelay > 0)
+            return interdelay;
+        if (delay > 0)
+            return delay;
+        return 0;
+    }
+
+    private int getPostDelay(ControllerContext context) {
+        if (postdelay > 0)
+            return postdelay;
+        if (delay > 0)
+            return delay;
+        if (valgrind)
+            return 3000;
+        if (isZooKeeper(context))
+            return 1000;
+        return 200;
+    }
+
+    public boolean isZooKeeper(ControllerContext context) {
+        if (StringUtils.contains(cluster, "zookeeper"))
+            return true;
+        if (cluster != null)
+            return false;
+        for (HostConfiguration config : context.getConfiguration().getHosts())
+            if (StringUtils.contains(config.getCluster(), "zookeeper"))
+                return true;
+        return false;
+    }
+
+    private static void sleep(int delay) throws InterruptedException {
+        if (delay > 0) {
+            LOG.info("Sleeping for " + delay + " ms");
+            Thread.sleep(delay);
+        }
+    }
+
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
         List<Sheep> sheeps = new ArrayList<Sheep>();
         if (sheepId != null) {
-            for (String id : StringUtils.split(sheepId, ", ")) {
-                Sheep sheep = getSheep(context, id);
-                if (sheep.isRunning()) {
-                    LOG.warn("Sheep already running: " + sheep);
+            for (Sheep sheep : toSheeps(context, sheepId, null)) {
+                if (sheep.isRunning())
                     continue;
-                }
                 sheeps.add(sheep);
             }
         } else if (hostId != null) {
-            for (String id : StringUtils.split(hostId, ", ")) {
-                Host host = getHost(context, id);
+            for (Host host : toHosts(context, hostId)) {
                 for (Sheep sheep : context.getSheep(host).values()) {
                     if (sheep.isRunning())
                         continue;
@@ -79,20 +128,22 @@ public class SheepStartCommand extends AbstractCommand {
             }
         }
 
+        sleep(getPreDelay());
+
         Set<Host> hosts = new HashSet<Host>();
         try {
+            boolean parallel = getInterDelay() <= 0;
             for (Sheep sheep : sheeps) {
                 hosts.add(sheep.getHost());
-                if (!parallel)
+                if (!parallel) {
                     run(context, sheep);
+                    sleep(getInterDelay());
+                }
             }
             if (parallel)
                 run(context, sheeps);
         } finally {
-            if (valgrind)
-                Thread.sleep(4000);
-            else
-                Thread.sleep(200);
+            sleep(getPostDelay(context));
             SheepStatCommand stat = new SheepStatCommand();
             stat.statHosts(context, hosts, true);
         }
@@ -115,7 +166,10 @@ public class SheepStartCommand extends AbstractCommand {
     public void run(ControllerContext context, Sheep sheep) throws ControllerException, InterruptedException {
         SheepConfiguration config = sheep.getConfig();
         SheepStartOperator operator = new SheepStartOperator(config.getPort(), config.getDirectory());
-        operator.cluster = cluster;
+        if (cluster != null)
+            operator.cluster = cluster;
+        else
+            operator.cluster = context.getProperty("CLUSTER");
         operator.vnodes = vnodes;
         operator.zone = zone;
         operator.strace = strace;

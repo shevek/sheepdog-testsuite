@@ -6,6 +6,7 @@ package com.nebula.sheeptester.controller.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 
 /**
@@ -22,6 +23,14 @@ public class ClusterInfo {
         if (epochs.isEmpty())
             return 0;
         return epochs.get(0).getId();
+    }
+
+    @CheckForNull
+    public ClusterEpoch getEpoch(int id) {
+        for (ClusterEpoch epoch : epochs)
+            if (epoch.getId() == id)
+                return epoch;
+        return null;
     }
 
     @Override

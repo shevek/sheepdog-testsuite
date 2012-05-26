@@ -64,6 +64,8 @@ public class SheepStartOperator extends AbstractProcessOperator {
         command.addAll(Arrays.asList(context.getSheep(), "--disable-cache", "-f", "-l7", "-d", "-p", String.valueOf(port)));
         if (cluster != null)
             command.addAll(Arrays.asList("-c", cluster));
+        else if (context.getCluster() != null)
+            command.addAll(Arrays.asList("-c", context.getCluster()));
         if (vnodes >= 0)
             command.addAll(Arrays.asList("-v", String.valueOf(vnodes)));
         if (zone >= 0)

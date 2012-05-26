@@ -29,6 +29,8 @@ public class VdiCreateCommand extends AbstractCommand {
     private String name;
     @Attribute(required = false)
     private long size;
+    @Attribute(required = false)
+    private boolean write;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
@@ -50,6 +52,8 @@ public class VdiCreateCommand extends AbstractCommand {
         context.execute(host, operator);
         Vdi vdi = new Vdi(_name, _size);
         context.addVdi(vdi);
+        if (write)
+            VdiWriteCommand.run(context, sheep, vdi, 0, (int) _size);
         return vdi;
     }
 }

@@ -12,7 +12,6 @@ import com.nebula.sheeptester.controller.model.Vdi;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,19 +52,9 @@ public class ClusterRestartCommand extends AbstractCommand {
         Set<Sheep> set = new HashSet<Sheep>(in);
         set.removeAll(out);
         List<Sheep> list = new ArrayList<Sheep>(set);
-        Collections.sort(list, new Comparator<Sheep>() {
-
-            @Override
-            public int compare(Sheep o1, Sheep o2) {
-                return o1.getConfig().getId().compareTo(o2.getConfig().getId());
-            }
-        });
+        Collections.sort(list);
         int length = Math.max(0, pattern.length() - out.size());
         out.addAll(list.subList(0, length));
-    }
-
-    private boolean isZooKeeper() {
-        return StringUtils.contains(cluster, "zookeeper");
     }
 
     @Override
@@ -125,7 +114,7 @@ public class ClusterRestartCommand extends AbstractCommand {
         }
         Thread.sleep(300);
 
-        if (isZooKeeper()) {
+        if (start.isZooKeeper(context)) {
             LOG.info("Sleeping to wait for ZooKeeper sessions to create.");
             Thread.sleep(10000);
         }
@@ -136,7 +125,7 @@ public class ClusterRestartCommand extends AbstractCommand {
         }
         // Thread.sleep(300);
 
-        if (isZooKeeper()) {
+        if (start.isZooKeeper(context)) {
             LOG.info("Sleeping to wait for ZooKeeper sessions to update.");
             Thread.sleep(10000);
         }

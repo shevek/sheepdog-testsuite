@@ -29,9 +29,9 @@ public class ParallelCommand extends AbstractMultiCommand {
         if (_repeat <= 0)
             _repeat = 1;
 
-        int total = getCommands().size() * _repeat;
-        ControllerExecutor executor = context.newExecutor(total);
+        // int total = getCommands().size() * _repeat;
         for (int i = 0; i < _repeat; i++) {
+            ControllerExecutor executor = context.newExecutor(getCommands().size());
             for (final Command command : getCommands()) {
                 executor.submit("Executing sub-command " + command, new ControllerExecutor.Task() {
 
@@ -40,8 +40,9 @@ public class ParallelCommand extends AbstractMultiCommand {
                         ParallelCommand.this.run(context, command);
                     }
                 });
+                executor.check();   // Stop executing if we got an error.
             }
+            executor.await();
         }
-        executor.await();
     }
 }

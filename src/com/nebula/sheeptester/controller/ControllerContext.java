@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
@@ -139,6 +140,22 @@ public class ControllerContext {
         return collieFile;
     }
 
+    @CheckForNull
+    public String getProperty(String name) {
+        return properties.get(name);
+    }
+
+    public void setProperty(@Nonnull String name, @CheckForNull String value) {
+        if (value == null)
+            properties.remove(name);
+        else
+            properties.put(name, value);
+    }
+
+    public void clearProperties() {
+        properties.clear();
+    }
+
     public boolean isVerbose() {
         return verbose;
     }
@@ -160,7 +177,7 @@ public class ControllerContext {
 
     @Nonnull
     public Map<? extends String, ? extends Sheep> getSheep(Host host) {
-        Map<String, Sheep> out = new HashMap<String, Sheep>();
+        Map<String, Sheep> out = new TreeMap<String, Sheep>();
         for (Map.Entry<? extends String, ? extends Sheep> e : sheepMap.entrySet()) {
             if (e.getValue().getHost() == host)
                 out.put(e.getKey(), e.getValue());
@@ -224,7 +241,7 @@ public class ControllerContext {
                     Host host = e.getValue();
                     HostConfiguration config = host.getConfig();
                     host.connect();
-                    execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie(), new HashMap<String, String>(properties)));
+                    execute(host, new ConfigOperator(hostId, config.getSheep(), config.getCollie(), config.getCluster(), new HashMap<String, String>(properties)));
 
                     SheepStatCommand stat = new SheepStatCommand();
                     stat.statHost(ControllerContext.this, host, false);

@@ -13,6 +13,7 @@ import com.nebula.sheeptester.target.operator.ExecOperator;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,12 +65,14 @@ public class ExecCommand extends AbstractCommand {
         CommandLine line = org.apache.commons.exec.CommandLine.parse(command.trim());
         ExecOperator operator = new ExecOperator(timeout, line.toStrings());
         ProcessResponse response = (ProcessResponse) context.execute(host, operator);
-        StringBuilder buf = new StringBuilder();
-        buf.append("[").append(host).append("] ").append(command);
-        if (response.getOutput().length > 0)
-            buf.append("\n")/*.append("Output:\n")*/.append(response.getOutputAsString());
-        if (response.getError().length > 0)
-            buf.append("\nError:\n").append(response.getErrorAsString());
-        LOG.info(buf);
+        if (!ArrayUtils.isEmpty(response.getOutput()) || !ArrayUtils.isEmpty(response.getError())) {
+            StringBuilder buf = new StringBuilder();
+            buf.append("[").append(host).append("] ").append(command);
+            if (response.getOutput().length > 0)
+                buf.append("\n")/*.append("Output:\n")*/.append(response.getOutputAsString());
+            if (response.getError().length > 0)
+                buf.append("\nError:\n").append(response.getErrorAsString());
+            LOG.info(buf);
+        }
     }
 }

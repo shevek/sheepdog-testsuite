@@ -52,15 +52,19 @@ public class ControllerExecutor {
         count--;
     }
 
-    public void await() throws ControllerException, InterruptedException {
-        if (count != 0)
-            throw new IllegalStateException("Not submitted enough tasks.");
-        latch.await();
+    public void check() throws ControllerException, InterruptedException {
         Throwable t = throwable.get();
         if (t == null)
             return;
         if (t instanceof ControllerException)
             throw (ControllerException) t;
         throw new ControllerException(t);
+    }
+
+    public void await() throws ControllerException, InterruptedException {
+        if (count != 0)
+            throw new IllegalStateException("Not submitted enough tasks.");
+        latch.await();
+        check();
     }
 }

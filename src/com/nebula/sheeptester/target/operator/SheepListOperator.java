@@ -69,50 +69,60 @@ public class SheepListOperator extends AbstractOperator {
 
     @Override
     public SheepListResponse run(TargetContext context) throws Exception {
-        List<SheepProcess> sheeps = new ArrayList<SheepProcess>();
+        int tries = 0;
+        TRY:
+        for (;;) {
+            List<SheepProcess> sheeps = new ArrayList<SheepProcess>();
 
-        // ByteArrayOutputStream output = new ByteArrayOutputStream();
-        TimedProcess process = new TimedProcess(context, 2000, "sudo", "netstat", "-tnlp");
-        process.execute();
-        String output = process.getOutput().toString();
-        Pattern P_WORDS = Pattern.compile("\\s+");
-        // tcp        0      0 0.0.0.0:8541            0.0.0.0:*               LISTEN      4252/skype      
-        for (String line : StringUtils.split(output, "\n")) {
-            if (!line.startsWith("tcp "))
-                continue;
-            String[] words = P_WORDS.split(line);
-            if (words.length != 7)
-                throw new TargetException("Bad line from netstat (words=" + words.length + "): '" + line + "'");
-            if (!"LISTEN".equals(words[5]))
-                throw new TargetException("Bad line from netstat (LISTEN): " + line);
-
-            int idx;
-
-            idx = words[6].indexOf('/');
-            if (idx == -1) {
-                LOG.warn("Bad line from netstat (cmd-idx): " + line);
-                continue;
-            }
-            String proc = words[6].substring(idx + 1);
-            int pid = Integer.parseInt(words[6].substring(0, idx));
-
-            idx = words[3].lastIndexOf(':');
-            if (idx == -1)
-                throw new TargetException("Bad line from netstat (port-idx): " + line);
-            int port = Integer.parseInt(words[3].substring(idx + 1));
-
-            if (!"sheep".equals(proc)) {
-                // LOG.info("Not a sheep: proc=" + proc + ", port=" + port );
-                // Special case: Detect sheep running under valgrind.
-                if (!(port >= 7000 && port <= 7100 && "valgrind.bin".equals(proc)))
+            // ByteArrayOutputStream output = new ByteArrayOutputStream();
+            TimedProcess process = new TimedProcess(context, 2000, "sudo", "netstat", "-tnlp");
+            process.execute();
+            String output = process.getOutput().toString();
+            Pattern P_WORDS = Pattern.compile("\\s+");
+            // tcp        0      0 0.0.0.0:8541            0.0.0.0:*               LISTEN      4252/skype      
+            LINE:
+            for (String line : StringUtils.split(output, "\n")) {
+                if (!line.startsWith("tcp "))
                     continue;
-                // LOG.info("But it is special.");
+                String[] words = P_WORDS.split(line);
+                if (words.length != 7)
+                    throw new TargetException("Bad line from netstat (words=" + words.length + "): '" + line + "'");
+                if (!"LISTEN".equals(words[5]))
+                    throw new TargetException("Bad line from netstat (LISTEN): " + line);
+
+                int idx;
+
+                idx = words[6].indexOf('/');
+                if (idx == -1) {
+                    LOG.warn("Bad line from netstat (cmd-idx): " + line);
+                    if (++tries < 5) {
+                        LOG.warn("Waiting and trying again.");
+                        Thread.sleep(1000);
+                        continue TRY;
+                    }
+                    continue LINE;
+                }
+                String proc = words[6].substring(idx + 1);
+                int pid = Integer.parseInt(words[6].substring(0, idx));
+
+                idx = words[3].lastIndexOf(':');
+                if (idx == -1)
+                    throw new TargetException("Bad line from netstat (port-idx): " + line);
+                int port = Integer.parseInt(words[3].substring(idx + 1));
+
+                if (!"sheep".equals(proc)) {
+                    // LOG.info("Not a sheep: proc=" + proc + ", port=" + port );
+                    // Special case: Detect sheep running under valgrind.
+                    if (!(port >= 7000 && port <= 7100 && "valgrind.bin".equals(proc)))
+                        continue;
+                    // LOG.info("But it is special.");
+                }
+
+                SheepProcess sheep = new SheepProcess(port, pid);
+                sheeps.add(sheep);
             }
 
-            SheepProcess sheep = new SheepProcess(port, pid);
-            sheeps.add(sheep);
+            return new SheepListResponse(this, sheeps);
         }
-
-        return new SheepListResponse(this, sheeps);
     }
 }

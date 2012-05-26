@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ public class TargetContext {
     private String hostId = "<unknown>";
     private String sheep = "/usr/bin/sheep";
     private String collie = "/usr/bin/collie";
+    private String cluster = null;
     private Map<String, String> properties = Collections.emptyMap();
 
     public TargetContext() {
@@ -44,6 +46,7 @@ public class TargetContext {
         hostId = StringUtils.defaultString(config.getHostId(), hostId);
         sheep = StringUtils.defaultString(config.getSheep(), sheep);
         collie = StringUtils.defaultString(config.getCollie(), collie);
+        cluster = StringUtils.defaultString(config.getCluster(), cluster);
         properties = ObjectUtils.defaultIfNull(config.getProperties(), properties);
     }
 
@@ -70,6 +73,11 @@ public class TargetContext {
     @Nonnull
     public String getCollie() {
         return collie;
+    }
+
+    @CheckForNull
+    public String getCluster() {
+        return cluster;
     }
 
     @Nonnull
