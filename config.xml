@@ -293,7 +293,7 @@
 		<!-- We sleep here so SD can delete files that chmod might want to alter.
 		   - otherwise, chmod does readdir(), then fails to chmod() an entry which
 		   - was deleted before chmod got that far. . -->
-		<sleep msecs="1000" />
+		<sleep msecs="2000" />
 		<subtest testId="check" />
 	</test>
 
@@ -361,14 +361,15 @@
 	<!-- APPLIANCE-2115 -->
 	<test id="simple-singlehost-master" groups="@release,@fails">
 		<subtest testId="init" />
-		<sheep-start sheepId="A-7000" />
+		<sheep-start sheepId="A-7000" strace="true" />
 		<!-- XXX delay -->
-		<sheep-start hostId="A" delay="2000" />
+		<sheep-start hostId="A" strace="true" />
 		<subtest testId="format-1" />
 		<vdi-create sheepId="A-7000" name="test-vdi" />
 		<vdi-write sheepId="A-7001" name="test-vdi" />
 		<subtest testId="check" />
 		<vdi-delete sheepId="A-7002" name="test-vdi" />
+		<sleep msecs="2000" /> <!-- Wait for the deletion to propagate. -->
 		<subtest testId="check" />
 	</test>
 
@@ -376,12 +377,13 @@
 	<test id="simple-singlehost-slave" groups="@release,@fails">
 		<subtest testId="init" />
 		<!-- XXX delay -->
-		<sheep-start hostId="A" delay="3000" />
+		<sheep-start hostId="A" />
 		<subtest testId="format-1" />
 		<vdi-create sheepId="A-7002" name="test-vdi" />
 		<vdi-write sheepId="A-7000" name="test-vdi" />
 		<subtest testId="check" />
 		<vdi-delete sheepId="A-7001" name="test-vdi" />
+		<sleep msecs="2000" /> <!-- Wait for the deletion to propagate. -->
 		<subtest testId="check" />
 	</test>
 
@@ -393,6 +395,7 @@
 		<vdi-write sheepId="B-7000" name="test-vdi" />
 		<subtest testId="check" />
 		<vdi-delete sheepId="C-7000" name="test-vdi" />
+		<sleep msecs="2000" /> <!-- Wait for the deletion to propagate. -->
 		<subtest testId="check" />
 	</test>
 
@@ -404,6 +407,7 @@
 		<vdi-write sheepId="A-7000" name="test-vdi" />
 		<subtest testId="check" />
 		<vdi-delete sheepId="B-7000" name="test-vdi" />
+		<sleep msecs="2000" /> <!-- Wait for the deletion to propagate. -->
 		<subtest testId="check" />
 	</test>
 
@@ -412,13 +416,12 @@
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" />
 		<!-- XXX delay -->
-		<sheep-start delay="2000" />
+		<sheep-start />
 		<subtest testId="format-3" />
 		<subtest testId="exercise" />
-		<subtest testId="check" />
 	</test>
 
-	<test id="cluster_format_with_too_few_nodes" groups="@release">
+	<test id="cluster-format-with-too-few-nodes" groups="@release">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" />
 		<cluster-format copies="3" />
@@ -426,7 +429,7 @@
 		<echo message="Cluster status was HALTED: Correct." />
 	</test>
 
-	<test id="cluster-no-vnode-format" groups="@release">
+	<test id="cluster-format-with-no-vnodes" groups="@release">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000,A-7001,A-7002" vnodes="0" />
 		<sheep-stat status="NEEDSFORMAT" />
@@ -476,11 +479,11 @@
 		<subtest testId="check" />
 	</test>
 
-	<test id="fpe-init" auto="false">
+	<test id="cluster-fpe-init" auto="false">
 		<subtest testId="init" />
-		<sheep-start sheepId="A-7000" />
-		<sheep-start sheepId="A-7001,A-7002" />
-		<sheep-start sheepId="B-7000,B-7001,B-7002" />
+		<sheep-start sheepId="A-7000" valgrind="true" />
+		<sheep-start sheepId="A-7001,A-7002" valgrind="true" />
+		<sheep-start sheepId="B-7000,B-7001,B-7002" valgrind="true" />
 		<subtest testId="format-2" />
 
 		<vdi-create sheepId="A-7000" name="test-vdi" size="20480" />
@@ -488,7 +491,7 @@
 		<vdi-read sheepId="B-7000" name="test-vdi" offset="0" length="20480" />
 	</test>
 
-	<test id="fpe-fail" auto="false">
+	<test id="cluster-fpe-fail" auto="false">
 		<sheep-start sheepId="C-7000" valgrind="true" />
 		<!--
 		<sheep-start sheepId="C-7000,C-7001,C-7002" valgrind="true" />
@@ -498,20 +501,20 @@
 		<vdi-read sheepId="C-7000" name="test-vdi" offset="0" length="20480" />
 	</test>
 
-	<test id="fpe-stress" auto="false">
+	<test id="cluster-fpe-stress" auto="false">
 		<sheep-start sheepId="C-7001,C-7002" />
 		<sleep msecs="2000" />
 		<vdi-read sheepId="C-7002" name="test-vdi" offset="0" length="20480" />
 	</test>
 
-	<test id="fpe" groups="@release">
-		<subtest testId="fpe-init" />
-		<subtest testId="fpe-fail" />
-		<subtest testId="fpe-stress" />
+	<test id="cluster-fpe" groups="@release">
+		<subtest testId="cluster-fpe-init" />
+		<subtest testId="cluster-fpe-fail" />
+		<subtest testId="cluster-fpe-stress" />
 		<subtest testId="check" />
 	</test>
 
-	<test id="desync-init" auto="false">
+	<test id="cluster-desync-init" auto="false">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" />
 		<subtest testId="format-1" />
@@ -521,16 +524,16 @@
 		<!-- vdi-read sheepId="A-7000" name="test-vdi" offset="0" length="300000" / -->
 	</test>
 
-	<test id="desync-fail" auto="false">
+	<test id="cluster-desync-fail" auto="false">
 		<sheep-start sheepId="A-7001" />
 		<!-- Allow enough extra time for recovery to kick in. -->
 		<sleep msecs="5000" />
 		<vdi-read sheepId="A-7001" name="test-vdi" offset="0" length="300000" />
 	</test>
 
-	<test id="desync" groups="@release">
-		<subtest testId="desync-init" />
-		<subtest testId="desync-fail" />
+	<test id="cluster-desync" groups="@release">
+		<subtest testId="cluster-desync-init" />
+		<subtest testId="cluster-desync-fail" />
 		<subtest testId="check" />
 	</test>
 
@@ -538,7 +541,7 @@
 	<test id="valgrind" groups="@release,@fails">
 		<subtest testId="init" />
 		<!-- XXX delay, but fails anyway -->
-		<sheep-start sheepId="A-7000,A-7001,A-7002" valgrind="true" delay="1000" />
+		<sheep-start sheepId="A-7000,A-7001,A-7002" valgrind="true" />
 		<subtest testId="format-1" />
 		<vdi-create sheepId="A-7000" name="test-vdi" size="102400" />
 		<vdi-write sheepId="A-7000" name="test-vdi" offset="0" length="102400" />
@@ -549,7 +552,7 @@
 	</test>
 
 	<test id="restart_assert_common" auto="false">
-		<subtest testId="restart_zk_settle" />
+		<subtest testId="zookeeper_settle" />
 	</test>
 
 	<test id="restart_assert_running_ok" auto="false">
