@@ -110,7 +110,7 @@ public class SheepScanCommand extends AbstractCommand {
                     errors.add("Wrong number of replicas for " + e.getKey() + ": " + block.getCopies() + " on " + block.sheeps);
         }
         for (Map.Entry<Integer, MutableInt> e : counts.entrySet()) {
-            LOG.info("Block repl = " + e.getKey() + ": " + e.getValue() + " blocks.");
+            LOG.info("Block replica-count = " + e.getKey() + ": " + e.getValue() + " blocks.");
         }
 
         if (!errors.isEmpty())

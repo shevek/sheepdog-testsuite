@@ -33,14 +33,25 @@ public class BackgroundProcess extends TargetProcess {
         @Override
         public void onProcessComplete(int exitValue) {
             if (exitValue == 0)
-                LOG.info(getContext().getHostId() + ": Process " + commandline + " done.");
+                LOG.info(getContext().getHostId() + ": Process done: " + commandline);
             else
-                LOG.info(getContext().getHostId() + ": Process " + commandline + " exited with result code " + exitValue);
+                LOG.info(getContext().getHostId() + ": Process exited with result code " + exitValue + ": " + commandline);
         }
 
         @Override
         public void onProcessFailed(ExecuteException e) {
-            LOG.error(getContext().getHostId() + ": Process " + commandline + " failed", e);
+            String reason = "";
+            switch (e.getExitValue()) {
+                case 137:
+                    reason = "(killed) ";
+                    e = null;
+                    break;
+                case 143:
+                    reason = "(timeout) ";
+                    e = null;
+                    break;
+            }
+            LOG.error(getContext().getHostId() + ": Process failed: " + reason + commandline, e);
         }
     }
 

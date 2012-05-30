@@ -125,20 +125,20 @@
 	</test>
 
 	<test id="start-small" auto="false" description="Utility: Start a small cluster.">
-		<subtest testId="init" />
+		<!-- subtest testId="init" / -->
 		<sheep-start sheepId="A-7000" />
 		<sheep-start sheepId="A-7001" />
 		<sheep-start sheepId="B-7000" />
 		<sheep-start sheepId="B-7001" />
 		<sheep-start sheepId="C-7000" />
 		<sheep-start sheepId="C-7001" />
-		<cluster-format copies="2" />
+		<!-- cluster-format copies="2" / -->
 	</test>
 
 	<test id="start-large" auto="false" description="Utility: Start a large cluster.">
-		<subtest testId="init" />
+		<!-- subtest testId="init" / -->
 		<sheep-start />
-		<cluster-format copies="3" />
+		<!-- cluster-format copies="3" / -->
 	</test>
 
 	<test id="format-1" auto="false" description="Utility: Format with 1 copy.">
@@ -165,92 +165,195 @@
 		<subtest testId="check" />
 	</test>
 
-	<test id="exercise" auto="false" description="Utility: Exercise a cluster.">
+	<test id="exercise-crud" auto="false" groups="@fails"
+					description="Utility: Exercise a cluster.">
 		<!-- The varied sleeps here are to introduce jitter. -->
-		<parallel repeat="10">
+		<!-- If you delete a VDI on a cluster which is under load,
+		   - it can take a while before the vdi actually goes away.
+		   - That causes test failures in this test, which assumes
+		   - that it can create a VDI immediately after deletion.
+		   - Basically, you can't repeat the parallel. -->
+		<parallel>
 
 			<sequential repeat="3">
-				<vdi-create name="test-vdi-0" size="102400" />
-				<vdi-write name="test-vdi-0" />
-				<vdi-read name="test-vdi-0" />
-				<vdi-delete name="test-vdi-0" />
+				<vdi-create name="crud-vdi-0" size="102400" write="true" />
+				<vdi-read name="crud-vdi-0" />
+				<vdi-delete name="crud-vdi-0" />
 			</sequential>
 
 			<sequential repeat="3">
 				<sleep msecs="500" />
-				<vdi-create name="test-vdi-1" size="102400" />
-				<vdi-write name="test-vdi-1" />
-				<vdi-read name="test-vdi-1" />
-				<vdi-delete name="test-vdi-1" />
+				<vdi-create name="crud-vdi-1" size="102400" write="true" />
+				<vdi-read name="crud-vdi-1" />
+				<vdi-delete name="crud-vdi-1" />
 			</sequential>
 
 			<sequential repeat="2">
 				<sleep msecs="1000" />
-				<vdi-create name="test-vdi-2" size="102400" />
-				<vdi-write name="test-vdi-2" />
-				<vdi-read name="test-vdi-2" />
-				<vdi-delete name="test-vdi-2" />
+				<vdi-create name="crud-vdi-2" size="102400" write="true" />
+				<vdi-read name="crud-vdi-2" />
+				<vdi-delete name="crud-vdi-2" />
 			</sequential>
 
 			<sequential repeat="2">
 				<sleep msecs="1500" />
-				<vdi-create name="test-vdi-3" size="102400" />
-				<vdi-write name="test-vdi-3" />
-				<vdi-read name="test-vdi-3" />
-				<vdi-delete name="test-vdi-3" />
+				<vdi-create name="crud-vdi-3" size="102400" write="true" />
+				<vdi-read name="crud-vdi-3" />
+				<vdi-delete name="crud-vdi-3" />
 			</sequential>
 
 			<sequential repeat="2">
 				<sleep msecs="2000" />
-				<vdi-create name="test-vdi-4" size="102400" />
-				<vdi-write name="test-vdi-4" />
-				<vdi-read name="test-vdi-4" />
-				<vdi-delete name="test-vdi-4" />
+				<vdi-create name="crud-vdi-4" size="102400" write="true" />
+				<vdi-read name="crud-vdi-4" />
+				<vdi-delete name="crud-vdi-4" />
 			</sequential>
 
 			<sequential repeat="2">
 				<sleep msecs="2500" />
-				<vdi-create name="test-vdi-5" size="102400" />
-				<vdi-write name="test-vdi-5" />
-				<vdi-read name="test-vdi-5" />
-				<vdi-delete name="test-vdi-5" />
+				<vdi-create name="crud-vdi-5" size="102400" write="true" />
+				<vdi-read name="crud-vdi-5" />
+				<vdi-delete name="crud-vdi-5" />
 			</sequential>
 
 			<sequential>
 				<sleep msecs="3000" />
-				<vdi-create name="test-vdi-6" size="102400" />
-				<vdi-write name="test-vdi-6" />
-				<vdi-read name="test-vdi-6" />
-				<vdi-delete name="test-vdi-6" />
+				<vdi-create name="crud-vdi-6" size="102400" write="true" />
+				<vdi-read name="crud-vdi-6" />
+				<vdi-delete name="crud-vdi-6" />
 			</sequential>
 
 			<sequential>
 				<sleep msecs="3000" />
-				<vdi-create name="test-vdi-7" size="102400" />
-				<vdi-write name="test-vdi-7" />
-				<vdi-read name="test-vdi-7" />
-				<vdi-delete name="test-vdi-7" />
+				<vdi-create name="crud-vdi-7" size="102400" write="true" />
+				<vdi-read name="crud-vdi-7" />
+				<vdi-delete name="crud-vdi-7" />
 			</sequential>
 
 			<sequential>
 				<sleep msecs="3000" />
-				<vdi-create name="test-vdi-8" size="102400" />
-				<vdi-write name="test-vdi-8" />
-				<vdi-read name="test-vdi-8" />
-				<vdi-delete name="test-vdi-8" />
+				<vdi-create name="crud-vdi-8" size="102400" write="true" />
+				<vdi-read name="crud-vdi-8" />
+				<vdi-delete name="crud-vdi-8" />
 			</sequential>
 
 			<sequential>
 				<sleep msecs="3000" />
-				<vdi-create name="test-vdi-9" size="102400" />
-				<vdi-write name="test-vdi-9" />
-				<vdi-read name="test-vdi-9" />
-				<vdi-delete name="test-vdi-9" />
+				<vdi-create name="crud-vdi-9" size="102400" write="true" />
+				<vdi-read name="crud-vdi-9" />
+				<vdi-delete name="crud-vdi-9" />
 			</sequential>
 
 		</parallel>
 
 		<subtest testId="check" />
+	</test>
+
+	<test id="exercise-parallel" auto="false" description="Utility: Exercise a cluster.">
+		<parallel>
+			<vdi-create name="exercise-vdi-0" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-1" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-2" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-3" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-4" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-5" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-6" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-7" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-8" size="102400" write="true" />
+			<vdi-create name="exercise-vdi-9" size="102400" write="true" />
+		</parallel>
+		<subtest testId="check" />
+
+		<parallel repeat="10" sync="false">
+			<vdi-read name="exercise-vdi-0" />
+			<vdi-read name="exercise-vdi-1" />
+			<vdi-read name="exercise-vdi-2" />
+			<vdi-read name="exercise-vdi-3" />
+			<vdi-read name="exercise-vdi-4" />
+			<vdi-read name="exercise-vdi-5" />
+			<vdi-read name="exercise-vdi-6" />
+			<vdi-read name="exercise-vdi-7" />
+			<vdi-read name="exercise-vdi-8" />
+			<vdi-read name="exercise-vdi-9" />
+		</parallel>
+		<subtest testId="check" />
+
+		<parallel>
+			<vdi-delete name="exercise-vdi-0" />
+			<vdi-delete name="exercise-vdi-1" />
+			<vdi-delete name="exercise-vdi-2" />
+			<vdi-delete name="exercise-vdi-3" />
+			<vdi-delete name="exercise-vdi-4" />
+			<vdi-delete name="exercise-vdi-5" />
+			<vdi-delete name="exercise-vdi-6" />
+			<vdi-delete name="exercise-vdi-7" />
+			<vdi-delete name="exercise-vdi-8" />
+			<vdi-delete name="exercise-vdi-9" />
+		</parallel>
+		<!-- We sleep here so SD can delete files that chmod might want to alter.
+		   - otherwise, chmod does readdir(), then fails to chmod() an entry which
+		   - was deleted before chmod got that far. . -->
+		<sleep msecs="1000" />
+		<subtest testId="check" />
+	</test>
+
+	<test id="exercise-order-cluster" auto="false">
+		<vdi-create name="order-vdi-cluster" size="1" />
+		<sequential repeat="10">
+			<vdi-write name="order-vdi-cluster" pattern="ABCD" />
+			<parallel repeat="8" sync="false">
+				<vdi-read name="order-vdi-cluster" pattern="ABCD" />
+			</parallel>
+			<vdi-write name="order-vdi-cluster" pattern="EFGH" />
+			<parallel repeat="8" sync="false">
+				<vdi-read name="order-vdi-cluster" pattern="EFGH" />
+			</parallel>
+			<vdi-write name="order-vdi-cluster" pattern="IJKL" />
+			<parallel repeat="8" sync="false">
+				<vdi-read name="order-vdi-cluster" pattern="IJKL" />
+			</parallel>
+			<vdi-write name="order-vdi-cluster" pattern="NMOP" />
+			<parallel repeat="8" sync="false">
+				<vdi-read name="order-vdi-cluster" pattern="NMOP" />
+			</parallel>
+			<vdi-write name="order-vdi-cluster" pattern="QRST" />
+			<parallel repeat="8" sync="false">
+				<vdi-read name="order-vdi-cluster" pattern="QRST" />
+			</parallel>
+			<vdi-write name="order-vdi-cluster" pattern="UVWX" />
+			<parallel repeat="8" sync="false">
+				<vdi-read name="order-vdi-cluster" pattern="UVWX" />
+			</parallel>
+		</sequential>
+		<subtest testId="check" />
+		<vdi-delete name="order-vdi-cluster" />
+	</test>
+
+	<test id="exercise-order-local" auto="false">
+		<vdi-create name="order-vdi-local" size="1" />
+		<sequential repeat="10">
+			<vdi-write name="order-vdi-local" pattern="ABCD" sheepId="A-7000" />
+			<vdi-read name="order-vdi-local" pattern="ABCD" sheepId="A-7000" />
+			<vdi-write name="order-vdi-local" pattern="EFGH" sheepId="A-7000" />
+			<vdi-read name="order-vdi-local" pattern="EFGH" sheepId="A-7000" />
+			<vdi-write name="order-vdi-local" pattern="IJKL" sheepId="A-7000" />
+			<vdi-read name="order-vdi-local" pattern="IJKL" sheepId="A-7000" />
+			<vdi-write name="order-vdi-local" pattern="NMOP" sheepId="A-7000" />
+			<vdi-read name="order-vdi-local" pattern="NMOP" sheepId="A-7000" />
+			<vdi-write name="order-vdi-local" pattern="QRST" sheepId="A-7000" />
+			<vdi-read name="order-vdi-local" pattern="QRST" sheepId="A-7000" />
+			<vdi-write name="order-vdi-local" pattern="UVWX" sheepId="A-7000" />
+			<vdi-read name="order-vdi-local" pattern="UVWX" sheepId="A-7000" />
+		</sequential>
+		<subtest testId="check" />
+		<vdi-delete name="order-vdi-local" />
+	</test>
+
+	<!-- Passes. -->
+	<test id="exercise" auto="false" description="Utility: Exercise a cluster.">
+		<subtest testId="exercise-parallel" />
+		<subtest testId="exercise-order-local" />
+		<subtest testId="exercise-order-cluster" />
 	</test>
 
 <!-- Tests -->
@@ -315,6 +418,25 @@
 		<subtest testId="check" />
 	</test>
 
+	<test id="cluster_format_with_too_few_nodes" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<cluster-format copies="3" />
+		<sheep-stat status="HALTED" check="true" />
+		<echo message="Cluster status was HALTED: Correct." />
+	</test>
+
+	<test id="cluster-no-vnode-format" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000,A-7001,A-7002" vnodes="0" />
+		<sheep-stat status="NEEDSFORMAT" />
+		<cluster-format copies="1" sheepId="A-7000" />
+		<!-- XXX sleep, else we get 'no active nodes' -->
+		<sleep msecs="1000" />
+		<!-- Bug (ZK only): MASTER is WAITING, other nodes are NEEDSFORMAT. -->
+		<sheep-stat status="HALTED" />
+	</test>
+
 	<!-- This does not fail with valgrind. :-( -->
 	<!-- assertion failure: APPLIANCE-2110 -->
 	<test id="joinstorm-preformat" groups="@release,@fails">
@@ -325,14 +447,13 @@
 		<sheep-start sheepId="A-7004,A-7005,A-7006" />
 		<sheep-start sheepId="A-7007,A-7008,A-7009" />
 		<subtest testId="zookeeper_settle" />
-		<sheep-stat status="NEEDSFORMAT" />
-		<cluster-format copies="1" />
-		<subtest testId="check" />
+		<subtest testId="format-1" />
 		<!--
 		<vdi-create sheepId="A-7000" name="test-vdi" write="true" />
 		<vdi-write sheepId="A-7001" name="test-vdi" />
 		<vdi-delete sheepId="A-7002" name="test-vdi" />
 		-->
+		<subtest testId="check" />
 	</test>
 
 	<test id="joinstorm-postformat-init" auto="false">
@@ -352,6 +473,7 @@
 	<test id="joinstorm-postformat" groups="@release">
 		<subtest testId="joinstorm-postformat-init" />
 		<subtest testId="joinstorm-postformat-fail" />
+		<subtest testId="check" />
 	</test>
 
 	<test id="fpe-init" auto="false">
@@ -385,6 +507,8 @@
 	<test id="fpe" groups="@release">
 		<subtest testId="fpe-init" />
 		<subtest testId="fpe-fail" />
+		<subtest testId="fpe-stress" />
+		<subtest testId="check" />
 	</test>
 
 	<test id="desync-init" auto="false">
@@ -407,6 +531,7 @@
 	<test id="desync" groups="@release">
 		<subtest testId="desync-init" />
 		<subtest testId="desync-fail" />
+		<subtest testId="check" />
 	</test>
 
 	<!-- APPLIANCE-2075 -->
@@ -421,15 +546,6 @@
 		<cluster-shutdown />
 		<sleep msecs="3000" />
 		<sheep-stat />
-	</test>
-
-	<test id="no-vnode-write">
-		<subtest testId="init" />
-		<sheep-start sheepId="A-7000" vnodes="0" />
-		<cluster-format copies="1" />
-		<assert-fail>
-			<vdi-create name="test-vdi" size="1024" />
-		</assert-fail>
 	</test>
 
 	<test id="restart_assert_common" auto="false">
@@ -516,140 +632,117 @@
 	</test>
 
 	<!-- Passes -->
-	<test id="restart_RRRR_c1">
+	<test id="restart_RRRR_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
 	<!-- Passes -->
-	<test id="restart_RRRR_c1_zk" groups="@zk">
+	<test id="restart_RRRR_c3" groups="@release">
 		<subtest testId="init" />
-		<cluster-restart pattern="RRRR" copies="1" sheepId="A-7000" hostId="A"
-			cluster="zookeeper:localhost:2181"
-			valgrind="true" />
-		<subtest testId="restart_zk_settle" />
-		<subtest testId="restart_assert_running_ok" />
-	</test>
-
-	<!-- Passes -->
-	<test id="restart_RRRR_c3">
 		<cluster-restart pattern="RRRR" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
-	<!-- XXX -->
-	<test id="restart_RRRR_c3_zk" groups="@zk">
-		<subtest testId="init" />
-		<cluster-restart pattern="RRRRRRR" copies="3" sheepId="A-7000" hostId="A"
-			cluster="zookeeper:localhost:2181"
-			valgrind="true" />
-		<sleep msecs="20000" />
-		<subtest testId="restart_zk_settle" />
-		<subtest testId="restart_assert_running_ok" />
-	</test>
-
 	<!-- Fails because of APPLIANCE-2069 -->
-	<test id="restart_RRRRN_c1">
+	<test id="restart_RRRRN_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRRN" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
 	<!-- Fails because of APPLIANCE-2069 -->
-	<test id="restart_RRRRN_c3">
+	<test id="restart_RRRRN_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRRN" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
-	<!-- XXX -->
-	<test id="restart_RRRRN_c3_zk" groups="@zk">
-		<subtest testId="init" />
-		<cluster-restart pattern="R__RRRRRRN" copies="3" sheepId="A-7000" hostId="A"
-			cluster="zookeeper:localhost:2181"
-			valgrind="true" />
-		<sleep msecs="20000" />
-		<subtest testId="restart_assert_running_ok" />
-	</test>
-
 	<!-- Fails because of APPLIANCE-2069 -->
-	<test id="restart_RRNRR_c1">
+	<test id="restart_RRNRR_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
-	<!-- XXX -->
-	<test id="restart_RRNRR_c1_zk" groups="@zk">
-		<subtest testId="init" />
-		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A"
-			cluster="zookeeper:localhost:2181" />
-		<subtest testId="restart_assert_running_ok" />
-	</test>
-
 	<!-- Fails because of APPLIANCE-2069 -->
-	<test id="restart_RRNRR_c3">
+	<test id="restart_RRNRR_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRNRR" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
 	<!-- Passes (correctly dies) -->
-	<test id="restart_RRRRX_c1">
+	<test id="restart_RRRRX_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRRX" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
 
 	<!-- Passes, but requires farm backend. -->
-	<test id="restart_RRRRX_c3">
+	<test id="restart_RRRRX_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRRX" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_ok" />
 	</test>
 
 	<!-- Fails, because of APPLIANCE-2068 -->
 	<test id="restart_RRRRX_c3_simple" auto="false">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRRX" copies="3" sheepId="A-7000" hostId="A"
 			backend="simple" />
 		<subtest testId="restart_assert_recover_ok" />
 	</test>
 
 	<!-- Fails because recovery can't detect a W node. -->
-	<test id="restart_RWRRRR_c1">
+	<test id="restart_RWRRRR_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RWRRRR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_missing" />
 	</test>
 
 	<!-- Fails because recovery can't detect a W node,
 	   - or because of APPLIANCE-2069, very hard to tell. -->
-	<test id="restart_RWRRRR_c3">
+	<test id="restart_RWRRRR_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RWRRRR" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
 	<!-- Difficult to say because of APPLIANCE-2069 -->
-	<test id="restart_RRNRRX_c1">
+	<test id="restart_RRNRRX_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRNRRX" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
 
 	<!-- Would pass, incorrectly, but fails,
 	   - probably because of APPLIANCE-2068 or APPLIANCE-2069 -->
-	<test id="restart_RRNRRX_c3">
+	<test id="restart_RRNRRX_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRNRRX" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_ok" />
 	</test>
 
 	<!-- ?? Passes incorrectly, because of N node. -->
-	<test id="restart_RRRNXX_c1">
+	<test id="restart_RRRNXX_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRNR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
 
 	<!-- ?? Fails, ticket APPLIANCE-2068 -->
-	<test id="restart_RRRNXX_c3">
+	<test id="restart_RRRNXX_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRNXX" copies="3" sheepId="A-7000" hostId="A" />
 		<echo message="This should be recover_ok, but the N node kicks it online." />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
 	<!-- Passes -->
-	<test id="restart_RRRRXXXX_c3">
+	<test id="restart_RRRRXXXX_c3" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="RRRRXXXX" copies="3" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
@@ -658,15 +751,60 @@
 	<!-- Test fails because the first sheep can't be formatted. -->
 	<!--
 	<test id="restart_NRRRR_c1">
+		<subtest testId="init" />
 		<cluster-restart pattern="NRRRR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
 	-->
 
 	<!-- Fails because all the R sheep suicide with invalid epoch -->
-	<test id="restart_WRRRR_c1">
+	<test id="restart_WRRRR_c1" groups="@release">
+		<subtest testId="init" />
 		<cluster-restart pattern="WRRRR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_unformatted" />
+	</test>
+
+	<!-- Never failed in Java tests, but fails in python test suite. -->
+	<test id="restart_one_host_cluster" auto="false" groups="@release">
+		<sequential repeat="20">
+			<subtest testId="init" />
+			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,A-7001" />
+			<subtest testId="check" />
+			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+			<vdi-list sheepId="A-7001" />
+			<vdi-read sheepId="A-7001" name="test-vdi" />
+		</sequential>
+	</test>
+
+	<!-- Never failed in Java tests, but fails in python test suite. -->
+	<test id="restart_two_host_cluster" auto="false" groups="@release">
+		<sequential repeat="20">
+			<subtest testId="init" />
+			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,B-7000" />
+			<subtest testId="check" />
+			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+			<vdi-list sheepId="B-7000" />
+			<vdi-read sheepId="B-7000" name="test-vdi" />
+		</sequential>
+	</test>
+
+	<!-- Never failed in Java tests, but fails in python test suite. -->
+	<test id="restart_multi_host_cluster" auto="false" groups="@release">
+		<sequential repeat="4">
+			<subtest testId="init" />
+			<cluster-restart pattern="RRRRRRRRR" copies="3"
+				sheepId="A-7000,A-7001,A-7002,B-7000,B-7001,B-7002,C-7000,C-7001,C-7002" />
+			<subtest testId="check" />
+			<vdi-list sheepId="A-7000" />
+			<vdi-read sheepId="A-7000" name="test-vdi" />
+			<vdi-list sheepId="B-7001" />
+			<vdi-read sheepId="B-7001" name="test-vdi" />
+			<vdi-list sheepId="C-7002" />
+			<vdi-read sheepId="C-7002" name="test-vdi" />
+			<subtest testId="check" />
+		</sequential>
 	</test>
 
 </configuration>

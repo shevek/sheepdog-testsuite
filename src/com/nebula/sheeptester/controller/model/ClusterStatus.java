@@ -10,7 +10,7 @@ package com.nebula.sheeptester.controller.model;
  */
 public enum ClusterStatus {
 
-    RUNNING, WAITING, NEEDSFORMAT, UNKNOWN;
+    RUNNING, WAITING, NEEDSFORMAT, HALTED, UNKNOWN;
 
     public static ClusterStatus forString(String text) {
         if (text.startsWith("running"))
@@ -19,6 +19,8 @@ public enum ClusterStatus {
             return WAITING;
         if (text.startsWith("Waiting for cluster to be formatted"))
             return NEEDSFORMAT;
+        if (text.startsWith("IO has halted as"))
+            return HALTED;
         throw new IllegalArgumentException("Unknown status " + text);
     }
 }

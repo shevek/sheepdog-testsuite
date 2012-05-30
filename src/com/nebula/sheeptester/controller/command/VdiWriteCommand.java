@@ -10,11 +10,11 @@ import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
 import com.nebula.sheeptester.target.operator.VdiWriteOperator;
+import com.nebula.sheeptester.util.EscapeUtils;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Text;
 
 /**
  *
@@ -35,8 +35,8 @@ public class VdiWriteCommand extends AbstractCommand {
     private int length = -1;
     @Attribute(required = false)
     private boolean random;
-    @Text(required = false)
-    private String data;
+    @Attribute(required = false)
+    private String pattern;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
@@ -64,9 +64,12 @@ public class VdiWriteCommand extends AbstractCommand {
         run(context, sheep, vdi, 0L, (int) vdi.getSize());
     }
 
-    public static void run(@Nonnull ControllerContext context, @Nonnull Sheep sheep, @Nonnull Vdi vdi, long offset, int length) throws ControllerException, InterruptedException {
+    public void run(@Nonnull ControllerContext context, @Nonnull Sheep sheep, @Nonnull Vdi vdi, long offset, int length) throws ControllerException, InterruptedException {
+        byte[] data = null;
+        if (pattern != null)
+            data = EscapeUtils.unescape_perl_string(pattern);
         Host host = sheep.getHost();
-        VdiWriteOperator request = new VdiWriteOperator(sheep.getConfig().getPort(), vdi.getName(), offset, length);
+        VdiWriteOperator request = new VdiWriteOperator(sheep.getConfig().getPort(), vdi.getName(), offset, length, data);
         context.execute(host, request);
     }
 }

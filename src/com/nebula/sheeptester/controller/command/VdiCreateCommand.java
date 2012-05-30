@@ -48,12 +48,14 @@ public class VdiCreateCommand extends AbstractCommand {
 
     public Vdi run(ControllerContext context, Sheep sheep, String _name, long _size) throws ControllerException, InterruptedException {
         Host host = sheep.getHost();
-        ExecOperator operator = new ExecOperator(5000, "${COLLIE}", "vdi", "create", "-p", String.valueOf(sheep.getConfig().getPort()), _name, String.valueOf(_size));
+        ExecOperator operator = new ExecOperator(20000, "${COLLIE}", "vdi", "create", "-p", String.valueOf(sheep.getConfig().getPort()), _name, String.valueOf(_size));
         context.execute(host, operator);
         Vdi vdi = new Vdi(_name, _size);
         context.addVdi(vdi);
-        if (write)
-            VdiWriteCommand.run(context, sheep, vdi, 0, (int) _size);
+        if (write) {
+            VdiWriteCommand writer = new VdiWriteCommand();
+            writer.run(context, sheep, vdi, 0, (int) _size);
+        }
         return vdi;
     }
 }

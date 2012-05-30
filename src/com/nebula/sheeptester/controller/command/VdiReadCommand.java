@@ -10,10 +10,10 @@ import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
 import com.nebula.sheeptester.target.operator.VdiReadOperator;
+import com.nebula.sheeptester.util.EscapeUtils;
 import javax.annotation.CheckForNull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Text;
 
 /**
  *
@@ -34,8 +34,8 @@ public class VdiReadCommand extends AbstractCommand {
     private int length = -1;
     @Attribute(required = false)
     private boolean random = false;
-    @Text(required = false)
-    private String data;
+    @Attribute(required = false)
+    private String pattern;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
@@ -56,8 +56,12 @@ public class VdiReadCommand extends AbstractCommand {
         else
             _length = length * 1024;
 
+        byte[] data = null;
+        if (pattern != null)
+            data = EscapeUtils.unescape_perl_string(pattern);
+
         Host host = sheep.getHost();
-        VdiReadOperator request = new VdiReadOperator(sheep.getConfig().getPort(), vdi.getName(), _offset, _length);
+        VdiReadOperator request = new VdiReadOperator(sheep.getConfig().getPort(), vdi.getName(), _offset, _length, data);
         context.execute(host, request);
     }
 }

@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author shevek
  */
 public class CollieParser {
+
     private static final String STATUS_PREFIX = "Cluster status: ";
     private static final String CREATED_PREFIX = "Cluster created at ";
     private static final String EPOCH_PREFIX = "Epoch Time ";
@@ -90,12 +91,17 @@ public class CollieParser {
             epoch.id = Integer.parseInt(m.group(1));
 
             for (String saddr : StringUtils.split(m.group(2), ", ")) {
-                int idx = saddr.indexOf(':');
+                int idx = saddr.lastIndexOf(':');
                 if (idx < 0)
                     throw new IllegalStateException("Cannot parse an InetSocketAddress from " + saddr + ": Didn't find a colon between address and port.");
                 String addr = saddr.substring(0, idx);
-                int port = Integer.parseInt(saddr.substring(idx + 1));
-                epoch.add(new SheepAddress(addr, port));
+                String sport = saddr.substring(idx + 1);
+                try {
+                    int port = Integer.parseInt(sport);
+                    epoch.add(new SheepAddress(addr, port));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Failed to parse port from " + sport, e);
+                }
             }
 
             out.epochs.add(epoch);

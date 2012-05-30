@@ -51,7 +51,7 @@ public class ControllerMain {
     public static final String OPT_TEST = "test";
     public static final String OPT_TARGET = "target";
     public static final String OPT_VERBOSE = "verbose";
-    public static final int DFLT_THREADS = 20;
+    public static final int DFLT_THREADS = 100;
 
     /**
      * @param args the command line arguments

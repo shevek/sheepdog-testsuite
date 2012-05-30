@@ -5,7 +5,6 @@
 package com.nebula.sheeptester.util;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -13,14 +12,16 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author shevek
  */
-public class GeneratorOutputStream extends ValidatingOutputStream {
+public class RepeatingOutputStream extends ValidatingOutputStream {
 
-    private static final Log LOG = LogFactory.getLog(GeneratorOutputStream.class);
-    private long offset;
+    private static final Log LOG = LogFactory.getLog(RepeatingOutputStream.class);
+    private final byte[] data;
+    private int offset;
     private int length;
 
-    public GeneratorOutputStream(long offset, int length) {
-        this.offset = offset;
+    public RepeatingOutputStream(byte[] data, long offset, int length) {
+        this.data = data;
+        this.offset = (int) (offset % data.length);
         this.length = length;
     }
 
@@ -35,13 +36,15 @@ public class GeneratorOutputStream extends ValidatingOutputStream {
         }
         length--;
         try {
-            if ((byte) b != (byte) offset) {
+            if ((byte) b != data[offset]) {
                 setError(true);
-                LOG.warn("Expected " + ((byte) offset) + " but got " + b);
+                LOG.warn("Expected " + data[offset] + " but got " + b);
                 return;
             }
         } finally {
             offset++;
+            if (offset >= data.length)
+                offset = 0;
         }
     }
 

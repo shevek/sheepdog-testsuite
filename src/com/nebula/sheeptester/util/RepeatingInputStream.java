@@ -6,6 +6,7 @@ package com.nebula.sheeptester.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -16,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
 public class RepeatingInputStream extends InputStream {
 
     private static final Log LOG = LogFactory.getLog(RepeatingInputStream.class);
-    private byte[] data;
+    private final byte[] data;
     private int offset;
     private int length;
 
@@ -39,18 +40,25 @@ public class RepeatingInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        if (length <= 0)
+            return -1;
+        len = Math.min(len, length);
+        length -= len;
         int remaining = len;
         while (remaining > 0) {
             if (remaining < data.length - offset) {
                 System.arraycopy(data, offset, b, off, remaining);
                 offset += remaining;
+                remaining = 0;
             } else {
                 int delta = data.length - offset;
                 System.arraycopy(data, offset, b, off, delta);
                 remaining -= delta;
+                off += delta;
                 offset = 0;
             }
         }
+        // LOG.info("Read " + Arrays.toString(b) + ": off=" + off + ", len=" + len);
         return len;
     }
 
