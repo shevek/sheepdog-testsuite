@@ -76,6 +76,7 @@ public class SheepListOperator extends AbstractOperator {
 
             // ByteArrayOutputStream output = new ByteArrayOutputStream();
             TimedProcess process = new TimedProcess(context, 2000, "sudo", "netstat", "-tnlp");
+            process.setSilent(true);
             process.execute();
             String output = process.getOutput().toString();
             Pattern P_WORDS = Pattern.compile("\\s+");

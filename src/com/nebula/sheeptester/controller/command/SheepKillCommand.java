@@ -12,8 +12,8 @@ import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepKillOperator;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.simpleframework.xml.Attribute;
@@ -27,8 +27,10 @@ import org.simpleframework.xml.Root;
 public class SheepKillCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(SheepKillCommand.class);
+    @CheckForNull
     @Attribute(required = false)
     private String hostId;
+    @CheckForNull
     @Attribute(required = false)
     private String sheepId;
 

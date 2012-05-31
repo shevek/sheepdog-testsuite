@@ -19,7 +19,6 @@ import org.simpleframework.xml.ElementListUnion;
 public abstract class AbstractMultiCommand extends AbstractCommand {
 
     @ElementListUnion({
-    
         @ElementList(inline = true, type = AssertFailCommand.class, required = false),
         @ElementList(inline = true, type = ClusterFormatCommand.class, required = false),
         @ElementList(inline = true, type = ClusterInfoCommand.class, required = false),
@@ -44,15 +43,20 @@ public abstract class AbstractMultiCommand extends AbstractCommand {
         @ElementList(inline = true, type = VdiDeleteCommand.class, required = false),
         @ElementList(inline = true, type = VdiListCommand.class, required = false),
         @ElementList(inline = true, type = VdiReadCommand.class, required = false),
-        @ElementList(inline = true, type = VdiWriteCommand.class, required = false),
-
-    })
+        @ElementList(inline = true, type = VdiWriteCommand.class, required = false),})
     private List<Command> commands;
 
     public List<Command> getCommands() {
         if (commands == null)
             return Collections.emptyList();
         return commands;
+    }
+
+    @Override
+    public void check(ControllerContext context) throws ControllerException {
+        super.check(context);
+        for (Command command : getCommands())
+            command.check(context);
     }
 
     protected void run(@Nonnull ControllerContext context, @Nonnull Command command) throws ControllerException, InterruptedException {

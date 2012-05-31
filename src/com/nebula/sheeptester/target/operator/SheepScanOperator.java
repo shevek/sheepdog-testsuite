@@ -8,7 +8,6 @@ import com.nebula.sheeptester.target.TargetContext;
 import com.nebula.sheeptester.target.exec.TimedProcess;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -98,6 +97,7 @@ public class SheepScanOperator extends AbstractOperator {
                 executor.setExitValues(null);
             }
         };
+        process.setSilent(true);
         process.execute();
 
         Walker walker = new Walker();

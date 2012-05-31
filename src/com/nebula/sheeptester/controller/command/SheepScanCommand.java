@@ -112,6 +112,9 @@ public class SheepScanCommand extends AbstractCommand {
         for (Map.Entry<Integer, MutableInt> e : counts.entrySet()) {
             LOG.info("Block replica-count = " + e.getKey() + ": " + e.getValue() + " blocks.");
         }
+        if (counts.size() > 1) {
+            errors.add("Block replica-count mismatch: " + counts);
+        }
 
         if (!errors.isEmpty())
             throw new ControllerAssertionException("Block scan errors found: " + errors);

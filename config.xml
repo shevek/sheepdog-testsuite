@@ -85,6 +85,8 @@
 
 	<test id="shutdown" auto="false" description="Utility: Shut down all sheep.">
 		<cluster-shutdown />
+		<sleep msecs="3000" />
+		<sheep-stat />	<!-- Looks for corefiles, scans valgrind logs. -->
 	</test>
 
 	<test id="wipe" auto="false" description="Utility: Wipe all sheep.">
@@ -126,12 +128,7 @@
 
 	<test id="start-small" auto="false" description="Utility: Start a small cluster.">
 		<!-- subtest testId="init" / -->
-		<sheep-start sheepId="A-7000" />
-		<sheep-start sheepId="A-7001" />
-		<sheep-start sheepId="B-7000" />
-		<sheep-start sheepId="B-7001" />
-		<sheep-start sheepId="C-7000" />
-		<sheep-start sheepId="C-7001" />
+		<sheep-start sheepId="A-7000,A-7001,B-7000,B-7001,C-7000,C-7001" />
 		<!-- cluster-format copies="2" / -->
 	</test>
 
@@ -442,7 +439,7 @@
 
 	<!-- This does not fail with valgrind. :-( -->
 	<!-- assertion failure: APPLIANCE-2110 -->
-	<test id="joinstorm-preformat" groups="@release,@fails">
+	<test id="cluster-joinstorm-preformat" groups="@release,@fails">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" />
 		<subtest testId="zookeeper_settle" />
@@ -459,13 +456,13 @@
 		<subtest testId="check" />
 	</test>
 
-	<test id="joinstorm-postformat-init" auto="false">
+	<test id="cluster-joinstorm-postformat-init" auto="false">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" />
 		<cluster-format copies="1" />
 	</test>
 
-	<test id="joinstorm-postformat-fail" auto="false">
+	<test id="cluster-joinstorm-postformat-fail" auto="false">
 		<parallel>
 			<sheep-start sheepId="A-7001" />
 			<sheep-start sheepId="A-7002" />
@@ -473,9 +470,9 @@
 		</parallel>
 	</test>
 
-	<test id="joinstorm-postformat" groups="@release">
-		<subtest testId="joinstorm-postformat-init" />
-		<subtest testId="joinstorm-postformat-fail" />
+	<test id="cluster-joinstorm-postformat" groups="@release">
+		<subtest testId="cluster-joinstorm-postformat-init" />
+		<subtest testId="cluster-joinstorm-postformat-fail" />
 		<subtest testId="check" />
 	</test>
 
@@ -596,6 +593,7 @@
 			<vdi-read sheepId="A-7000" name="test-vdi" />
 		</assert-fail>
 		<cluster-recover sheepId="A-7000" />
+		<sleep msecs="20000" reason="Allowing recovery time." />
 		<vdi-list sheepId="A-7000" />
 		<vdi-read sheepId="A-7000" name="test-vdi" />
 		<sheep-stat status="RUNNING" check="true" />
@@ -808,6 +806,63 @@
 			<vdi-read sheepId="C-7002" name="test-vdi" />
 			<subtest testId="check" />
 		</sequential>
+	</test>
+
+
+	<test id="recover-zone-io" auto="false">
+		<!-- Reads should succeed immediately after a kill/failure. -->
+		<parallel>
+			<vdi-create name="test-recovery-1" write="true" />
+			<parallel repeat="10" sync="false">
+				<vdi-read name="test-vdi" />
+			</parallel>
+		</parallel>
+		<subtest testId="check" />
+	</test>
+
+	<!-- test_removal_of_zone, APPLIANCE-2041 -->
+	<test id="recover-zone-remove" groups="@release">
+		<subtest testId="init" />
+		<subtest testId="start-small" />
+		<subtest testId="format-2" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+		<subtest testId="check" />
+		<sheep-kill hostId="C" />
+		<subtest testId="recover-zone-io" />
+	</test>
+
+	<!-- killafew_same_host, killafew_other_host -->
+	<test id="recover-zone-damage" groups="@release">
+		<subtest testId="init" />
+		<subtest testId="start-small" />
+		<subtest testId="format-2" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+		<subtest testId="check" />
+		<sheep-kill sheepId="C-7001" />
+		<subtest testId="recover-zone-io" />
+	</test>
+
+	<!-- kill_zone_repeatedly -->
+	<!-- This fails because the removed/killed sheep don't know about the deletion
+	   - of the VDI, and have old data. If we wrote different data, we would have
+	   - total block mismatch with the new copy of the VDI. -->
+	<test id="recover-zone-replace" groups="@release">
+		<subtest testId="recover-zone-remove" />
+		<vdi-delete name="test-recovery-1" />
+		<sleep msecs="500" reason="Waiting for deletion of VDI to flush." />
+		<subtest testId="start-small" />
+		<subtest testId="recover-zone-io" />
+	</test>
+
+	<test id="recover-disk-replace" groups="@release">
+		<subtest testId="init" />
+		<subtest testId="start-small" />
+		<subtest testId="format-2" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+		<subtest testId="check" />
+		<sheep-wipe sheepId="C-7000" />
+		<sheep-start sheepId="C-7000" />
+		<subtest testId="recover-zone-io" />
 	</test>
 
 </configuration>

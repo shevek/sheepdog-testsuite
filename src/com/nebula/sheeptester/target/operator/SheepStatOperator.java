@@ -51,6 +51,7 @@ public class SheepStatOperator extends AbstractOperator {
         File dir = new File(directory);
         if (dir.isDirectory()) {
             TimedProcess process = new TimedProcess(context, 5000, "sudo", "chmod", "-R", "a+rX", directory);
+            process.setSilent(true);
             process.execute();
 
             response.hasCore = new File(dir, "core").exists();

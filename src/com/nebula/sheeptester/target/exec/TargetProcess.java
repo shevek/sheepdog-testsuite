@@ -48,6 +48,7 @@ public class TargetProcess {
     private InputStream inputStream = new ClosedInputStream();
     private OutputStream outputStream = output;
     private OutputStream errorStream = error;
+    private boolean silent = false;
 
     public TargetProcess(TargetContext context, String... command) {
         this.context = context;
@@ -81,6 +82,14 @@ public class TargetProcess {
         this.errorStream = errorStream;
     }
 
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
+    }
+
     @OverridingMethodsMustInvokeSuper
     protected void init(@Nonnull Executor executor) {
         // LOG.info("InputStream = " + inputStream);
@@ -100,7 +109,8 @@ public class TargetProcess {
         variables.put("COLLIE", context.getCollie());
         commandline.setSubstitutionMap(variables);
 
-        LOG.info(context.getHostId() + ": " + commandline);
+        if (!isSilent())
+            LOG.info(context.getHostId() + ": " + commandline);
 
         DefaultExecutor executor = new DefaultExecutor();
         init(executor);

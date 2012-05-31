@@ -34,7 +34,7 @@ public class AssertFailCommand extends SequentialCommand {
                 if (!pattern.matcher(t.getMessage()).find())
                     throw new ControllerAssertionException(
                             "Execution failed; expected '" + pattern
-                            + "' but got:\n" + t.getMessage());
+                            + "' but got " + t.getMessage());
             }
             LOG.info("Execution failed (as desired):\n" + t.getMessage());
             LOG.info("Continuing...");

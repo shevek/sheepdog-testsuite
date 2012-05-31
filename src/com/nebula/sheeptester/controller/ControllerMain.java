@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.annotation.Nonnull;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -109,47 +110,42 @@ public class ControllerMain {
 
         context.init();
 
-        Map<String, String> results = new TreeMap<String, String>();
         try {
-            List<String> tests = getTests(cmdline);
-            if (tests != null) {
-                GlobCompiler compiler = new GlobCompiler();
-                PatternMatcher matcher = new Perl5Matcher();
-                for (String testGlob : tests) {
-                    Pattern pattern = compiler.compile(testGlob);
-                    boolean found = false;
-                    for (TestConfiguration config : configuration.getTests()) {
-                        String testId = config.getId();
-                        if (isTest(config, matcher, pattern)) {
-                            found = true;
-                            try {
-                                LOG.info("\n\n---\n\n");
-                                results.put(testId, "Started...");
-                                config.run(context);
-                                results.put(testId, "OK");
-                            } catch (ControllerAssertionException e) {
-                                LOG.error("Test failed: " + e.getMessage());
-                                results.put(testId, e.getMessage());
-                            }
-                        }
+            for (TestConfiguration test : configuration.getTests())
+                test.check(context);
+
+            List<TestConfiguration> tests = new ArrayList<TestConfiguration>();
+            GlobCompiler compiler = new GlobCompiler();
+            PatternMatcher matcher = new Perl5Matcher();
+            for (String testGlob : getTests(cmdline)) {
+                Pattern pattern = compiler.compile(testGlob);
+                boolean found = false;
+                for (TestConfiguration test : configuration.getTests()) {
+                    if (isTest(test, matcher, pattern, testGlob)) {
+                        found = true;
+                        tests.add(test);
                     }
-                    if (!found)
-                        throw new NullPointerException("No such test " + testGlob);
                 }
-            } else {
-                for (TestConfiguration config : configuration.getTests()) {
-                    String testId = config.getId();
-                    if (config.isAuto()) {
-                        try {
-                            LOG.info("\n\n---\n\n");
-                            results.put(testId, "Started...");
-                            config.run(context);
-                            results.put(testId, "OK");
-                        } catch (ControllerAssertionException e) {
-                            LOG.error("Test failed: " + e.getMessage());
-                            results.put(testId, e.getMessage());
-                        }
-                    }
+                if (!found)
+                    throw new NullPointerException("No such test " + testGlob);
+            }
+
+            LOG.info("Running tests:");
+            for (TestConfiguration test : tests) {
+                LOG.info(test.getId());
+            }
+
+            Map<String, String> results = new TreeMap<String, String>();
+            for (TestConfiguration test : tests) {
+                String testId = test.getId();
+                try {
+                    LOG.info("\n\n---\n\n");
+                    results.put(testId, "Started...");
+                    test.run(context);
+                    results.put(testId, "OK");
+                } catch (ControllerAssertionException e) {
+                    LOG.error("Test failed: " + e.getMessage());
+                    results.put(testId, e.getMessage());
                 }
             }
 
@@ -194,17 +190,26 @@ public class ControllerMain {
         }
     }
 
+    @Nonnull
     private static List<String> getTests(CommandLine cmdline) {
         String[] tests = cmdline.getOptionValues(OPT_TEST);
         if (tests == null)
-            return null;
+            return Collections.singletonList("*");
         List<String> out = new ArrayList<String>();
         for (String test : tests)
             out.addAll(Arrays.asList(StringUtils.split(test, ", ")));
         return out;
     }
 
-    private static boolean isTest(TestConfiguration config, PatternMatcher matcher, Pattern pattern) {
+    private static boolean isTest(@Nonnull TestConfiguration config, @Nonnull PatternMatcher matcher, @Nonnull Pattern pattern, String arg) {
+        // Exact matches always match.
+        if (arg.equals(config.getId()))
+            return true;
+        if (config.getGroups().contains(arg))
+            return true;
+        // Nonexact matches or glob matches require 'auto'.
+        if (!config.isAuto())
+            return false;
         if (matcher.matches(config.getId(), pattern))
             return true;
         for (String groupId : config.getGroups())

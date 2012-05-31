@@ -8,6 +8,7 @@ import com.nebula.sheeptester.controller.ControllerContext;
 import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.config.RootConfiguration;
 import com.nebula.sheeptester.controller.config.TestConfiguration;
+import javax.annotation.Nonnull;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
@@ -21,13 +22,23 @@ public class SubtestCommand extends AbstractCommand {
     @Attribute
     private String testId;
 
-    @Override
-    public void run(ControllerContext context) throws ControllerException, InterruptedException {
+    @Nonnull
+    private TestConfiguration getTest(ControllerContext context) {
         RootConfiguration configuration = context.getConfiguration();
         TestConfiguration test = configuration.getTest(testId);
         if (test == null)
             throw new NullPointerException("No such test " + testId);
-        test.run(context);
+        return test;
+    }
+
+    @Override
+    public void check(ControllerContext context) throws ControllerException {
+        getTest(context);
+    }
+
+    @Override
+    public void run(ControllerContext context) throws ControllerException, InterruptedException {
+        getTest(context).run(context);
     }
 
     @Override

@@ -21,10 +21,16 @@ public class SleepCommand extends AbstractCommand {
     private static final Log LOG = LogFactory.getLog(SleepCommand.class);
     @Attribute
     private long msecs;
+    @Attribute(required = false)
+    private String reason;
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
-        LOG.info("Sleeping for " + msecs + " ms.");
+        StringBuilder buf = new StringBuilder("Sleeping for ");
+        buf.append(msecs).append(" ms");
+        if (reason != null)
+            buf.append(": ").append(reason);
+        LOG.info(buf);
         Thread.sleep(msecs);
     }
 

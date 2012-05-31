@@ -43,7 +43,7 @@ public class BackgroundProcess extends TargetProcess {
             String reason = "";
             switch (e.getExitValue()) {
                 case 137:
-                    reason = "(killed) ";
+                    reason = "(killed/crashed) ";
                     e = null;
                     break;
                 case 143:

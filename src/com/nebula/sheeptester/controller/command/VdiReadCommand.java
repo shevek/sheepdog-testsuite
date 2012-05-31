@@ -24,6 +24,9 @@ public class VdiReadCommand extends AbstractCommand {
 
     @CheckForNull
     @Attribute(required = false)
+    private String hostId;
+    @CheckForNull
+    @Attribute(required = false)
     private String sheepId;
     @CheckForNull
     @Attribute(required = false)
@@ -39,7 +42,15 @@ public class VdiReadCommand extends AbstractCommand {
 
     @Override
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
-        Sheep sheep = toSheep(context, sheepId);
+        Sheep sheep;
+        if (sheepId != null) {
+            sheep = toSheep(context, sheepId);
+        } else if (hostId != null) {
+            Host host = toHost(context, hostId);
+            sheep = context.getSheep(host).values().iterator().next();
+        } else {
+            sheep = toSheep(context, null);
+        }
         Vdi vdi = toVdi(context, name);
 
         long _offset;

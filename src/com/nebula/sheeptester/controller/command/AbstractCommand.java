@@ -5,6 +5,7 @@
 package com.nebula.sheeptester.controller.command;
 
 import com.nebula.sheeptester.controller.ControllerContext;
+import com.nebula.sheeptester.controller.ControllerException;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.controller.model.Vdi;
@@ -124,6 +125,10 @@ public abstract class AbstractCommand implements Command {
         buf.append("    ");
         for (int i = 0; i < depth; i++)
             buf.append("    ");
+    }
+
+    @Override
+    public void check(ControllerContext context) throws ControllerException {
     }
 
     public void toStringBuilderArgs(StringBuilder buf) {
