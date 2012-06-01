@@ -358,9 +358,9 @@
 	<!-- APPLIANCE-2115 -->
 	<test id="simple-singlehost-master" groups="@release,@fails">
 		<subtest testId="init" />
-		<sheep-start sheepId="A-7000" strace="true" />
+		<sheep-start sheepId="A-7000" valgrind="true" />
 		<!-- XXX delay -->
-		<sheep-start hostId="A" strace="true" />
+		<sheep-start hostId="A" valgrind="true" />
 		<subtest testId="format-1" />
 		<vdi-create sheepId="A-7000" name="test-vdi" />
 		<vdi-write sheepId="A-7001" name="test-vdi" />

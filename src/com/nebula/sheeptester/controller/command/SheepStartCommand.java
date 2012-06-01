@@ -79,7 +79,7 @@ public class SheepStartCommand extends AbstractCommand {
         if (delay > 0)
             return delay;
         if (valgrind)
-            return 3000;
+            return 5000;
         if (isZooKeeper(context))
             return 1000;
         return 200;

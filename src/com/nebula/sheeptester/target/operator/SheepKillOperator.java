@@ -45,7 +45,7 @@ public class SheepKillOperator extends AbstractProcessOperator {
 
         if (pid < 0) {
             // We might have left something in valgrind.
-            TargetProcess process = new SheepKillProcess(context, "sudo", "pkill", "-f", "valgrind.*" + context.getSheep());
+            TargetProcess process = new SheepKillProcess(context, "sudo", "pkill", "-9", "-f", "valgrind.*" + context.getSheep());
             process.execute();
         }
 

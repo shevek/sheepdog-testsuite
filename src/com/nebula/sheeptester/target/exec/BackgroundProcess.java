@@ -46,6 +46,10 @@ public class BackgroundProcess extends TargetProcess {
                     reason = "(killed/crashed) ";
                     e = null;
                     break;
+                case 139:
+                    reason = "(crashed?) ";
+                    e = null;
+                    break;
                 case 143:
                     reason = "(timeout) ";
                     e = null;
