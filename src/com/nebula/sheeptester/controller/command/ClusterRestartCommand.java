@@ -47,6 +47,8 @@ public class ClusterRestartCommand extends AbstractCommand {
     private long vdiSize = 100 * 1024;
     @Attribute(required = false)
     private boolean valgrind = false;
+    @Attribute(required = false)
+    private boolean zonepersheep = true;
 
     private void addSheep(List<Sheep> out, Collection<? extends Sheep> in) {
         Set<Sheep> set = new HashSet<Sheep>(in);
@@ -89,16 +91,19 @@ public class ClusterRestartCommand extends AbstractCommand {
         start.valgrind = valgrind;
         START:
         {
-            Role role = Role.NONE;
+            start.preSleep();
+            // Role role = Role.NONE;
             for (int i = 0; i < pattern.length(); i++) {
                 Sheep sheep = sheeps.get(i);
-                start.zone = sheep.getConfig().getPort();
+                if (zonepersheep)
+                    start.zone = i;
                 switch (pattern.charAt(i)) {
                     case 'R':
                     case 'W':
                     case 'X':
                         start.run(context, sheep);
-                        role = role.next();
+                        start.interSleep();
+                        // role = role.next();
                         break;
                     case 'N':
                         break;
@@ -108,11 +113,10 @@ public class ClusterRestartCommand extends AbstractCommand {
                     default:
                         throw new IllegalArgumentException("Illegal pattern character in " + pattern);
                 }
-                if (role == Role.MASTER)
-                    Thread.sleep(200);
+                // if (role == Role.MASTER) Thread.sleep(200);
             }
+            start.postSleep(context);
         }
-        Thread.sleep(300);
 
         if (start.isZooKeeper(context)) {
             LOG.info("Sleeping to wait for ZooKeeper sessions to create.");
@@ -143,6 +147,15 @@ public class ClusterRestartCommand extends AbstractCommand {
         {
             ClusterShutdownCommand shutdown = new ClusterShutdownCommand();
             shutdown.run(context, sheeps.get(0));
+            if (valgrind) {
+                LOG.info("Sleeping to wait for valgrind to exit.");
+                Thread.sleep(5000);
+            }
+        }
+
+        KILL:
+        {
+            SheepKillCommand.run(context, context.getHosts());
         }
 
         if (StringUtils.contains(cluster, "zookeeper")) {
@@ -152,25 +165,30 @@ public class ClusterRestartCommand extends AbstractCommand {
 
         RESTART:
         {
-            Role role = Role.NONE;
+            // Role role = Role.NONE;
+            start.preSleep();
             for (int i = 0; i < pattern.length(); i++) {
                 Sheep sheep = sheeps.get(i);
-                start.zone = sheep.getConfig().getPort();
+                if (zonepersheep)
+                    start.zone = i;
                 switch (pattern.charAt(i)) {
                     case 'R':
                         start.run(context, sheep);
-                        role = role.next();
+                        start.interSleep();
+                        // role = role.next();
                         break;
                     case 'W':
                         SheepWipeCommand.run(context, sheep);
                         start.run(context, sheep);
-                        role = role.next();
+                        start.interSleep();
+                        // role = role.next();
                         break;
                     case 'X':
                         break;
                     case 'N':
                         start.run(context, sheep);
-                        role = role.next();
+                        start.interSleep();
+                        // role = role.next();
                         break;
                     case '_':
                         Thread.sleep(1000);
@@ -178,10 +196,19 @@ public class ClusterRestartCommand extends AbstractCommand {
                     default:
                         throw new IllegalArgumentException("Illegal pattern character in " + pattern);
                 }
-                if (role == Role.MASTER)
-                    Thread.sleep(200);
+                // if (role == Role.MASTER) Thread.sleep(200);
             }
+            start.postSleep(context);
         }
+    }
+
+    @Override
+    public void toStringBuilderArgs(StringBuilder buf) {
+        super.toStringBuilderArgs(buf);
+        buf.append(" pattern=").append(pattern);
+        buf.append(" copies=").append(copies);
+        if (zonepersheep)
+            buf.append(" <zone-per-sheep>");
     }
 }
 

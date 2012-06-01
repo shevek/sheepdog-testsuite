@@ -142,7 +142,7 @@
 		<sheep-stat status="NEEDSFORMAT" />
 		<cluster-format copies="1" />
 		<!-- XXX sleep, else we get 'no active nodes' -->
-		<sleep msecs="1000" />
+		<sleep msecs="1000" reason="Post-format wait for sync." />
 		<subtest testId="check" />
 	</test>
 
@@ -150,7 +150,7 @@
 		<sheep-stat status="NEEDSFORMAT" />
 		<cluster-format copies="2" />
 		<!-- XXX sleep, else we get 'no active nodes' -->
-		<sleep msecs="1000" />
+		<sleep msecs="1000" reason="Post-format wait for sync." />
 		<subtest testId="check" />
 	</test>
 
@@ -158,7 +158,7 @@
 		<sheep-stat status="NEEDSFORMAT" />
 		<cluster-format copies="3" />
 		<!-- XXX sleep, else we get 'no active nodes' -->
-		<sleep msecs="1000" />
+		<sleep msecs="1000" reason="Post-format wait for sync." />
 		<subtest testId="check" />
 	</test>
 
@@ -660,7 +660,7 @@
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
-	<!-- Fails because of APPLIANCE-2069 -->
+	<!-- Fails because of APPLIANCE-2069; subsequently APPLIANCE-2137 -->
 	<test id="restart_RRNRR_c1" groups="@release">
 		<subtest testId="init" />
 		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A" />
@@ -767,9 +767,10 @@
 
 	<!-- Never failed in Java tests, but fails in python test suite. -->
 	<test id="restart_one_host_cluster" auto="false" groups="@release">
-		<sequential repeat="20">
+		<sequential repeat="10">
 			<subtest testId="init" />
-			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,A-7001" />
+			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,A-7001"
+				zonepersheep="false" />
 			<subtest testId="check" />
 			<vdi-list sheepId="A-7000" />
 			<vdi-read sheepId="A-7000" name="test-vdi" />
@@ -780,9 +781,10 @@
 
 	<!-- Never failed in Java tests, but fails in python test suite. -->
 	<test id="restart_two_host_cluster" auto="false" groups="@release">
-		<sequential repeat="20">
+		<sequential repeat="10">
 			<subtest testId="init" />
-			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,B-7000" />
+			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,B-7000"
+				zonepersheep="false" />
 			<subtest testId="check" />
 			<vdi-list sheepId="A-7000" />
 			<vdi-read sheepId="A-7000" name="test-vdi" />
@@ -796,7 +798,8 @@
 		<sequential repeat="4">
 			<subtest testId="init" />
 			<cluster-restart pattern="RRRRRRRRR" copies="3"
-				sheepId="A-7000,A-7001,A-7002,B-7000,B-7001,B-7002,C-7000,C-7001,C-7002" />
+				sheepId="A-7000,A-7001,A-7002,B-7000,B-7001,B-7002,C-7000,C-7001,C-7002"
+				zonepersheep="false" />
 			<subtest testId="check" />
 			<vdi-list sheepId="A-7000" />
 			<vdi-read sheepId="A-7000" name="test-vdi" />
@@ -812,7 +815,7 @@
 	<test id="recover-zone-io" auto="false">
 		<!-- Reads should succeed immediately after a kill/failure. -->
 		<parallel>
-			<vdi-create name="test-recovery-1" write="true" />
+			<vdi-create name="test-recovery-1" size="102400" write="true" />
 			<parallel repeat="10" sync="false">
 				<vdi-read name="test-vdi" />
 			</parallel>

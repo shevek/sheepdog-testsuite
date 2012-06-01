@@ -96,11 +96,23 @@ public class SheepStartCommand extends AbstractCommand {
         return false;
     }
 
-    private static void sleep(int delay) throws InterruptedException {
+    private void sleep(int delay, String reason) throws InterruptedException {
         if (delay > 0) {
-            LOG.info("Sleeping for " + delay + " ms");
+            LOG.info("Sleeping for " + delay + " ms: " + reason);
             Thread.sleep(delay);
         }
+    }
+
+    public void preSleep() throws InterruptedException {
+        sleep(getPreDelay(), "Pre-start delay.");
+    }
+
+    public void interSleep() throws InterruptedException {
+        sleep(getInterDelay(), "Inter-start delay.");
+    }
+
+    public void postSleep(ControllerContext context) throws InterruptedException {
+        sleep(getPostDelay(context), "Post-start delay.");
     }
 
     @Override
@@ -128,7 +140,7 @@ public class SheepStartCommand extends AbstractCommand {
             }
         }
 
-        sleep(getPreDelay());
+        preSleep();
 
         Set<Host> hosts = new HashSet<Host>();
         try {
@@ -137,13 +149,13 @@ public class SheepStartCommand extends AbstractCommand {
                 hosts.add(sheep.getHost());
                 if (!parallel) {
                     run(context, sheep);
-                    sleep(getInterDelay());
+                    interSleep();
                 }
             }
             if (parallel)
                 run(context, sheeps);
         } finally {
-            sleep(getPostDelay(context));
+            postSleep(context);
             SheepStatCommand stat = new SheepStatCommand();
             stat.statHosts(context, hosts, true);
         }
