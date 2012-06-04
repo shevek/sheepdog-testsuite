@@ -48,6 +48,11 @@ import org.simpleframework.xml.Root;
 public class SheepStatCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(SheepStatCommand.class);
+
+    public static enum Checks {
+
+        RUNNING, EPOCH;
+    }
     @Attribute(required = false)
     private boolean check = true;
     @Attribute(required = false)
@@ -57,6 +62,7 @@ public class SheepStatCommand extends AbstractCommand {
     public void run(ControllerContext context) throws ControllerException, InterruptedException {
         Collection<? extends Host> hosts = context.getHosts();
         statHosts(context, hosts, check);
+
         List<String> texts = new ArrayList<String>();
         for (Sheep sheep : context.getSheep().values()) {
             if (sheep.isRunning())

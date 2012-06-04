@@ -98,7 +98,7 @@ public class TargetProcess {
         executor.setStreamHandler(new PumpStreamHandler(outputStream, errorStream, inputStream));
     }
 
-    public void execute() throws IOException, TargetException {
+    public int execute() throws IOException, TargetException {
         CommandLine commandline = new CommandLine(command[0]);
         for (int i = 1; i < command.length; i++)
             commandline.addArgument(command[i], false);
@@ -114,12 +114,12 @@ public class TargetProcess {
 
         DefaultExecutor executor = new DefaultExecutor();
         init(executor);
-        execute(executor, commandline);
+        return execute(executor, commandline);
     }
 
-    protected void execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
+    protected int execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
         try {
-            executor.execute(commandline);
+            return executor.execute(commandline);
         } catch (ExecuteException e) {
             StringBuilder buf = new StringBuilder();
             buf.append("Execution of ").append(commandline).append(" failed:");

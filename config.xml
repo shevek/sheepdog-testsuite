@@ -290,7 +290,7 @@
 		<!-- We sleep here so SD can delete files that chmod might want to alter.
 		   - otherwise, chmod does readdir(), then fails to chmod() an entry which
 		   - was deleted before chmod got that far. . -->
-		<sleep msecs="2000" />
+		<sleep msecs="5000" reason="Waiting for VDI deletion (and possible valgrind)" />
 		<subtest testId="check" />
 	</test>
 
@@ -355,6 +355,20 @@
 
 <!-- Tests -->
 
+	<test id="simple-singlehost-master-delay" groups="@release,@fails">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" valgrind="true" />
+		<!-- XXX delay -->
+		<sheep-start hostId="A" valgrind="true" delay="1000" />
+		<subtest testId="format-1" />
+		<vdi-create sheepId="A-7000" name="test-vdi" />
+		<vdi-write sheepId="A-7001" name="test-vdi" />
+		<subtest testId="check" />
+		<vdi-delete sheepId="A-7002" name="test-vdi" />
+		<sleep msecs="2000" /> <!-- Wait for the deletion to propagate. -->
+		<subtest testId="check" />
+	</test>
+
 	<!-- APPLIANCE-2115 -->
 	<test id="simple-singlehost-master" groups="@release,@fails">
 		<subtest testId="init" />
@@ -411,9 +425,9 @@
 	<!-- Fails with collie hangs, reason unknown. -->
 	<test id="simple-multihost-exercise" groups="@release,@fails">
 		<subtest testId="init" />
-		<sheep-start sheepId="A-7000" />
+		<sheep-start sheepId="A-7000" valgrind="true" />
 		<!-- XXX delay -->
-		<sheep-start />
+		<sheep-start valgrind="true" />
 		<subtest testId="format-3" />
 		<subtest testId="exercise" />
 	</test>
@@ -534,8 +548,8 @@
 		<subtest testId="check" />
 	</test>
 
-	<!-- APPLIANCE-2075 -->
-	<test id="valgrind" groups="@release,@fails">
+	<!-- APPLIANCE-2075, APPLIANCE-2142 -->
+	<test id="valgrind" groups="@release">
 		<subtest testId="init" />
 		<!-- XXX delay, but fails anyway -->
 		<sheep-start sheepId="A-7000,A-7001,A-7002" valgrind="true" />
@@ -586,6 +600,7 @@
 
 	<test id="restart_assert_recover_ok" auto="false">
 		<subtest testId="restart_assert_common" />
+		<!-- N-sheep will have the wrong epoch here. -->
 		<sheep-stat status="WAITING" check="true" />
 		<assert-fail message="Waiting for other nodes">
 			<!-- Sometimes succeeds, but should probably fail. -->
@@ -733,12 +748,12 @@
 		<subtest testId="restart_assert_recover_missing" />
 	</test>
 
-	<!-- ?? Fails, ticket APPLIANCE-2068 -->
+	<!-- Fails, ticket APPLIANCE-2068 -->
 	<test id="restart_RRRNXX_c3" groups="@release">
 		<subtest testId="init" />
 		<cluster-restart pattern="RRRNXX" copies="3" sheepId="A-7000" hostId="A" />
-		<echo message="This should be recover_ok, but the N node kicks it online." />
-		<subtest testId="restart_assert_running_ok" />
+		<!-- The N-sheep will have the wrong epoch in the sheep-stat. -->
+		<subtest testId="restart_assert_recover_ok" />
 	</test>
 
 	<!-- Passes -->

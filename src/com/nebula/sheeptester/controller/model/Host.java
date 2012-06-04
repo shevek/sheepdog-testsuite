@@ -163,7 +163,7 @@ public class Host implements Comparable<Host> {
             throw new NullPointerException("Request did not generate a response: " + object);
         if (response instanceof ExceptionResponse) {
             ExceptionResponse eresponse = (ExceptionResponse) response;
-            throw new ControllerAssertionException(eresponse.getMessage());
+            throw new ControllerAssertionException("On host " + getConfig().getId() + ": " + eresponse.getMessage());
         }
         return response;
     }
