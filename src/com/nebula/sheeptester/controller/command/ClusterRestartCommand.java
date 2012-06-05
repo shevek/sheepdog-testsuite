@@ -29,10 +29,10 @@ import org.simpleframework.xml.Root;
 public class ClusterRestartCommand extends AbstractCommand {
 
     private static final Log LOG = LogFactory.getLog(ClusterRestartCommand.class);
+    // cluster layout parameters
     @Attribute
     private String pattern;
-    @Attribute
-    private int copies;
+    // sheep-start parameters
     @Attribute(required = false)
     private String hostId;
     @Attribute(required = false)
@@ -41,6 +41,18 @@ public class ClusterRestartCommand extends AbstractCommand {
     private String backend;
     @Attribute(required = false)
     private String cluster;
+    @Attribute(required = false)
+    public int delay;
+    @Attribute(required = false)
+    public int predelay;
+    @Attribute(required = false)
+    public int interdelay;
+    @Attribute(required = false)
+    public int postdelay;
+    // cluster-format parameters
+    @Attribute
+    private int copies;
+    // vdi-create parameters
     @Attribute(required = false)
     private String vdiName = "test-vdi";
     @Attribute(required = false)
@@ -89,6 +101,11 @@ public class ClusterRestartCommand extends AbstractCommand {
         SheepStartCommand start = new SheepStartCommand();
         start.cluster = cluster;
         start.valgrind = valgrind;
+        start.delay = predelay;
+        start.predelay = predelay;
+        start.interdelay = interdelay;
+        start.postdelay = postdelay;
+
         START:
         {
             start.preSleep();
