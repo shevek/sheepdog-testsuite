@@ -106,6 +106,7 @@
 		<exec>
 			sudo service zookeeper start
 		</exec>
+		<sleep msecs="4000" reason="Waiting for ZooKeeper to settle." />
 	</test>
 
 	<test id="zookeeper_settle" auto="false" description="Want after starting ZK sheep.">
@@ -124,6 +125,11 @@
 	<test id="check" auto="false" description="Utility: Check status of all sheep.">
 		<sheep-stat status="RUNNING" check="true" />
 		<sheep-scan />
+	</test>
+
+	<test id="start-singlehost" auto="false" description="Utility: Start a single hostl cluster.">
+		<sheep-start sheepId="A-7000" valgrind="true" />
+		<sheep-start hostId="A" valgrind="true" />
 	</test>
 
 	<test id="start-small" auto="false" description="Utility: Start a small cluster.">
@@ -398,6 +404,16 @@
 		<subtest testId="check" />
 	</test>
 
+	<!-- Fails with collie hangs, reason unknown. -->
+	<test id="simple-singlehost-fastiops" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<subtest testId="format-1" />
+		<sheep-start hostId="A" postdelay="0" />
+		<vdi-create sheepId="A-7000" name="test-vdi" size="102400" write="true" />
+		<vdi-read sheepId="A-7000" name="test-vdi" />
+	</test>
+
 	<test id="simple-multihost-master" groups="@release">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000,B-7000,C-7000" />
@@ -423,7 +439,7 @@
 	</test>
 
 	<!-- Fails with collie hangs, reason unknown. -->
-	<test id="simple-multihost-exercise" groups="@release,@fails">
+	<test id="simple-multihost-exercise" groups="@release">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" valgrind="true" />
 		<!-- XXX delay -->
@@ -675,14 +691,14 @@
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
-	<!-- Fails because of APPLIANCE-2069; subsequently APPLIANCE-2137 -->
+	<!-- Fails because of APPLIANCE-2069; subsequently APPLIANCE-2137, APPLIANCE-2164 -->
 	<test id="restart_RRNRR_c1" groups="@release">
 		<subtest testId="init" />
 		<cluster-restart pattern="RRNRR" copies="1" sheepId="A-7000" hostId="A" />
 		<subtest testId="restart_assert_running_ok" />
 	</test>
 
-	<!-- Fails because of APPLIANCE-2069 -->
+	<!-- Fails because of APPLIANCE-2069, APPLIANCE-2164 -->
 	<test id="restart_RRNRR_c3" groups="@release">
 		<subtest testId="init" />
 		<cluster-restart pattern="RRNRR" copies="3" sheepId="A-7000" hostId="A" />
@@ -711,7 +727,7 @@
 		<subtest testId="restart_assert_recover_ok" />
 	</test>
 
-	<!-- Fails because recovery can't detect a W node. -->
+	<!-- Fails because of APPLIANCE-2164 -->
 	<test id="restart_RWRRRR_c1" groups="@release">
 		<subtest testId="init" />
 		<cluster-restart pattern="RWRRRR" copies="1" sheepId="A-7000" hostId="A" />
@@ -781,8 +797,8 @@
 	</test>
 
 	<!-- Never failed in Java tests, but fails in python test suite. -->
-	<test id="restart_one_host_cluster" auto="false" groups="@release">
-		<sequential repeat="10">
+	<test id="restart_one_host_cluster" groups="@release">
+		<sequential repeat="4">
 			<subtest testId="init" />
 			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,A-7001"
 				zonepersheep="false" />
@@ -795,8 +811,8 @@
 	</test>
 
 	<!-- Never failed in Java tests, but fails in python test suite. -->
-	<test id="restart_two_host_cluster" auto="false" groups="@release">
-		<sequential repeat="10">
+	<test id="restart_two_host_cluster" groups="@release">
+		<sequential repeat="4">
 			<subtest testId="init" />
 			<cluster-restart pattern="RR" copies="1" sheepId="A-7000,B-7000"
 				zonepersheep="false" />
@@ -809,7 +825,7 @@
 	</test>
 
 	<!-- Never failed in Java tests, but fails in python test suite. -->
-	<test id="restart_multi_host_cluster" auto="false" groups="@release">
+	<test id="restart_multi_host_cluster" groups="@release">
 		<sequential repeat="4">
 			<subtest testId="init" />
 			<cluster-restart pattern="RRRRRRRRR" copies="3"
