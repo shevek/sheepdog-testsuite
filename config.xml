@@ -964,4 +964,118 @@
 		<vdi-create name="test-vdi3" size="102400" write="true" />
 	</test>
 
+	<!-- Kill existing master, bring back up as slave -->
+	<test id="master-becomes-slave" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="1000" reason="ensure that A-7000 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="format-1" />
+		<subtest testId="check" />
+		<sheep-kill sheepId="A-7000" />
+		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
+		<subtest testId="check" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<!-- if a new master has been elected then the cluster will have joined
+			 the old guy -->
+		<subtest testId="check" />
+	</test>
+
+	<!-- Kill arbitrary slave, bring back up -->
+	<test id="slave-stays-slave" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="1000" reason="ensure that A-7000 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="format-1" />
+		<subtest testId="check" />
+		<sheep-kill sheepId="A-7001" />
+		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
+		<subtest testId="check" />
+		<sheep-start sheepId="A-7001" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="check" />
+	</test>
+
+	<!-- Kill slave then master really fast -->
+	<test id="murder-suicide-master-slave" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="1000" reason="ensure that A-7000 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="format-1" />
+		<subtest testId="check" />
+		<!-- avoid any sorting -->
+		<sheep-kill sheepId="A-7001" />
+		<sheep-kill sheepId="A-7000" />
+		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
+		<subtest testId="check" />
+		<sheep-start sheepId="A-7001,A-7000" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="check" />
+	</test>
+
+	<!-- Kill all, bring up different node as master, bring up rest -->
+	<test id="cluster-restart-new-master" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="1000" reason="ensure that A-7000 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="format-1" />
+		<subtest testId="check" />
+		<sheep-kill hostId="A" />
+		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
+		<sheep-start sheepId="A-7001" />
+		<sleep msecs="1000" reason="ensure that A-7001 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="check" />
+	</test>
+
+	<!-- Kill all and bring back up immediately, then try to create vdi -->
+	<!-- Fails because no sheep are JOIN'd after restart until all previous
+		 electors expire and one of the sheep can assume mastership and re-join
+		 the cluster -->
+	<test id="cluster-fast-restart" groups="@release,@fails">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="1000" reason="ensure that A-7000 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="format-1" />
+		<subtest testId="check" />
+		<sheep-kill hostId="A" />
+		<!-- Putting a ~6 second delay here or after starting will cause this
+			 test to pass -->
+		<sheep-start hostId="A" />
+		<vdi-create name="crud-vdi-0" size="102400" write="true" />
+		<vdi-read name="crud-vdi-0" />
+		<subtest testId="check" />
+	</test>
+
+	<!-- Kill master then try to create a vdi -->
+	<test id="master-dead-vdi-write" groups="@release">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="1000" reason="ensure that A-7000 is master" />
+		<sheep-start hostId="A" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="format-1" />
+		<subtest testId="check" />
+		<sheep-kill sheepId="A-7000" />
+		<vdi-create name="crud-vdi-0" size="102400" write="true" />
+		<vdi-read name="crud-vdi-0" />
+		<subtest testId="check" />
+		<sheep-start sheepId="A-7000" />
+		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+		<subtest testId="check" />
+	</test>
+
+	<!-- somehow force a master-transfer -->
+
 </configuration>
