@@ -842,6 +842,21 @@
 		</sequential>
 	</test>
 
+	<test id="restart_slow" groups="@release">
+		<subtest testId="init" />
+		<cluster-restart pattern="RRRRRRRRR" copies="3" delay="1000"
+			sheepId="A-7000,A-7001,A-7002,B-7000,B-7001,B-7002,C-7000,C-7001,C-7002"
+			zonepersheep="false" />
+		<subtest testId="check" />
+		<vdi-list sheepId="A-7000" />
+		<vdi-read sheepId="A-7000" name="test-vdi" />
+		<vdi-list sheepId="B-7001" />
+		<vdi-read sheepId="B-7001" name="test-vdi" />
+		<vdi-list sheepId="C-7002" />
+		<vdi-read sheepId="C-7002" name="test-vdi" />
+		<subtest testId="check" />
+	</test>
+
 
 	<test id="recover-zone-io" auto="false">
 		<!-- Reads should succeed immediately after a kill/failure. -->

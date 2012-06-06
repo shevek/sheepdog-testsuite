@@ -135,20 +135,21 @@ public class ClusterRestartCommand extends AbstractCommand {
             start.postSleep(context);
         }
 
+        /*
         if (start.isZooKeeper(context)) {
-            LOG.info("Sleeping to wait for ZooKeeper sessions to create.");
-            Thread.sleep(10000);
+        LOG.info("Sleeping to wait for ZooKeeper sessions to create.");
+        Thread.sleep(1000);
         }
+         */
 
         FORMAT:
         {
             ClusterFormatCommand.run(context, sheeps.get(0), backend, copies);
         }
-        // Thread.sleep(300);
 
-        if (start.isZooKeeper(context)) {
-            LOG.info("Sleeping to wait for ZooKeeper sessions to update.");
-            Thread.sleep(10000);
+        /* if (start.isZooKeeper(context)) */ {
+            LOG.info("Sleeping to wait for format to propagate.");
+            Thread.sleep(1000);
         }
 
         Vdi vdi;
@@ -175,9 +176,9 @@ public class ClusterRestartCommand extends AbstractCommand {
             SheepKillCommand.run(context, context.getHosts());
         }
 
-        if (StringUtils.contains(cluster, "zookeeper")) {
+        if (start.isZooKeeper(context)) {
             LOG.info("Sleeping to wait for ZooKeeper sessions to expire.");
-            Thread.sleep(40000);
+            Thread.sleep(10000);
         }
 
         RESTART:
