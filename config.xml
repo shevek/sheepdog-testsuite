@@ -1,3 +1,5 @@
+<!-- vim: noexpandtab tabstop=4 shiftwidth=4 softtabstop=0
+-->
 <configuration>
 
 <!--
@@ -869,6 +871,19 @@
 		<subtest testId="check" />
 	</test>
 
+	<test id="recover-single-node-dies">
+		<subtest testId="init" />
+		<sheep-start sheepId="A-7000,A-7001,B-7000,B-7001,C-7000,C-7001" valgrind="true"/>
+		<subtest testId="format-2" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+		<subtest testId="check" />
+		<sheep-kill sheepId="C-7001" />
+		<sleep msecs="8000" reason="Wait for zookeeper session to expire" />
+		<sheep-stat status="RUNNING" check="true" />
+		<sheep-scan copies="2"/>
+		<subtest testId="recover-zone-io" />
+	</test>
+
 	<!-- test_removal_of_zone, APPLIANCE-2041 -->
 	<test id="recover-zone-remove" groups="@release">
 		<subtest testId="init" />
@@ -877,6 +892,7 @@
 		<vdi-create name="test-vdi" size="102400" write="true" />
 		<subtest testId="check" />
 		<sheep-kill hostId="C" />
+		<sleep msecs="10000" reason="Wait for zookeeper session to expire and recovery to occur" />
 		<subtest testId="recover-zone-io" />
 	</test>
 
