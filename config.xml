@@ -948,4 +948,20 @@
 		<vdi-create name="test-vdi2" size="102400" write="true" />
 	</test>
 
+	<test id="zookeeper-restart-cluster-busy">
+		<subtest testId="init" />
+		<subtest testId="start-small" />
+		<subtest testId="format-2" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+		<subtest testId="check" />
+		<parallel>
+			<exec>
+				sudo service zookeeper restart
+			</exec>
+			<vdi-create name="test-vdi2" size="102400" write="true" />
+		</parallel>
+		<subtest testId="check" />
+		<vdi-create name="test-vdi3" size="102400" write="true" />
+	</test>
+
 </configuration>
