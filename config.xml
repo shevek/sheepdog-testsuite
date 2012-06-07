@@ -935,4 +935,17 @@
 		<subtest testId="recover-zone-io" />
 	</test>
 
+	<test id="zookeeper-restart-cluster-idle">
+		<subtest testId="init" />
+		<subtest testId="start-small" />
+		<subtest testId="format-2" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+		<subtest testId="check" />
+		<exec>
+			sudo service zookeeper restart
+		</exec>
+		<subtest testId="check" />
+		<vdi-create name="test-vdi2" size="102400" write="true" />
+	</test>
+
 </configuration>
