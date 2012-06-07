@@ -904,6 +904,7 @@
 		<vdi-create name="test-vdi" size="102400" write="true" />
 		<subtest testId="check" />
 		<sheep-kill sheepId="C-7001" />
+		<sleep msecs="10000" reason="Wait for zookeeper session to expire and recovery to occur" />
 		<subtest testId="recover-zone-io" />
 	</test>
 
@@ -926,6 +927,10 @@
 		<vdi-create name="test-vdi" size="102400" write="true" />
 		<subtest testId="check" />
 		<sheep-wipe sheepId="C-7000" />
+		<!-- It is entirely reasonable to do this.  A tech is unlikely to
+			 replace a drive in less than 10 seconds, and zookeeper needs the
+			 time to expire the session. -->
+		<sleep msecs="10000" reason="Wait for zookeeper session to expire and recovery to occur" />
 		<sheep-start sheepId="C-7000" />
 		<subtest testId="recover-zone-io" />
 	</test>
