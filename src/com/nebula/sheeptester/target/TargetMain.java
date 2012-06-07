@@ -29,23 +29,28 @@ public class TargetMain {
         final TargetContext context = new TargetContext();
         ExecutorService executor = context.getExecutor();
 
-        Gson gson = context.getGson();
+        TargetKeepalive keepalive = new TargetKeepalive();
+        keepalive.start();
 
-        InputStreamReader ri = new InputStreamReader(System.in);
-        BufferedReader bi = new BufferedReader(ri);
-        for (;;) {
-            final String input = bi.readLine();
-            // LOG.info("Got input " + input);
-            if (input == null)
-                break;
+        try {
+            InputStreamReader ri = new InputStreamReader(System.in);
+            BufferedReader bi = new BufferedReader(ri);
+            for (;;) {
+                final String input = bi.readLine();
+                // LOG.info("Got input " + input);
+                if (input == null)
+                    break;
 
-            executor.submit(new Runnable() {
+                executor.submit(new Runnable() {
 
-                @Override
-                public void run() {
-                    execute(context, input);
-                }
-            });
+                    @Override
+                    public void run() {
+                        execute(context, input);
+                    }
+                });
+            }
+        } finally {
+            keepalive.setRunning(false);
         }
     }
 

@@ -11,6 +11,7 @@ import com.nebula.sheeptester.controller.ControllerExecutor;
 import com.nebula.sheeptester.controller.model.Host;
 import com.nebula.sheeptester.controller.model.Sheep;
 import com.nebula.sheeptester.target.operator.SheepScanOperator;
+import com.nebula.sheeptester.target.operator.SheepScanOperator.FileMetadata;
 import com.nebula.sheeptester.target.operator.SheepScanOperator.ScanResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +76,7 @@ public class SheepScanCommand extends AbstractCommand {
                 @Override
                 public void run() throws Exception {
                     Host host = sheep.getHost();
-                    ScanResponse response = (ScanResponse) context.execute(host, new SheepScanOperator(sheep.getConfig().getDirectory()));
+                    ScanResponse response = (ScanResponse) context.execute(host, new SheepScanOperator(sheep.getConfig().getDirectory(), true));
                     responses.put(sheep, response);
                 }
             });
@@ -85,15 +86,16 @@ public class SheepScanCommand extends AbstractCommand {
         List<String> errors = new ArrayList<String>();
         Map<String, Block> blocks = new HashMap<String, Block>();
         for (Map.Entry<Sheep, ScanResponse> e : responses.entrySet()) {
-            for (Map.Entry<String, byte[]> f : e.getValue().getResults().entrySet()) {
-                Block block = blocks.get(f.getKey());
+            for (FileMetadata metadata : e.getValue().getResults()) {
+                String blockId = metadata.getBlockId();
+                Block block = blocks.get(blockId);
                 if (block == null) {
-                    block = new Block(f.getKey(), f.getValue());
-                    blocks.put(f.getKey(), block);
+                    block = new Block(blockId, metadata.getMd5());
+                    blocks.put(blockId, block);
                 } else {
-                    if (!Arrays.equals(block.md5, f.getValue()))
+                    if (!Arrays.equals(block.md5, metadata.getMd5()))
                         errors.add("md5sum mismatch between " + block
-                                + " and " + new Block(f.getKey(), f.getValue())
+                                + " and " + new Block(blockId, metadata.getMd5())
                                 + " on " + e.getKey());
                 }
                 block.sheeps.add(e.getKey());

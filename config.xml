@@ -73,6 +73,12 @@
 
 <!-- Utilities -->
 
+	<test id="printenv" auto="false">
+		<exec hostId="A">
+			/usr/bin/printenv
+		</exec>
+	</test>
+
 	<test id="stat" auto="false" description="Utility: Retrieve status of all sheep.">
 		<sheep-stat />
 	</test>
@@ -168,6 +174,15 @@
 		<!-- XXX sleep, else we get 'no active nodes' -->
 		<sleep msecs="1000" reason="Post-format wait for sync." />
 		<subtest testId="check" />
+	</test>
+
+	<test id="vdi-create" auto="false" description="Utility: Create a VDI.">
+		<sheep-stat status="RUNNING" />
+		<vdi-create name="test-vdi" size="102400" write="true" />
+	</test>
+
+	<test id="backup" auto="false" description="Utility: Recover a cluster.">
+		<cluster-backup directory="/tmp/sheep-recovery" />
 	</test>
 
 	<test id="exercise-crud" auto="false" groups="@fails"

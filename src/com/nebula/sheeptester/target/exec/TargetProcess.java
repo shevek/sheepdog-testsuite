@@ -43,6 +43,7 @@ public class TargetProcess {
     }
     private final TargetContext context;
     private final String[] command;
+    private final Map<String, String> environment = new HashMap<String, String>();
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
     private final ByteArrayOutputStream error = new ByteArrayOutputStream();
     private InputStream inputStream = new ClosedInputStream();
@@ -58,6 +59,11 @@ public class TargetProcess {
     @Nonnull
     public TargetContext getContext() {
         return context;
+    }
+
+    @Nonnull
+    public Map<String, String> getEnvironment() {
+        return environment;
     }
 
     @Nonnull
@@ -110,7 +116,7 @@ public class TargetProcess {
         commandline.setSubstitutionMap(variables);
 
         if (!isSilent())
-            LOG.info(context.getHostId() + ": " + commandline);
+            LOG.info(context.getHostId() + ": " + commandline + "   " + getEnvironment());
 
         DefaultExecutor executor = new DefaultExecutor();
         init(executor);
@@ -119,7 +125,7 @@ public class TargetProcess {
 
     protected int execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
         try {
-            return executor.execute(commandline);
+            return executor.execute(commandline, getEnvironment());
         } catch (ExecuteException e) {
             StringBuilder buf = new StringBuilder();
             buf.append("Execution of ").append(commandline).append(" failed:");

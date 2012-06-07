@@ -65,7 +65,7 @@ public class BackgroundProcess extends TargetProcess {
 
     @Override
     protected int execute(Executor executor, CommandLine commandline) throws TargetException, IOException {
-        executor.execute(commandline, new Handler(commandline));
+        executor.execute(commandline, getEnvironment(), new Handler(commandline));
         return Executor.INVALID_EXITVALUE;
     }
 }

@@ -18,6 +18,10 @@ public class ClusterInfo {
     public ClusterStatus status;
     public final List<ClusterEpoch> epochs = new ArrayList<ClusterEpoch>();
 
+    public ClusterStatus getStatus() {
+        return status;
+    }
+
     @Nonnegative
     public int getEpoch() {
         if (epochs.isEmpty())

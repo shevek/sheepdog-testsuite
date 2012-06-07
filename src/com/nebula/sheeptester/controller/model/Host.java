@@ -32,6 +32,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.CloseShieldOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,6 +46,8 @@ public class Host implements Comparable<Host> {
     private final ControllerContext context;
     private final HostConfiguration config;
     // private final Map<Integer, Sheep> sheep = new HashMap<Integer, Sheep>();
+    @GuardedBy("lock")
+    private Session session;
     @GuardedBy("lock")
     private ChannelExec channel;
     @GuardedBy("lock")
@@ -66,6 +69,10 @@ public class Host implements Comparable<Host> {
     @Nonnull
     public HostConfiguration getConfig() {
         return config;
+    }
+
+    public Session getSession() {
+        return session;
     }
 
     public void connect() throws IOException {
@@ -98,6 +105,8 @@ public class Host implements Comparable<Host> {
 
                     @Override
                     protected void process(String line) {
+                        if (StringUtils.isBlank(line))  // Allow newlines as keepalives.
+                            return;
                         if (context.isVerbose())
                             LOG.info(Host.this + " <<< " + line);
                         Response response = gson.fromJson(line, Response.class);
@@ -120,6 +129,7 @@ public class Host implements Comparable<Host> {
                     }
                 });
 
+                this.session = session;
                 this.channel = exec;
                 this.writer = new PrintWriter(channel.getOutputStream(), true);   // Now this is synchronized and flushing.
 
@@ -132,11 +142,23 @@ public class Host implements Comparable<Host> {
 
     public void disconnect() {
         synchronized (lock) {
-            String text = context.getGson().toJson(new QuitOperator(), Operator.class);
-            writer.println(text);
-            writer.close();
-            channel.disconnect();
-            channel = null;
+            try {
+                if (writer != null) {
+                    String text = context.getGson().toJson(new QuitOperator(), Operator.class);
+                    writer.println(text);
+                    writer.close();
+                    writer = null;
+                }
+                if (channel != null) {
+                    channel.disconnect();
+                    channel = null;
+                }
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                    session = null;
+                }
+            }
         }
     }
 

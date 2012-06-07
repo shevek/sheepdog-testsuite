@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -42,11 +43,11 @@ public class SheepStartOperator extends AbstractProcessOperator {
     public Response run(TargetContext context) throws Exception {
         File dir = new File(directory);
         if (!dir.isDirectory()) {
-            TimedProcess process = new TimedProcess(context, 500, "sudo", "mkdir", "-pm", "755", directory);
+            TimedProcess process = new TimedProcess(context, 500, "sudo", "mkdir", "-pm", "755", directory + "/gcov");
             process.execute();
         }
         if (!dir.isDirectory()) {
-            throw new TargetException("Failed to make directory " + directory);
+            throw new TargetException("Failed to make directory " + dir);
         }
 
         return super.run(context);
@@ -61,7 +62,8 @@ public class SheepStartOperator extends AbstractProcessOperator {
         if (valgrind)
             command.addAll(Arrays.asList("valgrind", "--trace-children=yes", "--leak-check=full", "--log-file=" + directory + "/valgrind.out"));
         // return new TimedProcess(context, 1000, "sudo", context.getSheep(), "-l7", "-d", "-p", String.valueOf(port), directory);
-        command.addAll(Arrays.asList(context.getSheep(), "--disable-cache", "-f", "-l7", "-d", "-p", String.valueOf(port)));
+        String sheep = context.getSheep();
+        command.addAll(Arrays.asList(sheep, "--disable-cache", "-f", "-l7", "-d", "-p", String.valueOf(port)));
         if (cluster != null)
             command.addAll(Arrays.asList("-c", cluster));
         else if (context.getCluster() != null)
@@ -71,7 +73,7 @@ public class SheepStartOperator extends AbstractProcessOperator {
         if (zone >= 0)
             command.addAll(Arrays.asList("-z", String.valueOf(zone)));
         command.add(directory);
-        return new BackgroundProcess(context, command.toArray(ArrayUtils.EMPTY_STRING_ARRAY)) {
+        TargetProcess process = new BackgroundProcess(context, command.toArray(ArrayUtils.EMPTY_STRING_ARRAY)) {
 
             @Override
             protected void init(Executor executor) {
@@ -79,5 +81,15 @@ public class SheepStartOperator extends AbstractProcessOperator {
                 executor.setWorkingDirectory(new File(directory));
             }
         };
+
+        int count = 0;
+        // Start from 1 to skip first '/'
+        for (int i = 1; i < sheep.length(); i++)
+            if (sheep.charAt(i) == '/')
+                count++;
+        process.getEnvironment().put("GCOV_PREFIX_STRIP", String.valueOf(count));
+        process.getEnvironment().put("GCOV_PREFIX", directory + "/gcov");
+
+        return process;
     }
 }

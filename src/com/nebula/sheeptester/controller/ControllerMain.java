@@ -108,9 +108,9 @@ public class ControllerMain {
 
         ControllerContext context = new ControllerContext(configuration, cmdline);
 
-        context.init();
-
         try {
+            context.init(); // Make the finally clean up after a partial init()
+
             for (TestConfiguration test : configuration.getTests())
                 test.check(context);
 

@@ -16,6 +16,7 @@ import com.nebula.sheeptester.target.operator.ExecOperator;
 import com.nebula.sheeptester.target.operator.SheepListOperator;
 import com.nebula.sheeptester.util.CollieParser;
 import com.nebula.sheeptester.controller.model.ClusterInfo;
+import com.nebula.sheeptester.controller.model.ClusterStatus;
 import com.nebula.sheeptester.controller.model.SheepAddress;
 import com.nebula.sheeptester.target.operator.SheepStatOperator;
 import com.nebula.sheeptester.target.operator.SheepStatOperator.StatResponse;
@@ -138,6 +139,32 @@ public class SheepStatCommand extends AbstractCommand {
 
         // LOG.info("Sheep: " + out);
 
+        STATE:
+        {
+            Map<ClusterStatus, List<Sheep>> statuses = new HashMap<ClusterStatus, List<Sheep>>();
+            statuses = LazyMap.decorate(statuses, new ListFactory<Sheep>());
+            for (Map.Entry<Sheep, ClusterInfo> e : out.entrySet()) {
+                statuses.get(e.getValue().getStatus()).add(e.getKey());
+            }
+            switch (statuses.size()) {
+                case 0:
+                    LOG.warn("No sheep have a status.");
+                    break;
+                case 1:
+                    ClusterStatus status = statuses.keySet().iterator().next();
+                    LOG.info("All sheep have status " + status);
+                    if (this.status != null)
+                        if (!this.status.equals(status.name()))
+                            throw new ControllerAssertionException("All sheep had bad status: Expected " + this.status + " but got " + status);
+                    break;
+                default:
+                    for (Map.Entry<ClusterStatus, List<Sheep>> e : statuses.entrySet()) {
+                        LOG.info(e.getKey().name() + ": " + e.getValue());
+                    }
+                    throw new ControllerAssertionException("Status mismatch: " + statuses);
+            }
+        }
+
         EPOCH:
         {
             Map<Integer, List<Sheep>> epochs = new HashMap<Integer, List<Sheep>>();
@@ -154,6 +181,9 @@ public class SheepStatCommand extends AbstractCommand {
                     LOG.info("All sheep have epoch " + epochs.keySet().iterator().next());
                     break;
                 default:
+                    for (Map.Entry<Integer, List<Sheep>> e : epochs.entrySet()) {
+                        LOG.info(e.getKey() + ": " + e.getValue());
+                    }
                     throw new ControllerAssertionException("Epoch mismatch: " + epochs);
             }
         }
@@ -209,11 +239,6 @@ public class SheepStatCommand extends AbstractCommand {
 
             ProcessResponse response = (ProcessResponse) context.execute(host, operator);
             ClusterInfo clusterInfo = CollieParser.parseClusterInfo(response.getOutput());
-            if (status != null) {
-                if (!status.equals(clusterInfo.status.name()))
-                    throw new ControllerAssertionException("Sheep " + sheep + " had bad status: Expected " + status + " but got " + clusterInfo.status);
-            }
-
             return clusterInfo;
         } catch (IOException e) {
             throw new ControllerException(e);
