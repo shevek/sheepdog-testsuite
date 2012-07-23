@@ -78,7 +78,7 @@
             <include name="*-src.jar" />
             <include name="*-javadoc.jar" />
         </delete>
-        <mkdir dir="dist/lib">
+        <mkdir dir="dist/lib" />
         <path id="one-jar-classpath">
             <fileset dir="${basedir}/lib/compile">
                 <include name="one-jar**.jar" />
