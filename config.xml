@@ -2,31 +2,31 @@
 -->
 <configuration>
 
-<!--
-	<host id="A" host="10.144.11.103" user="maestro" password="maestro"
-			sheep="/home/maestro/sheep_source/sheep/sheep"
-			collie="/home/maestro/sheep_source/collie/collie" />
-	<host id="B" host="10.144.11.109" user="maestro" password="maestro"
-			sheep="/home/maestro/sheep_source/sheep/sheep"
-			collie="/home/maestro/sheep_source/collie/collie" />
-	<host id="C" host="10.144.11.116" user="maestro" password="maestro"
-			sheep="/home/maestro/sheep_source/sheep/sheep"
-			collie="/home/maestro/sheep_source/collie/collie" />
--->
+XXX <!--
+XXX	<host id="A" host="10.144.11.103" user="maestro" password="maestro"
+XXX			sheep="/home/maestro/sheep_source/sheep/sheep"
+XXX			collie="/home/maestro/sheep_source/collie/collie" />
+XXX	<host id="B" host="10.144.11.109" user="maestro" password="maestro"
+XXX			sheep="/home/maestro/sheep_source/sheep/sheep"
+XXX			collie="/home/maestro/sheep_source/collie/collie" />
+XXX	<host id="C" host="10.144.11.116" user="maestro" password="maestro"
+XXX			sheep="/home/maestro/sheep_source/sheep/sheep"
+XXX			collie="/home/maestro/sheep_source/collie/collie" />
+XXX-->
 
 <!--
 	<host id="A" host="10.144.11.121" user="ubuntu" password="ubuntu"
 			sheep="/home/ubuntu/sheep_source/sheep/sheep"
 			collie="/home/ubuntu/sheep_source/collie/collie"
-			cluster="zookeeper:localhost:2181" />
+XXX			cluster="zookeeper:localhost:2181" />
 	<host id="B" host="10.144.11.122" user="ubuntu" password="ubuntu"
 			sheep="/home/ubuntu/sheep_source/sheep/sheep"
 			collie="/home/ubuntu/sheep_source/collie/collie"
-			cluster="zookeeper:localhost:2181" />
+XXX			cluster="zookeeper:localhost:2181" />
 	<host id="C" host="10.144.11.123" user="ubuntu" password="ubuntu"
 			sheep="/home/ubuntu/sheep_source/sheep/sheep"
 			collie="/home/ubuntu/sheep_source/collie/collie"
-			cluster="zookeeper:localhost:2181" />
+XXX			cluster="zookeeper:localhost:2181" />
 -->
 
 	<sheep hostId="A" port="7000" directory="/tmp/sheepdog/7000" />
@@ -103,31 +103,31 @@
 
 <!-- Subroutines -->
 
-	<test id="zookeeper_init" auto="false" description="Clean out ZK data.">
-		<exec>
-			sudo service zookeeper stop
-			sudo rm -rf /var/lib/zookeeper/version-2/
-			sudo mkdir -p /var/lib/zookeeper/version-2/
-			sudo chown zookeeper:zookeeper /var/lib/zookeeper/version-2/
-		</exec>
-		<!-- Separating the 'exec's introduces a barrier. -->
-		<exec>
-			sudo service zookeeper start
-		</exec>
-		<sleep msecs="4000" reason="Waiting for ZooKeeper to settle." />
-	</test>
+XXX	<test id="zookeeper_init" auto="false" description="Clean out ZK data.">
+XXX		<exec>
+XXX			sudo service zookeeper stop
+XXX			sudo rm -rf /var/lib/zookeeper/version-2/
+XXX			sudo mkdir -p /var/lib/zookeeper/version-2/
+XXX			sudo chown zookeeper:zookeeper /var/lib/zookeeper/version-2/
+XXX		</exec>
+XXX		<!-- Separating the 'exec's introduces a barrier. -->
+XXX		<exec>
+XXX			sudo service zookeeper start
+XXX		</exec>
+XXX		<sleep msecs="4000" reason="Waiting for ZooKeeper to settle." />
+XXX	</test>
 
-	<test id="zookeeper_settle" auto="false" description="Want after starting ZK sheep.">
-		<sleep msecs="2000" />
-	</test>
+XXX	<test id="zookeeper_settle" auto="false" description="Want after starting ZK sheep.">
+XXX		<sleep msecs="2000" />
+XXX	</test>
 
-	<test id="zookeeper_settle" auto="false" description="Wait after killing ZK sheep.">
-		<sleep msecs="3000" />
-	</test>
+XXX	<test id="zookeeper_settle" auto="false" description="Wait after killing ZK sheep.">
+XXX		<sleep msecs="3000" />
+XXX	</test>
 
 	<test id="init" auto="false" description="Utility: Prepare for a new test suite.">
 		<sheep-wipe />
-		<subtest testId="zookeeper_init" />
+XXX		<subtest testId="zookeeper_init" />
 	</test>
 
 	<test id="check" auto="false" description="Utility: Check status of all sheep.">
@@ -489,11 +489,11 @@
 	<test id="cluster-joinstorm-preformat" groups="@release,@fails">
 		<subtest testId="init" />
 		<sheep-start sheepId="A-7000" />
-		<subtest testId="zookeeper_settle" />
+XXX		<subtest testId="zookeeper_settle" />
 		<sheep-start sheepId="A-7001,A-7002,A-7003" />
 		<sheep-start sheepId="A-7004,A-7005,A-7006" />
 		<sheep-start sheepId="A-7007,A-7008,A-7009" />
-		<subtest testId="zookeeper_settle" />
+XXX		<subtest testId="zookeeper_settle" />
 		<subtest testId="format-1" />
 		<!--
 		<vdi-create sheepId="A-7000" name="test-vdi" write="true" />
@@ -596,7 +596,7 @@
 	</test>
 
 	<test id="restart_assert_common" auto="false">
-		<subtest testId="zookeeper_settle" />
+XXX		<subtest testId="zookeeper_settle" />
 	</test>
 
 	<test id="restart_assert_running_ok" auto="false">
@@ -950,34 +950,34 @@
 		<subtest testId="recover-zone-io" />
 	</test>
 
-	<test id="zookeeper-restart-cluster-idle">
-		<subtest testId="init" />
-		<subtest testId="start-small" />
-		<subtest testId="format-2" />
-		<vdi-create name="test-vdi" size="102400" write="true" />
-		<subtest testId="check" />
-		<exec>
-			sudo service zookeeper restart
-		</exec>
-		<subtest testId="check" />
-		<vdi-create name="test-vdi2" size="102400" write="true" />
-	</test>
+XXX	<test id="zookeeper-restart-cluster-idle">
+XXX		<subtest testId="init" />
+XXX		<subtest testId="start-small" />
+XXX		<subtest testId="format-2" />
+XXX		<vdi-create name="test-vdi" size="102400" write="true" />
+XXX		<subtest testId="check" />
+XXX		<exec>
+XXX			sudo service zookeeper restart
+XXX		</exec>
+XXX		<subtest testId="check" />
+XXX		<vdi-create name="test-vdi2" size="102400" write="true" />
+XXX	</test>
 
-	<test id="zookeeper-restart-cluster-busy">
-		<subtest testId="init" />
-		<subtest testId="start-small" />
-		<subtest testId="format-2" />
-		<vdi-create name="test-vdi" size="102400" write="true" />
-		<subtest testId="check" />
-		<parallel>
-			<exec>
-				sudo service zookeeper restart
-			</exec>
-			<vdi-create name="test-vdi2" size="102400" write="true" />
-		</parallel>
-		<subtest testId="check" />
-		<vdi-create name="test-vdi3" size="102400" write="true" />
-	</test>
+XXX	<test id="zookeeper-restart-cluster-busy">
+XXX		<subtest testId="init" />
+XXX		<subtest testId="start-small" />
+XXX		<subtest testId="format-2" />
+XXX		<vdi-create name="test-vdi" size="102400" write="true" />
+XXX		<subtest testId="check" />
+XXX		<parallel>
+XXX			<exec>
+XXX				sudo service zookeeper restart
+XXX			</exec>
+XXX			<vdi-create name="test-vdi2" size="102400" write="true" />
+XXX		</parallel>
+XXX		<subtest testId="check" />
+XXX		<vdi-create name="test-vdi3" size="102400" write="true" />
+XXX	</test>
 
 	<!-- Kill existing master, bring back up as slave -->
 	<test id="master-becomes-slave" groups="@release">
@@ -1021,16 +1021,16 @@
 		<sheep-start sheepId="A-7000" />
 		<sleep msecs="1000" reason="ensure that A-7000 is master" />
 		<sheep-start hostId="A" />
-		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+XXX		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
 		<subtest testId="format-1" />
 		<subtest testId="check" />
 		<!-- avoid any sorting -->
 		<sheep-kill sheepId="A-7001" />
 		<sheep-kill sheepId="A-7000" />
-		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
+XXX		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
 		<subtest testId="check" />
 		<sheep-start sheepId="A-7001,A-7000" />
-		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+XXX		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
 		<subtest testId="check" />
 	</test>
 
@@ -1040,15 +1040,15 @@
 		<sheep-start sheepId="A-7000" />
 		<sleep msecs="1000" reason="ensure that A-7000 is master" />
 		<sheep-start hostId="A" />
-		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+XXX		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
 		<subtest testId="format-1" />
 		<subtest testId="check" />
 		<sheep-kill hostId="A" />
-		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
+XXX		<sleep msecs="6500" reason="wait for zookeeper session to expire" />
 		<sheep-start sheepId="A-7001" />
 		<sleep msecs="1000" reason="ensure that A-7001 is master" />
 		<sheep-start hostId="A" />
-		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+XXX		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
 		<subtest testId="check" />
 	</test>
 
@@ -1079,7 +1079,7 @@
 		<sheep-start sheepId="A-7000" />
 		<sleep msecs="1000" reason="ensure that A-7000 is master" />
 		<sheep-start hostId="A" />
-		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+XXX		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
 		<subtest testId="format-1" />
 		<subtest testId="check" />
 		<sheep-kill sheepId="A-7000" />
@@ -1087,7 +1087,7 @@
 		<vdi-read name="crud-vdi-0" />
 		<subtest testId="check" />
 		<sheep-start sheepId="A-7000" />
-		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
+XXX		<sleep msecs="500" reason="give zookeeper sheep a little extra time" />
 		<subtest testId="check" />
 	</test>
 

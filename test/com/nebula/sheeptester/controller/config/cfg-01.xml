@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <host id="host-a" host="123.45.6.7" user="maestro" password="maestro"/>
+XXX    <host id="host-a" host="123.45.6.7" user="maestro" password="maestro"/>
 
     <sheep id="sheep-a-sda" hostId="host-a" port="7000" directory="/mnt/sheepdog/sda"/>
 
