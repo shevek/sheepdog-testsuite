@@ -79,22 +79,22 @@ public class SheepStartCommand extends AbstractCommand {
         if (delay > 0)
             return delay;
         if (valgrind)
-            return isZooKeeper(context) ? 10000 : 5000;
-        if (isZooKeeper(context))
+XXX            return isZooKeeper(context) ? 10000 : 5000;
+XXX        if (isZooKeeper(context))
             return 1000;
         return 200;
     }
 
-    public boolean isZooKeeper(ControllerContext context) {
-        if (StringUtils.contains(cluster, "zookeeper"))
-            return true;
-        if (cluster != null)
-            return false;
-        for (HostConfiguration config : context.getConfiguration().getHosts())
-            if (StringUtils.contains(config.getCluster(), "zookeeper"))
-                return true;
-        return false;
-    }
+XXX    public boolean isZooKeeper(ControllerContext context) {
+XXX       if (StringUtils.contains(cluster, "zookeeper"))
+XXX            return true;
+XXX        if (cluster != null)
+XXX            return false;
+XXX        for (HostConfiguration config : context.getConfiguration().getHosts())
+XXX            if (StringUtils.contains(config.getCluster(), "zookeeper"))
+XXX                return true;
+XXX        return false;
+XXX    }
 
     private void sleep(int delay, String reason) throws InterruptedException {
         if (delay > 0) {
