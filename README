@@ -9,7 +9,7 @@ from an XML file to exercise sheepdog in user-specified ways.
 
 2) Run the following:
 	java -jar app/sheeptester-app.jar \
-		--config config.xml \
+		--config config.xml [--config ...] \
 		[--test <your-test>]
 
 CAVEATS:

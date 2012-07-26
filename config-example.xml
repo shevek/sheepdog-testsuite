@@ -1,0 +1,16 @@
+<configuration>
+
+	<host id="A" host="1.2.3.1" user="ubuntu" password="password"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
+	<host id="B" host="1.2.3.2" user="ubuntu" password="password"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
+	<host id="C" host="1.2.3.3" user="ubuntu" password="password"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
+	<host id="D" host="1.2.3.4" user="ubuntu" password="password"
+			sheep="/home/ubuntu/sheep_source/sheep/sheep"
+			collie="/home/ubuntu/sheep_source/collie/collie" />
+
+</configuration>
